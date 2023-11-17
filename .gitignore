@@ -27,15 +27,12 @@ replay_pid*
 .vscode/launch.json
 build/*
 .gradle/*
-!.gradle/build-output-metadata.properties
-.gradle/8.4/gc.properties
-.gradle/8.4/checksums/checksums.lock
-.gradle/8.4/checksums/md5-checksums.bin
-.gradle/8.4/checksums/sha1-checksums.bin
-.gradle/8.4/dependencies-accessors/dependencies-accessors.lock
-.gradle/8.4/dependencies-accessors/gc.properties
-.gradle/8.4/fileChanges/last-build.bin
-.gradle/8.4/fileHashes/fileHashes.lock
-.gradle/buildOutputCleanup/buildOutputCleanup.lock
-.gradle/buildOutputCleanup/cache.properties
-.gradle/vcs-1/gc.properties
+
+# Data from the Kensho Set - Stored locally not needed in git
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/statements.csv
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/property.csv
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/property_aliases.csv
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/link_annotated_text.jsonl
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/page.csv
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/item.csv
+src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/item_aliases.csv
