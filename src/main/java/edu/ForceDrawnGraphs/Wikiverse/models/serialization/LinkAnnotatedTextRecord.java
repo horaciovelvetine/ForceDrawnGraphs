@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.Wikiverse.serial;
+package edu.ForceDrawnGraphs.Wikiverse.models.serialization;
 
 import java.util.List;
 
