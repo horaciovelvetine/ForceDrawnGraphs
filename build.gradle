@@ -23,6 +23,7 @@ dependencies {
 	implementation 'org.springframework.shell:spring-shell-starter'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.5'
+	implementation 'org.apache.commons:commons-dbcp2:2.11.0'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
