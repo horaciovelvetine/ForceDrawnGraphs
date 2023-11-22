@@ -3,9 +3,8 @@ package edu.ForceDrawnGraphs.Wikiverse.db;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.stereotype.Component;
 
-
 @Component
-public class Database {
+public class LocalDatabase {
   // Local data file paths:
   public static final String BASE_PATH = "src/main/java/edu/ForceDrawnGraphs/Wikiverse/data";
   public static final String ITEM_ALIASES_PATH = BASE_PATH + "/item_aliases.csv";
@@ -24,7 +23,7 @@ public class Database {
   // Local PG DATABASE Connection Pool:
   private BasicDataSource connection = new BasicDataSource();
 
-  public Database() {
+  public LocalDatabase() {
     connection.setDriverClassName(DRIVER);
     connection.setUrl(URL);
     connection.setUsername(USER);

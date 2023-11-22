@@ -6,10 +6,9 @@ import org.springframework.shell.standard.ShellMethod;
 
 @Command
 @ShellComponent
-public class DatasetCommands {
-
-  @ShellMethod(key = "hello", value = "Prints hello world")
-  public String hello() {
-    return "Hello world!";
+public class InitWikiset {
+  @ShellMethod(key = "init-wikiset", value = "Initialize the Wikiverse dataset application")
+  public void initWikiset() {
+    throw new UnsupportedOperationException("Not implemented yet.");
   }
 }

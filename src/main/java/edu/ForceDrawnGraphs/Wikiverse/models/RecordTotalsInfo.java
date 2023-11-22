@@ -9,6 +9,16 @@ public class RecordTotalsInfo {
   public final int properties;
   public final int statements;
 
+  public RecordTotalsInfo() {
+    this.itemAliases = 0;
+    this.items = 0;
+    this.linksAndSectionTexts = 0;
+    this.pages = 0;
+    this.propertyAliases = 0;
+    this.properties = 0;
+    this.statements = 0;
+  }
+
   public RecordTotalsInfo(int itemAliases, int items, int linkAnnotatedText, int pages, int propertyAliases,
       int properties, int statements) {
     this.itemAliases = itemAliases;
