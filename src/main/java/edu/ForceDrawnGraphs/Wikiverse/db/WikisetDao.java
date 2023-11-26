@@ -4,7 +4,6 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import edu.ForceDrawnGraphs.Wikiverse.models.RecordTotalsInfo;
 import edu.ForceDrawnGraphs.Wikiverse.models.Wikiset;
 import edu.ForceDrawnGraphs.Wikiverse.utils.Loggable;
 
@@ -50,7 +49,7 @@ public class WikisetDao implements Loggable {
     return null;
   }
 
-  private Wikiset createWikiset() {
+  public Wikiset createWikiset() {
     String sql = "INSERT INTO wikiset (item_aliases, items, link_annotated_text, pages, property_aliases, properties, statements) "
         + "VALUES (?, ?, ?, ?, ?, ?, ?);";
     try {

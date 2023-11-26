@@ -1,9 +1,5 @@
 package edu.ForceDrawnGraphs.Wikiverse.db;
 
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.springframework.stereotype.Component;
-
-@Component
 public class LocalDatabase {
   // Local data file paths:
   public static final String BASE_PATH = "src/main/java/edu/ForceDrawnGraphs/Wikiverse/data";
@@ -21,16 +17,13 @@ public class LocalDatabase {
   private static final String URL = "jdbc:postgresql://localhost:5432/" + DB_NAME;
   private static final String DRIVER = "org.postgresql.Driver";
   // Local PG DATABASE Connection Pool:
-  private BasicDataSource connection = new BasicDataSource();
 
   public LocalDatabase() {
-    connection.setDriverClassName(DRIVER);
-    connection.setUrl(URL);
-    connection.setUsername(USER);
-    connection.setPassword(PASS);
+    // IM AOS DSG"DKPSJ
   }
 
-  public BasicDataSource getConnection() {
-    return connection;
+  @Override
+  public String toString() {
+    return "LocalDatabase: " + DB_NAME;
   }
 }
