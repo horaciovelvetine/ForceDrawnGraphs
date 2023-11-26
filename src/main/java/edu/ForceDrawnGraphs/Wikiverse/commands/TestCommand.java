@@ -6,7 +6,7 @@ import org.springframework.shell.standard.ShellMethod;
 
 @Command
 @ShellComponent
-public class DatasetCommands {
+public class TestCommand {
 
   @ShellMethod(key = "hello", value = "Prints hello world")
   public String hello() {
