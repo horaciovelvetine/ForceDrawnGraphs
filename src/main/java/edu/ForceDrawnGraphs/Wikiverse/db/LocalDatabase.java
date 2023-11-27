@@ -17,6 +17,10 @@ public class LocalDatabase {
   private static final String URL = "jdbc:postgresql://localhost:5432/" + DB_NAME;
   private static final String DRIVER = "org.postgresql.Driver";
 
+  public LocalDatabase() {
+    System.out.println(this.toString());
+  }
+
   @Override
   public String toString() {
     return "LocalDatabase [BASE_PATH=" + BASE_PATH + ", ITEM_ALIASES_PATH=" + ITEM_ALIASES_PATH
