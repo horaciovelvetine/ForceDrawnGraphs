@@ -1,15 +1,9 @@
--- BEGIN: Drop tables if exist
-DROP TABLE IF EXISTS wikiset;
--- END: Drop tables if exist
-
--- BEGIN: Create wikiset table
-CREATE TABLE wikiset (
+DROP TABLE IF EXISTS valid_connection;
+CREATE TABLE valid_connection (
   id INT,
-  notes VARCHAR(255)
+  is_present BOOLEAN,
+  valid_message VARCHAR(255)
 );
--- END: Create wikiset table
+INSERT INTO valid_connection (id, is_present, valid_message)
+VALUES (1, true, 'Connection to the local DB is present and valid.');
 
--- BEGIN: Insert data into wikiset table
-INSERT INTO wikiset (id, notes)
-VALUES (1, 'LocalConnectionPresent');
--- END: Insert data into wikiset table
