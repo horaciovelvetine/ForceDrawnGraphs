@@ -5,5 +5,5 @@ CREATE TABLE valid_connection (
   valid_message VARCHAR(255)
 );
 INSERT INTO valid_connection (id, is_present, valid_message)
-VALUES (1, true, 'Connection to the local DB is present and valid.');
+VALUES (1, true, 'Valid connection to the DB found.');
 
