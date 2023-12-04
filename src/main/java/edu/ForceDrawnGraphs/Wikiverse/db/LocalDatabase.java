@@ -11,6 +11,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.ForceDrawnGraphs.Wikiverse.exceptions.LocalDatabaseConnectionException;
 
 @Component
 public class LocalDatabase {
@@ -37,24 +40,19 @@ public class LocalDatabase {
     }
   };
   private final JdbcTemplate dbConnection = new JdbcTemplate(dataSource);
-
-  /**
-   * Provides a connection to the local PG database instance.
-   */
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   public LocalDatabase() {
-    checkConnection();
+    checkConnectionIsValid();
   }
 
-  public void checkConnection() {
+  public void checkConnectionIsValid() throws LocalDatabaseConnectionException {
     String sql = "SELECT * FROM valid_connection";
-    try {
-      SqlRowSet results = dbConnection.queryForRowSet(sql);
-      while (results.next()) {
-        System.out.println(results.getString("valid_message"));
-      }
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+    SqlRowSet results = dbConnection.queryForRowSet(sql);
+    if (results.next()) {
+      System.out.println(results.getString("valid_message"));
+    } else {
+      throw new LocalDatabaseConnectionException("Local DB Connection Failed!");
     }
   }
 
@@ -70,14 +68,6 @@ public class LocalDatabase {
         dbConnection.execute(sqlStatement);
       }
     }
-  }
-
-  public JdbcTemplate getDbConnection() {
-    return dbConnection;
-  }
-
-  public BasicDataSource getDataSource() {
-    return dataSource;
   }
 
   @Override

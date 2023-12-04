@@ -9,12 +9,13 @@ import edu.ForceDrawnGraphs.Wikiverse.db.LocalDatabase;
 
 @Command
 @ShellComponent
-public class TestCommand {
+public class LocalDBCommands {
   @Autowired
   private LocalDatabase db;
 
-  @ShellMethod(key = "hello", value = "Prints hello world")
-  public void hello() {
-    db.checkConnection();
+  @ShellMethod(key = "db-status", value = "Summary of the currrent status of the connection to the local database")
+  public void dbStatus() {
+    db.checkConnectionIsValid();
   }
+
 }
