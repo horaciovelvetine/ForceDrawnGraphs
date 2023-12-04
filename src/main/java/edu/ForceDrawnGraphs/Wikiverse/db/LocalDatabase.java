@@ -1,9 +1,18 @@
 package edu.ForceDrawnGraphs.Wikiverse.db;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
+
+@Component
 public class LocalDatabase {
   // Local data files...
   public static final String BASE_PATH = "src/main/resources/data";
@@ -19,7 +28,7 @@ public class LocalDatabase {
   private static final String USER = "postgres";
   private static final String PASS = "";
   private static final String URL = "jdbc:postgresql://localhost:5432/" + DB_NAME;
-  // STOP
+  // Connection Objects & Utils...
   private final BasicDataSource dataSource = new BasicDataSource() {
     {
       setUsername(USER);
@@ -29,16 +38,46 @@ public class LocalDatabase {
   };
   private final JdbcTemplate dbConnection = new JdbcTemplate(dataSource);
 
+  /**
+   * Provides a connection to the local PG database instance.
+   */
+
   public LocalDatabase() {
-    String sql = "SELECT * FROM wikiset";
+    checkConnection();
+  }
+
+  public void checkConnection() {
+    String sql = "SELECT * FROM valid_connection";
     try {
       SqlRowSet results = dbConnection.queryForRowSet(sql);
       while (results.next()) {
-        System.out.println(results.getString("notes"));
+        System.out.println(results.getString("valid_message"));
       }
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }
+  }
+
+  public void executeSqlScript(String sqlFilePath) throws IOException {
+    Resource resource = new ClassPathResource(sqlFilePath);
+    byte[] data = FileCopyUtils.copyToByteArray(resource.getInputStream());
+    String sqlScript = new String(data, StandardCharsets.UTF_8);
+
+    // Split by semicolon and remove empty lines
+    String[] sqlStatements = sqlScript.split(";\\s*\\r?\\n");
+    for (String sqlStatement : sqlStatements) {
+      if (sqlStatement.trim().length() > 0) {
+        dbConnection.execute(sqlStatement);
+      }
+    }
+  }
+
+  public JdbcTemplate getDbConnection() {
+    return dbConnection;
+  }
+
+  public BasicDataSource getDataSource() {
+    return dataSource;
   }
 
   @Override
