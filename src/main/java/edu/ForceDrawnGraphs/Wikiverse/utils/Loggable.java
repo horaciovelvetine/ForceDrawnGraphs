@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public interface Loggable {
-  public static final String LOG_FILE_PATH = "src/main/resources/logs";
+  public static final String LOG_FILE_PATH = "src/main/resources/logs/";
 
   public default void log(Exception e) {
     log(e.getMessage());
   }
 
   public default void log(String message) {
-    log(message, "debug_log.log");
+    log(message, "debug.log");
   }
 
   public default void log(String message, String logFileName) {

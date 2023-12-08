@@ -13,9 +13,10 @@ public class LocalDBCommands {
   @Autowired
   private LocalDatabase db;
 
-  @ShellMethod(key = "db-status", value = "Summary of the currrent status of the connection to the local database")
+  @ShellMethod(key = "db-status", value = "Summary of the status of the connection to the local database")
   public void dbStatus() {
     db.checkConnectionIsValid();
+    db.findOrCreateWikiset();
   }
 
 }
