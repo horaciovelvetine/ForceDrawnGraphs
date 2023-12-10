@@ -18,10 +18,11 @@ public interface Loggable {
   }
 
   public default void log(String message, String logFileName) {
+    print("Error logged to: " + LOG_FILE_PATH + logFileName);
     try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE_PATH + logFileName, true))) {
       writer.println(getTimeStamp() + "\n" + message);
     } catch (IOException e) {
-      e.printStackTrace();
+      print("\n" + e.getMessage() + "\n" + "Error in logging process: " + "\n" + message);
     }
   }
 
