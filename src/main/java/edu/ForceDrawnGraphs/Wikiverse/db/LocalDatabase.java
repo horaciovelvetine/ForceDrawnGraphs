@@ -14,6 +14,7 @@ import org.springframework.util.FileCopyUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.ForceDrawnGraphs.Wikiverse.exceptions.LocalDatabaseConnectionException;
+import edu.ForceDrawnGraphs.Wikiverse.models.Wikiset;
 import edu.ForceDrawnGraphs.Wikiverse.utils.Loggable;
 
 @Component
@@ -63,12 +64,13 @@ public class LocalDatabase implements Loggable {
     }
   }
 
-  public void findOrCreateWikiset() {
+  public Wikiset findOrCreateWikiset() {
     try {
       executeSqlScript("sql/CreateWikisetTable.sql");
-      wikisetDao.findOrCreateWikiset();
+      return wikisetDao.findOrCreateWikiset();
     } catch (IOException e) {
       log(e);
+      return null;
     }
   }
 }

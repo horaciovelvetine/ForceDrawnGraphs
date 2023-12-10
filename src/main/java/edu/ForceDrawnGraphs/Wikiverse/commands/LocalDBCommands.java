@@ -6,6 +6,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.Wikiverse.db.LocalDatabase;
+import edu.ForceDrawnGraphs.Wikiverse.models.Wikiset;
 
 @Command
 @ShellComponent
@@ -16,7 +17,8 @@ public class LocalDBCommands {
   @ShellMethod(key = "db-status", value = "Summary of the status of the connection to the local database")
   public void dbStatus() {
     db.checkConnectionIsValid();
-    db.findOrCreateWikiset();
+    Wikiset ws = db.findOrCreateWikiset();
+    System.out.println(ws.toString());
   }
 
 }

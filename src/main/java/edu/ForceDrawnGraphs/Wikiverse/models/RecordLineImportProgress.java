@@ -1,5 +1,7 @@
 package edu.ForceDrawnGraphs.Wikiverse.models;
 
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+
 public class RecordLineImportProgress {
   private int itemAliases;
   private int items;
@@ -85,5 +87,17 @@ public class RecordLineImportProgress {
 
   public void setStatements(int statements) {
     this.statements = statements;
+  }
+
+  public static RecordLineImportProgress mapRowSetToRecordLineImportProgress(SqlRowSet row) {
+    RecordLineImportProgress recordLineImportProgress = new RecordLineImportProgress();
+    recordLineImportProgress.setItemAliases(row.getInt("total_item_alias_records"));
+    recordLineImportProgress.setItems(row.getInt("total_item_records"));
+    recordLineImportProgress.setLinkAnnotatedText(row.getInt("total_link_annotated_text_records"));
+    recordLineImportProgress.setPages(row.getInt("total_page_records"));
+    recordLineImportProgress.setPropertyAliases(row.getInt("total_property_alias_records"));
+    recordLineImportProgress.setProperties(row.getInt("total_property_records"));
+    recordLineImportProgress.setStatements(row.getInt("total_statement_records"));
+    return recordLineImportProgress;
   }
 }
