@@ -6,11 +6,13 @@ public class Wikiset {
   private Date createdOn;
   private Date updatedOn;
   private RecordTotals recordTotals;
+  private RecordLineImportProgress recordLineImportProgress;
 
   public Wikiset() {
     this.createdOn = new Date();
     this.updatedOn = new Date();
     this.recordTotals = new RecordTotals();
+    this.recordLineImportProgress = new RecordLineImportProgress();
   }
 
   public Date getCreatedOn() {
@@ -35,5 +37,13 @@ public class Wikiset {
 
   public void setRecordTotals(RecordTotals recordTotals) {
     this.recordTotals = recordTotals;
+  }
+
+  public RecordLineImportProgress getRecordLineImportProgress() {
+    return recordLineImportProgress;
+  }
+
+  public void setRecordLineImportProgress(RecordLineImportProgress recordLineImportProgress) {
+    this.recordLineImportProgress = recordLineImportProgress;
   }
 }
