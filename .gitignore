@@ -31,3 +31,10 @@ build/*
 
 # Data from the Kensho Set - Stored locally not needed in git
 src/main/resources/data
+data/item_aliases.csv
+data/item.csv
+data/link_annotated_text.jsonl
+data/page.csv
+data/property_aliases.csv
+data/property.csv
+data/statements.csv
