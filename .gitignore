@@ -28,6 +28,7 @@ replay_pid*
 build/*
 .gradle/*
 .keep
+.DS_Store
 
 # Data from the Kensho Set - Stored locally not needed in git
 src/main/resources/data
