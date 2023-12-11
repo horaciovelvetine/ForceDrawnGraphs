@@ -100,4 +100,11 @@ public class RecordLineImportProgress {
     recordLineImportProgress.setStatements(row.getInt("total_statement_records"));
     return recordLineImportProgress;
   }
+
+  @Override
+  public String toString() {
+    return "RecordLineImportProgress [itemAliases=" + itemAliases + ", items=" + items
+        + ", linkAnnotatedText=" + linkAnnotatedText + ", pages=" + pages + ", propertyAliases="
+        + propertyAliases + ", properties=" + properties + ", statements=" + statements + "]";
+  }
 }

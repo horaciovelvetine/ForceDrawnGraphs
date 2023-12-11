@@ -42,10 +42,15 @@ tasks.named('bootBuildImage') {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-sourceSets {
-	main {
-		resources {
-			exclude '**/data/**'
-		}
-	}
-}
+// sourceSets {
+// 	main {
+// 		resources {
+// 			exclude '**/data/**'
+// 		}
+// 	}
+// }
+
+// processResources {
+//     destinationDir = file("$buildDir/resources")
+// }
+

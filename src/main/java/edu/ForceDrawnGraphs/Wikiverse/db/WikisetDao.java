@@ -27,8 +27,8 @@ public class WikisetDao implements Loggable {
       } else {
         print("No wikiset found, creating one...");
         Wikiset ws = createWikiset();
-        print("Wikiset created!" + ws.toString()); // ==> Currently needs implements all the way down to
-                                                   // RecordLineImportProgress
+        print("Wikiset created!");
+        print(ws.toString());
         return ws;
       }
     } catch (Exception e) {
@@ -45,6 +45,18 @@ public class WikisetDao implements Loggable {
     } catch (Exception e) {
       log(new LocalDatabaseConnectionException(e.getMessage()));
       return null;
+    }
+  }
+
+  public void updateWikiset(Wikiset wikiset) {
+    String sql = "UPDATE wikiset SET updated_on = CURRENT_TIMESTAMP, total_item_alias_records = ?, total_item_records = ?, total_link_annotated_text_records = ?, total_page_records = ?, total_property_alias_records = ?, total_property_records = ?, total_statement_records = ? WHERE id = 1";
+    try {
+      dbConnection.update(sql, wikiset.getRecordTotals().getItemAliases(),
+          wikiset.getRecordTotals().getItems(), wikiset.getRecordTotals().getLinkAnnotatedTexts(),
+          wikiset.getRecordTotals().getPages(), wikiset.getRecordTotals().getPropertyAliases(),
+          wikiset.getRecordTotals().getProperties(), wikiset.getRecordTotals().getStatements());
+    } catch (Exception e) {
+      log(new LocalDatabaseConnectionException(e.getMessage()));
     }
   }
 

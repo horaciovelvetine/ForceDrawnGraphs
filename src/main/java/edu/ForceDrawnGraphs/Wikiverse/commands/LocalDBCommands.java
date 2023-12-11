@@ -18,7 +18,7 @@ public class LocalDBCommands {
   public void dbStatus() {
     db.checkConnectionIsValid();
     Wikiset ws = db.findOrCreateWikiset();
-    System.out.println(ws.toString());
+    ws.countRecordTotals();
   }
 
 }

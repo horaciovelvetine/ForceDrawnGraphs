@@ -50,7 +50,7 @@ public class LocalDatabase implements Loggable {
     }
   }
 
-  public void executeSqlScript(String sqlFilePath) throws IOException {
+  private void executeSqlScript(String sqlFilePath) throws IOException {
     Resource resource = new ClassPathResource(sqlFilePath);
     byte[] data = FileCopyUtils.copyToByteArray(resource.getInputStream());
     String sqlScript = new String(data, StandardCharsets.UTF_8);
@@ -73,4 +73,5 @@ public class LocalDatabase implements Loggable {
       return null;
     }
   }
+
 }
