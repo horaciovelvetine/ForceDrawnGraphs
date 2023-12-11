@@ -20,6 +20,14 @@ public class Wikiset implements Loggable {
     this.recordLineImportProgress = new RecordLineImportProgress();
   }
 
+  public Wikiset(Date createdOn, Date updatedOn, RecordTotals recordTotals,
+      RecordLineImportProgress recordLineImportProgress) {
+    this.createdOn = createdOn;
+    this.updatedOn = updatedOn;
+    this.recordTotals = recordTotals;
+    this.recordLineImportProgress = recordLineImportProgress;
+  }
+
   public Date getCreatedOn() {
     return createdOn;
   }
@@ -51,6 +59,8 @@ public class Wikiset implements Loggable {
   public void setRecordLineImportProgress(RecordLineImportProgress recordLineImportProgress) {
     this.recordLineImportProgress = recordLineImportProgress;
   }
+
+  // ! ENDS GETTERS & SETTERS
 
   @Override
   public String toString() {

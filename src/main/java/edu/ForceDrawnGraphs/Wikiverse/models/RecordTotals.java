@@ -25,15 +25,14 @@ public class RecordTotals implements Loggable, Countable {
     this.statements = 0;
   }
 
-  public RecordTotals(int itemAliases, int items, int linkAnnotatedText, int pages, int propertyAliases, int properties,
-      int statements) {
-    this.itemAliases = itemAliases;
-    this.items = items;
-    this.linkAnnotatedTexts = linkAnnotatedText;
-    this.pages = pages;
-    this.propertyAliases = propertyAliases;
-    this.properties = properties;
-    this.statements = statements;
+  public RecordTotals(SqlRowSet rowSet) {
+    this.itemAliases = rowSet.getInt("total_item_alias_records");
+    this.items = rowSet.getInt("total_item_records");
+    this.linkAnnotatedTexts = rowSet.getInt("total_link_annotated_text_records");
+    this.pages = rowSet.getInt("total_page_records");
+    this.propertyAliases = rowSet.getInt("total_property_alias_records");
+    this.properties = rowSet.getInt("total_property_records");
+    this.statements = rowSet.getInt("total_statement_records");
   }
 
   public int getItemAliases() {
@@ -129,18 +128,6 @@ public class RecordTotals implements Loggable, Countable {
       default:
         break;
     }
-  }
-
-  public static RecordTotals mapRowSetToRecordTotals(SqlRowSet rowSet) {
-    RecordTotals recordTotals = new RecordTotals();
-    recordTotals.setItemAliases(rowSet.getInt("total_item_alias_records"));
-    recordTotals.setItems(rowSet.getInt("total_item_records"));
-    recordTotals.setLinkAnnotatedText(rowSet.getInt("total_link_annotated_text_records"));
-    recordTotals.setPages(rowSet.getInt("total_page_records"));
-    recordTotals.setPropertyAliases(rowSet.getInt("total_property_alias_records"));
-    recordTotals.setProperties(rowSet.getInt("total_property_records"));
-    recordTotals.setStatements(rowSet.getInt("total_statement_records"));
-    return recordTotals;
   }
 
   @Override

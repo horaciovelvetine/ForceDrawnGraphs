@@ -11,8 +11,6 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import edu.ForceDrawnGraphs.Wikiverse.exceptions.LocalDatabaseConnectionException;
 import edu.ForceDrawnGraphs.Wikiverse.models.Wikiset;
 import edu.ForceDrawnGraphs.Wikiverse.utils.Loggable;
@@ -33,7 +31,6 @@ public class LocalDatabase implements Loggable {
     }
   };
   private final JdbcTemplate dbConnection = new JdbcTemplate(dataSource);
-  private final ObjectMapper objectMapper = new ObjectMapper();
   private final WikisetDao wikisetDao = new WikisetDao(dbConnection);
 
   public LocalDatabase() {
@@ -70,6 +67,17 @@ public class LocalDatabase implements Loggable {
       wikisetDao.createWikiset();
     } catch (IOException e) {
       log(e);
+    }
+  }
+
+  public void digestWikiset() {
+    Wikiset wikiset = wikisetDao.getWikiset();
+    if (wikiset == null) {
+      print("Wikiset not found! Please create a Wikiset first.");
+    } else {
+      print("Wikiset found!");
+      print(wikiset.toString());
+      print("Digest beginning/resuming...");
     }
   }
 

@@ -1,11 +1,16 @@
 package edu.ForceDrawnGraphs.Wikiverse.db;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import edu.ForceDrawnGraphs.Wikiverse.exceptions.LocalDatabaseConnectionException;
 import edu.ForceDrawnGraphs.Wikiverse.exceptions.WikisetCreationException;
+import edu.ForceDrawnGraphs.Wikiverse.models.RecordLineImportProgress;
+import edu.ForceDrawnGraphs.Wikiverse.models.RecordTotals;
 import edu.ForceDrawnGraphs.Wikiverse.models.Wikiset;
 import edu.ForceDrawnGraphs.Wikiverse.utils.Loggable;
+
+import java.util.Date;
 
 public class WikisetDao implements Loggable {
   private final JdbcTemplate dbConnection;
@@ -40,4 +45,24 @@ public class WikisetDao implements Loggable {
     }
   }
 
+  public Wikiset getWikiset() {
+    String sql = "SELECT * FROM wikiset WHERE id = 1";
+    try {
+      SqlRowSet results = dbConnection.queryForRowSet(sql);
+      if (results.next()) {
+        return mapSqlRowSetToWikiset(results);
+      }
+    } catch (Exception e) {
+      log(new LocalDatabaseConnectionException(e.getMessage()));
+    }
+    return null;
+  }
+
+  public Wikiset mapSqlRowSetToWikiset(SqlRowSet results) {
+    Date createdOn = results.getDate("created_on");
+    Date updatedOn = results.getDate("updated_on");
+    RecordTotals recordsTotals = new RecordTotals(results);
+    RecordLineImportProgress recordLineImportProgress = new RecordLineImportProgress(results);
+    return new Wikiset(createdOn, updatedOn, recordsTotals, recordLineImportProgress);
+  }
 }

@@ -21,16 +21,14 @@ public class RecordLineImportProgress {
     this.statements = 0;
   }
 
-  public RecordLineImportProgress(int itemAliases, int items, int linkAnnotatedText, int pages,
-      int propertyAliases, int properties,
-      int statements) {
-    this.itemAliases = itemAliases;
-    this.items = items;
-    this.linkAnnotatedText = linkAnnotatedText;
-    this.pages = pages;
-    this.propertyAliases = propertyAliases;
-    this.properties = properties;
-    this.statements = statements;
+  public RecordLineImportProgress(SqlRowSet rowSet) {
+    this.itemAliases = rowSet.getInt("total_item_alias_records");
+    this.items = rowSet.getInt("total_item_records");
+    this.linkAnnotatedText = rowSet.getInt("total_link_annotated_text_records");
+    this.pages = rowSet.getInt("total_page_records");
+    this.propertyAliases = rowSet.getInt("total_property_alias_records");
+    this.properties = rowSet.getInt("total_property_records");
+    this.statements = rowSet.getInt("total_statement_records");
   }
 
   public int getItemAliases() {

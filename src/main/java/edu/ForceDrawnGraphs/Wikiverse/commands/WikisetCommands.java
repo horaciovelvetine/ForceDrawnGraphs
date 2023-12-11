@@ -18,4 +18,8 @@ public class WikisetCommands {
     db.createWikiset();
   }
 
+  @ShellMethod(key = "ws-digest", value = "Begin or resume ingesting the Wikiset into the PG database")
+  public void wsDigest() {
+    db.digestWikiset();
+  }
 }
