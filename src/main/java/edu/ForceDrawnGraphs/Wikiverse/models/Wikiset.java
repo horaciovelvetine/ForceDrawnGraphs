@@ -16,7 +16,7 @@ public class Wikiset implements Loggable {
   public Wikiset() {
     this.createdOn = new Date();
     this.updatedOn = new Date();
-    this.recordTotals = new RecordTotals();
+    this.recordTotals = countRecordTotals();
     this.recordLineImportProgress = new RecordLineImportProgress();
   }
 
@@ -54,15 +54,18 @@ public class Wikiset implements Loggable {
 
   @Override
   public String toString() {
-    return "Wikiset [createdOn=" + createdOn + ", updatedOn=" + updatedOn + "\n" + recordLineImportProgress.toString()
+    return "WIKISET:" + "[createdOn=" + createdOn + ", updatedOn=" + updatedOn + "\n"
+        + recordLineImportProgress.toString()
         + "\n" + recordTotals.toString() + "]";
   }
 
-  public void countRecordTotals() {
-    this.recordTotals = new RecordTotals();
+  public RecordTotals countRecordTotals() {
+    RecordTotals totals = new RecordTotals();
     for (String recordFile : RECORD_FILES) {
-      this.recordTotals.countRecords(recordFile);
+      totals.countRecords(recordFile);
     }
-
+    print("Record totals updated:" + "\n" + totals.toString());
+    this.setUpdatedOn(new Date());
+    return totals;
   }
 }

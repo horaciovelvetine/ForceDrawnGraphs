@@ -64,13 +64,12 @@ public class LocalDatabase implements Loggable {
     }
   }
 
-  public Wikiset findOrCreateWikiset() {
+  public void createWikiset() {
     try {
       executeSqlScript("sql/CreateWikisetTable.sql");
-      return wikisetDao.findOrCreateWikiset();
+      wikisetDao.createWikiset();
     } catch (IOException e) {
       log(e);
-      return null;
     }
   }
 

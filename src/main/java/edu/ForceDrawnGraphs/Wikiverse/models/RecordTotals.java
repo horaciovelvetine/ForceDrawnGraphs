@@ -1,7 +1,5 @@
 package edu.ForceDrawnGraphs.Wikiverse.models;
 
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import edu.ForceDrawnGraphs.Wikiverse.exceptions.UnableToGetRecordCountException;
@@ -110,19 +108,19 @@ public class RecordTotals implements Loggable, Countable {
       case "item_aliases.csv":
         this.itemAliases = total;
         break;
-      case "items.csv":
+      case "item.csv":
         this.items = total;
         break;
       case "link_annotated_text.jsonl":
         this.linkAnnotatedTexts = total;
         break;
-      case "pages.csv":
+      case "page.csv":
         this.pages = total;
         break;
       case "property_aliases.csv":
         this.propertyAliases = total;
         break;
-      case "properties.csv":
+      case "property.csv":
         this.properties = total;
         break;
       case "statements.csv":
