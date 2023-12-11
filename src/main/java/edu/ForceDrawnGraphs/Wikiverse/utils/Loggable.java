@@ -32,7 +32,7 @@ public interface Loggable {
   }
 
   public default void print(String msg) {
-    System.out.println(msg);
+    System.out.println(msg + "\n");
   }
 
   public default void print(Exception e) {
