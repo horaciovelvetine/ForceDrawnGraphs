@@ -70,15 +70,27 @@ public class LocalDatabase implements Loggable {
     }
   }
 
-  public void digestWikiset() {
+  public Wikiset findOrCreateWikiset() {
     Wikiset wikiset = wikisetDao.getWikiset();
     if (wikiset == null) {
-      print("Wikiset not found! Please create a Wikiset first.");
-    } else {
-      print("Wikiset found!");
-      print(wikiset.toString());
-      print("Digest beginning/resuming...");
+      print("Wikiset not found! Creating a wikiset...");
+      createWikiset();
+      wikiset = wikisetDao.getWikiset();
     }
+    return wikiset;
+  }
+
+  public void digestWikiset() {
+    Wikiset wikiset = findOrCreateWikiset();
+    // - get the current importProgress() possibly by checking for the last edge or
+    // node imported with the maximum value for the srcRecordLine, srcRecordFile
+    // duo()
+    // - this should at the very least be item.csv() line 1
+    // essentially the item.csv is the entry point for one prong of the import
+    // process
+    // - the concurrent process could be unpacking the incredible amount of
+    // statements.csv() lines into links - the problem here being that potentially
+    // if this process happening concurrently
   }
 
 }
