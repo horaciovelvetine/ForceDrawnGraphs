@@ -14,6 +14,7 @@ public class ProcessTimer implements Loggable {
   public ProcessTimer(String name) {
     this.startTime = System.currentTimeMillis();
     this.processName = name;
+    print("Starting: [" + processName + "]...");
   }
 
   public void end() {
