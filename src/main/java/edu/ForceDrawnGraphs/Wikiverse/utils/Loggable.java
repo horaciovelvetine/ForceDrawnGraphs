@@ -7,21 +7,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public interface Loggable {
-  public static final String LOG_FILE_PATH = "src/main/resources/logs";
+  public static final String LOG_FILE_PATH = "src/main/resources/logs/";
 
   public default void log(Exception e) {
     log(e.getMessage());
   }
 
   public default void log(String message) {
-    log(message, "debug_log.log");
+    log(message, "debug.log");
   }
 
   public default void log(String message, String logFileName) {
+    print("Error logged to: " + LOG_FILE_PATH + logFileName);
     try (PrintWriter writer = new PrintWriter(new FileWriter(LOG_FILE_PATH + logFileName, true))) {
       writer.println(getTimeStamp() + "\n" + message);
     } catch (IOException e) {
-      e.printStackTrace();
+      print("\n" + e.getMessage() + "\n" + "Error in logging process: " + "\n" + message);
     }
   }
 
@@ -31,7 +32,21 @@ public interface Loggable {
   }
 
   public default void print(String msg) {
-    System.out.println(msg);
+    System.out.println(msg + "\n");
+  }
+
+  public default void print(Exception e) {
+    print(e.getMessage());
+  }
+
+  public default void clearConsole() {
+    System.out.print("\033[H\033[2J");
+    System.out.flush();
+  }
+
+  public default void clear() {
+    System.out.print("\033[H\033[2J");
+    System.out.flush();
   }
 
 }

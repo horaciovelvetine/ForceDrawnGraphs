@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class WikiverseApplication {
 
 	public static void main(String[] args) {
+		// put something here to config run-time environment
 		SpringApplication.run(WikiverseApplication.class, args);
 	}
-
 }

@@ -28,12 +28,14 @@ replay_pid*
 build/*
 .gradle/*
 .keep
+.DS_Store
 
 # Data from the Kensho Set - Stored locally not needed in git
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/statements.csv
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/property.csv
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/property_aliases.csv
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/link_annotated_text.jsonl
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/page.csv
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/item.csv
-src/main/java/edu/ForceDrawnGraphs/Wikiverse/data/item_aliases.csv
+src/main/resources/data
+data/item_aliases.csv
+data/item.csv
+data/link_annotated_text.jsonl
+data/page.csv
+data/property_aliases.csv
+data/property.csv
+data/statements.csv
