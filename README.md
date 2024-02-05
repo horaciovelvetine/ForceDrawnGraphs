@@ -17,3 +17,7 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 - Spring-Shell: [site](https://docs.spring.io/spring-shell/docs/current/reference/htmlsingle/)
 - Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
 - JUNG: Java Universal Network/Graph Framework  [site](https://jung.sourceforge.net/)
+
+### Dataset Overview
+
+![Wikiset Breakdown Diagram](/docs/Wikiset%20Breakdown%20Diagram%20v0.1.svg)
