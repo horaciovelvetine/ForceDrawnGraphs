@@ -18,6 +18,12 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 - Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
 - JUNG: Java Universal Network/Graph Framework  [site](https://jung.sourceforge.net/)
 
-### Dataset Overview
+### Module 1 - Importing the Data
 
-![Wikiset Breakdown Diagram](/docs/Wikiset%20Breakdown%20Diagram%20v0.1.svg)
+First step is to import the variety of files the dataset provides, including mostly .csv and a .jsonl file. Each file gets a corresponding table. For now aliases will be excluded. 
+
+![Wikiset Breakdown Diagram](/docs/Wikiset%20Breakdown%20Diagram%20v0.2.svg)
+
+- [ ] items table
+- [ ] pages tables
+- 
