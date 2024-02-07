@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs;
+package edu.ForceDrawnGraphs.commands;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;

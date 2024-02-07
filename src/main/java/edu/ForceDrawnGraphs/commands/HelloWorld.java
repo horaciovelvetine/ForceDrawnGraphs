@@ -1,14 +1,13 @@
-package edu.ForceDrawnGraphs;
+package edu.ForceDrawnGraphs.commands;
 
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 @ShellComponent
+public class HelloWorld {
 
-public class TestCommand {
-
-  @ShellMethod("Test command")
+  @ShellMethod("test")
   public String test() {
-    return "Test command";
+    return "Hello World.";
   }
 }
