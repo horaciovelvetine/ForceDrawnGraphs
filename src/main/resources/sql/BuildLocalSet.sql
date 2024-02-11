@@ -44,3 +44,47 @@ CREATE TABLE statements (
     line_ref INT
 );
 
+-- Migration for creating 'local_set_progress_trackers' table
+-- For tracking the progress of building the local PG set
+CREATE TABLE local_set_info (
+    id INT PRIMARY KEY,
+    items_imported INT,
+    total_items INT,
+    pages_imported INT,
+    total_pages INT,
+    hyperlinks_imported INT,
+    total_hyperlinks INT,
+    properties_imported INT,
+    total_properties INT,
+    statements_imported INT,
+    total_statements INT
+);
+
+
+-- Inserts a default row into the 'local_set_progress_trackers' table
+-- This row will be used to track the progress of building the local PG set
+INSERT INTO local_set_info (
+    id,
+    items_imported,
+    total_items,
+    pages_imported,
+    total_pages,
+    hyperlinks_imported,
+    total_hyperlinks,
+    properties_imported,
+    total_properties,
+    statements_imported,
+    total_statements
+) VALUES (
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+);
