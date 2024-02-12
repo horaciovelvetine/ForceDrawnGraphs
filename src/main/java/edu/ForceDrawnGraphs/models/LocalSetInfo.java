@@ -2,7 +2,9 @@ package edu.ForceDrawnGraphs.models;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-public class LocalSetInfo {
+import edu.ForceDrawnGraphs.util.FindTotalRecordsInFile;
+
+public class LocalSetInfo implements FindTotalRecordsInFile {
   private int itemsImported;
   private int totalItems;
   private int pagesImported;
@@ -17,15 +19,15 @@ public class LocalSetInfo {
   public LocalSetInfo() {
     // default constructor
     this.itemsImported = 0;
-    this.totalItems = 0;
+    this.totalItems = findTotalRecordsInFile("data/item.csv");
     this.pagesImported = 0;
-    this.totalPages = 0;
+    this.totalPages = findTotalRecordsInFile("data/page.csv");
     this.hyperlinksImported = 0;
-    this.totalHyperlinks = 0;
+    this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
     this.propertiesImported = 0;
-    this.totalProperties = 0;
+    this.totalProperties = findTotalRecordsInFile("data/property.csv");
     this.statementsImported = 0;
-    this.totalStatements = 0;
+    this.totalStatements = findTotalRecordsInFile("data/statement.csv");
 
   }
 
@@ -134,6 +136,28 @@ public class LocalSetInfo {
     this.setTotalProperties(results.getInt("total_properties"));
     this.setStatementsImported(results.getInt("statements_imported"));
     this.setTotalStatements(results.getInt("total_statements"));
+  }
+
+  public void increment(String target) {
+    switch (target) {
+      case "items":
+        this.itemsImported++;
+        break;
+      case "pages":
+        this.pagesImported++;
+        break;
+      case "hyperlinks":
+        this.hyperlinksImported++;
+        break;
+      case "properties":
+        this.propertiesImported++;
+        break;
+      case "statements":
+        this.statementsImported++;
+        break;
+      default:
+        break;
+    }
   }
 
   @Override
