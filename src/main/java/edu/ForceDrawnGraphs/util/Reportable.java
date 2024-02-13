@@ -49,6 +49,11 @@ public interface Reportable {
     log(e);
   }
 
+  public default void report(String msg, String logFileName) {
+    print(msg);
+    log(msg, logFileName);
+  }
+
   public default void clearConsole() {
     System.out.print("\033[H\033[2J");
     System.out.flush();
