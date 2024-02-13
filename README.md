@@ -18,7 +18,7 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 - Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
 - JUNG: Java Universal Network/Graph Framework  [site](https://jung.sourceforge.net/)
 
-### Module 1 - Importing the Data
+### Module 1 - Creating a local copy of the dataset.
 
 First step is to import the variety of files the dataset provides, including mostly .csv and a .jsonl file. Each file gets a corresponding table. For now aliases will be excluded. The PK ID for each model will be internal to the local PG DB, while the original ID-ing structure will remain stored as ints, this will allow any FK contraints to be mitigated on import.
 
