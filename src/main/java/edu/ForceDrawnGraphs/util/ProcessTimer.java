@@ -5,30 +5,31 @@ public class ProcessTimer implements Reportable {
   private long endTime;
   private String processName;
 
-  public ProcessTimer() {
-    this.startTime = System.currentTimeMillis();
-  }
-
   public ProcessTimer(String processName) {
     this.startTime = System.currentTimeMillis();
     this.processName = processName;
+    publishProcessTimerStart();
   }
 
-  public void stop() {
+  public void end() {
     this.endTime = System.currentTimeMillis();
-    publishReport();
+    reportProcessTimerEnd();
   }
 
-  public void stop(String additionalNameText) {
+  public void end(String additionalNameText) {
     if (this.processName != null) {
       this.processName += (" " + additionalNameText);
     } else {
       this.processName = additionalNameText;
     }
-    stop();
+    end();
   }
 
-  public void publishReport() {
+  public void publishProcessTimerStart() {
+    print(this.processName + " started.");
+  }
+
+  public void reportProcessTimerEnd() {
     report(toString() + this.startTime + " " + this.endTime, "process.log");
   }
 
