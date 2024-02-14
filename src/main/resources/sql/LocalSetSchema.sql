@@ -1,35 +1,35 @@
 -- Migration for creating 'items' table
 CREATE TABLE items (
-    id INT PRIMARY KEY,
-    item_id INT,
+    id SERIAL PRIMARY KEY,
+    item_id VARCHAR(255),
     en_label VARCHAR(255),
     en_description TEXT,
-    line_ref INT
+    line_ref int
 );
 
 -- Migration for creating 'pages' table
 CREATE TABLE pages (
-    id INT PRIMARY KEY,
-    page_id INT,
-    item_id INT,
+    id SERIAL PRIMARY KEY,
+    page_id VARCHAR(255),
+    item_id VARCHAR(255),
     title VARCHAR(255),
-    views INT,
+    views VARCHAR(255),
     line_ref INT
 );
 
 -- Migration for creating 'hyperlinks' table
 CREATE TABLE hyperlinks (
-    id INT PRIMARY KEY,
-    from_page_id INT,
-    to_page_id INT,
-    count INT,
+    id SERIAL PRIMARY KEY,
+    from_page_id VARCHAR(255),
+    to_page_id VARCHAR(255),
+    count VARCHAR(255),
     line_ref INT
 );
 
 -- Migration for creating 'properties' table
 CREATE TABLE properties (
-    id INT PRIMARY KEY,
-    property_id INT,
+    id SERIAL PRIMARY KEY,
+    property_id VARCHAR(255),
     en_label VARCHAR(255),
     en_description TEXT,
     line_ref INT
@@ -37,17 +37,17 @@ CREATE TABLE properties (
 
 -- Migration for creating 'statements' table
 CREATE TABLE statements (
-    id INT PRIMARY KEY,
-    source_item_id INT,
-    edge_property_id INT,
-    target_item_id INT,
+    id SERIAL PRIMARY KEY,
+    source_item_id VARCHAR(255),
+    edge_property_id VARCHAR(255),
+    target_item_id VARCHAR(255),
     line_ref INT
 );
 
 -- Migration for creating 'local_set_progress_trackers' table
 -- For tracking the progress of building the local PG set
 CREATE TABLE local_set_info (
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     items_imported INT,
     total_items INT,
     pages_imported INT,
