@@ -60,9 +60,9 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
       String line = bufferedReader.readLine();
-      
-      //TODO: ADD CHECK FOR HEADER ROW?
-      //TODO: ADD SKIP ROWS FOR INFO THAT IS ALREADY IN THE DB
+
+      //TODO: ADD CHECK FOR HEADER ROW -or- ADD THAT I MANUALLY REMOVED THESE FROM MY FILES
+      //TODO: ADD SKIP ROWS FOR INFO THAT IS ALREADY IN THE PROGRESSIMPORT
       //TODO: ADD LINE_REF ATTRIBUTE SETUP FOR EACH RECORD INTO PROCESS
 
       while (line != null) {
