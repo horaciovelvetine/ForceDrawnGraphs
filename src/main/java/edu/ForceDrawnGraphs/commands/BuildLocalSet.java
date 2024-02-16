@@ -25,8 +25,11 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private LocalSetInfo localSetInfo = new LocalSetInfo();
   private int preparedStatementUpdateTrigger = 10;
 
-  //
-  //
+  /**
+   * Constructor for BuildLocalSet.
+   * 
+   * @param dataSource configured in application.properties for the database
+   */
   public BuildLocalSet(DataSource dataSource) {
     this.dataSource = dataSource;
     this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -39,41 +42,43 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   public void build() {
     report("Begin 'build', looking for existing data...");
     findOrCreateLocalSetSchema();
-    importItemRecords();
+    importDatasetRecordsFromFile("resourceName", 0, "SQL INSERT STMNT");
     //! END OF BUILD COMMAND EXECUTION
     print("Gotta stop somewhere");
   }
 
-  private void importDatasetRecordsFromFile() {
-    // PASSED IN VARS
-    String resourceName = "fileName.file";
-    int numOfAttributesExpected = 0;
-    String sql = "some sql statement to be executed";
-    // END OF NEEDED VARS? 
-
-    // LOCAL VARS IN METHOD
+  /**
+   * Imports dataset records from a file into the database.
+   * 
+   * @param resourceName            the name of the resource file
+   * @param numOfAttributesExpected the number of expected attributes in each record
+   * @param sql                     the SQL statement for inserting records
+   */
+  private void importDatasetRecordsFromFile(String resourceName, int numOfAttributesExpected, String sql) {
     int numOfObjectsInPrepSmnt = 0;
     PreparedStatement preparedStatement = getPreparedStatement(sql);
-    // END OF LOCAL VARS
-
-    // MAIN TRY BLOCK FOR METHOD
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
       String line = bufferedReader.readLine();
+      
+      //TODO: ADD CHECK FOR HEADER ROW?
+      //TODO: ADD SKIP ROWS FOR INFO THAT IS ALREADY IN THE DB
+      //TODO: ADD LINE_REF ATTRIBUTE SETUP FOR EACH RECORD INTO PROCESS
+
       while (line != null) {
-        getAttributesAndSetPrepStmnt(line, numOfAttributesExpected, preparedStatement, numOfObjectsInPrepSmnt);
-        numOfObjectsInPrepSmnt++;
+        getAttributesAndSetPrepStmnt(line, numOfAttributesExpected, preparedStatement);
+
         //TODO: update increment to work off metadata file? 
         localSetInfo.increment("items");
+        numOfObjectsInPrepSmnt++;
+
         if (numOfObjectsInPrepSmnt == preparedStatementUpdateTrigger) {
           preparedStatement.executeUpdate();
           numOfObjectsInPrepSmnt = 0;
         }
         line = bufferedReader.readLine();
       }
-      if (numOfObjectsInPrepSmnt > 0) {
-        preparedStatement.executeUpdate();
-      }
+      preparedStatement.executeUpdate();
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     }
@@ -81,48 +86,16 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
 
   //!===========================================================>
   //
-  //      CODE PLAYGROUND FOR BUILDING LOCAL SET
+  //? IMPORT DATASET RECORDS HELPERS
   //
   //!===========================================================>
 
-  private void importItemRecords() {
-    try (BufferedReader bufferedReader = new BufferedReader(
-        new FileReader(new ClassPathResource("data/item.csv").getFile()));) {
-
-      String line = bufferedReader.readLine();
-      int preparedStatementsCount = 0; // Track the number of prepared statements executed
-      PreparedStatement preparedStatement = getPreparedStatement(
-          "INSERT INTO items (item_id, en_label, en_description) VALUES (?, ?, ?)");
-
-      while (line != null) {
-        //! ENT DATA VAR ASSIGNMENTS
-        getAttributesAndSetPrepStmnt(line, preparedStatementsCount, preparedStatement, preparedStatementsCount);
-
-        //! UPDATE THE TRACKING INFO
-        preparedStatementsCount++;
-        localSetInfo.increment("items");
-
-        //! COMMITS A LONG PREPPED STMNTS OF SET ENT
-        if (preparedStatementsCount == preparedStatementUpdateTrigger) {
-          // Execute the batch update and reset the counter
-          preparedStatement.executeUpdate();
-          preparedStatementsCount = 0;
-        }
-        //! MOVE ON
-        line = bufferedReader.readLine();
-      }
-
-      //! COMMITS REST OF ENTS
-      if (preparedStatementsCount > 0) {
-        preparedStatement.executeUpdate();
-      }
-
-    } catch (Exception e) {
-      //HANDLE FAIL TO IMPORT RECOORDS AND ALL THE OTHER T/C
-      report("Error importing item records: " + e.getMessage());
-    }
-  }
-
+  /**
+   * Creates a prepared statement for the given SQL String.
+   * 
+   * @param sql the SQL statement
+   * @return the prepared statement
+   */
   private PreparedStatement getPreparedStatement(String sql) {
     try {
       return dataSource.getConnection().prepareStatement(sql);
@@ -132,15 +105,28 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
-  private FileReader getFileReaderFromClassPathResource(String path) {
+  /**
+   * Retrieves a FileReader for the given classpath resource.
+   * 
+   * @param path the path of the resource file
+   * @return the FileReader
+   */
+  private FileReader getFileReaderFromClassPathResource(String resourceName) {
     try {
-      return new FileReader(new ClassPathResource("data/" + path).getFile());
+      return new FileReader(new ClassPathResource("data/" + resourceName).getFile());
     } catch (Exception e) {
       report("getFileReaderFromClassPathResource() error: " + e.getMessage());
       return null;
     }
   }
 
+  /**
+   * Retrieves an array of string attributes from a CSV line.
+   * 
+   * @param line                   the String of text from a single line of a CSV file
+   * @param numOfAttributesExpected the number of expected attributes
+   * @return the array of string attributes
+   */
   private String[] getArrayOfStringAttributesFromCSV(String line, int numOfAttributesExpected) {
     String[] entData = line.split(",");
     if (entData.length > numOfAttributesExpected) {
@@ -155,8 +141,15 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
+  /**
+   * Retrieves the attributes from a CSV line and sets them in the prepared statement.
+   * 
+   * @param line                        the String of text from a single line of a CSV file
+   * @param numOfAttributesExpected     the number of expected attributes
+   * @param preparedStatement          the prepared statement
+   */
   private void getAttributesAndSetPrepStmnt(String line, int numOfAttributesExpected,
-      PreparedStatement preparedStatement, int preparedStatementUpdateTrigger) {
+      PreparedStatement preparedStatement) {
     String[] entData = getArrayOfStringAttributesFromCSV(line, numOfAttributesExpected);
     for (int i = 0; i < entData.length; i++) {
       try {
