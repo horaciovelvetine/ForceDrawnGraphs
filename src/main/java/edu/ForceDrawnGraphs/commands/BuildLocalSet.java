@@ -59,7 +59,21 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     // MAIN TRY BLOCK FOR METHOD
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
-      //TODO : ENTER WHILE LOOP PREP STMNTS AND COMMIT AS NEEDED
+      String line = bufferedReader.readLine();
+      while (line != null) {
+        getAttributesAndSetPrepStmnt(line, numOfAttributesExpected, preparedStatement, numOfObjectsInPrepSmnt);
+        numOfObjectsInPrepSmnt++;
+        //TODO: update increment to work off metadata file? 
+        localSetInfo.increment("items");
+        if (numOfObjectsInPrepSmnt == preparedStatementUpdateTrigger) {
+          preparedStatement.executeUpdate();
+          numOfObjectsInPrepSmnt = 0;
+        }
+        line = bufferedReader.readLine();
+      }
+      if (numOfObjectsInPrepSmnt > 0) {
+        preparedStatement.executeUpdate();
+      }
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     }
