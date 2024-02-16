@@ -23,7 +23,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private BufferedReader bufferedReader;
   private int preparedStatementUpdateTrigger = 10;
 
   //
@@ -41,12 +40,41 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     report("Begin 'build', looking for existing data...");
     findOrCreateLocalSetSchema();
     importItemRecords();
+    //! END OF BUILD COMMAND EXECUTION
     print("Gotta stop somewhere");
   }
 
+  private void importDatasetRecordsFromFile() {
+    // PASSED IN VARS
+    String resourceName = "fileName.file";
+    int numOfAttributesExpected = 0;
+    String sql = "some sql statement to be executed";
+    // END OF NEEDED VARS? 
+
+    // LOCAL VARS IN METHOD
+    int numOfObjectsInPrepSmnt = 0;
+    PreparedStatement preparedStatement = getPreparedStatement(sql);
+    // END OF LOCAL VARS
+
+    // MAIN TRY BLOCK FOR METHOD
+    try (BufferedReader bufferedReader = new BufferedReader(
+        getFileReaderFromClassPathResource(resourceName))) {
+      //TODO : ENTER WHILE LOOP PREP STMNTS AND COMMIT AS NEEDED
+    } catch (Exception e) {
+      report("Error importing dataset records: " + e.getMessage());
+    }
+  }
+
+  //!===========================================================>
+  //
+  //      CODE PLAYGROUND FOR BUILDING LOCAL SET
+  //
+  //!===========================================================>
+
   private void importItemRecords() {
-    try {
-      bufferedReader = new BufferedReader(new FileReader(new ClassPathResource("data/item.csv").getFile()));
+    try (BufferedReader bufferedReader = new BufferedReader(
+        new FileReader(new ClassPathResource("data/item.csv").getFile()));) {
+
       String line = bufferedReader.readLine();
       int preparedStatementsCount = 0; // Track the number of prepared statements executed
       PreparedStatement preparedStatement = getPreparedStatement(
@@ -54,18 +82,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
 
       while (line != null) {
         //! ENT DATA VAR ASSIGNMENTS
-        String[] itemData = getArrayOfStringAttributesFromCSV(line, 3);
-
-        //? Can you skip this? 
-        String itemId = itemData[0];
-        String enLabel = itemData[1];
-        String enDescription = itemData[2];
-        //? Ends here? 
-
-        //! UPDATE PREPARED STATEMENT
-        preparedStatement.setString(1, itemId);
-        preparedStatement.setString(2, enLabel);
-        preparedStatement.setString(3, enDescription);
+        getAttributesAndSetPrepStmnt(line, preparedStatementsCount, preparedStatement, preparedStatementsCount);
 
         //! UPDATE THE TRACKING INFO
         preparedStatementsCount++;
@@ -92,8 +109,22 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
-  private PreparedStatement getPreparedStatement(String sql) throws SQLException {
-    return dataSource.getConnection().prepareStatement(sql);
+  private PreparedStatement getPreparedStatement(String sql) {
+    try {
+      return dataSource.getConnection().prepareStatement(sql);
+    } catch (SQLException e) {
+      report("getPreparedStatement() error: " + e.getMessage());
+      return null;
+    }
+  }
+
+  private FileReader getFileReaderFromClassPathResource(String path) {
+    try {
+      return new FileReader(new ClassPathResource("data/" + path).getFile());
+    } catch (Exception e) {
+      report("getFileReaderFromClassPathResource() error: " + e.getMessage());
+      return null;
+    }
   }
 
   private String[] getArrayOfStringAttributesFromCSV(String line, int numOfAttributesExpected) {
@@ -110,9 +141,21 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
+  private void getAttributesAndSetPrepStmnt(String line, int numOfAttributesExpected,
+      PreparedStatement preparedStatement, int preparedStatementUpdateTrigger) {
+    String[] entData = getArrayOfStringAttributesFromCSV(line, numOfAttributesExpected);
+    for (int i = 0; i < entData.length; i++) {
+      try {
+        preparedStatement.setString(i + 1, entData[i]);
+      } catch (SQLException e) {
+        report("Error setting attribute value of prepared statement: " + e.getMessage());
+      }
+    }
+  }
+
   //!===========================================================>
   //
-  //      FIND OR RUN .SQL MIGRATION
+  //? FIND OR RUN .SQL MIGRATION SETS UP SCHEMA (TABLES) IF NEEDED
   //
   //!===========================================================>
 
