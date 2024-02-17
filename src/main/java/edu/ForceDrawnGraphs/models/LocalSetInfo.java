@@ -145,26 +145,58 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
     this.setTotalStatements(results.getInt("total_statements"));
   }
 
-  public void increment(String target) {
+  public void incrementImported(String target) {
     switch (target) {
-      case "items":
+      case "item.csv":
         this.itemsImported++;
         break;
-      case "pages":
+      case "page.csv":
         this.pagesImported++;
         break;
-      case "hyperlinks":
+      case "link_annotated_text.jsonl":
         this.hyperlinksImported++;
         break;
-      case "properties":
+      case "property.csv":
         this.propertiesImported++;
         break;
-      case "statements":
+      case "statements.csv":
         this.statementsImported++;
         break;
       default:
         break;
     }
+  }
+
+  public int getImportProgress(String target) {
+    switch (target) {
+      case "item.csv":
+        return this.itemsImported;
+      case "page.csv":
+        return this.pagesImported;
+      case "link_annotated_text.jsonl":
+        return this.hyperlinksImported;
+      case "property.csv":
+        return this.propertiesImported;
+      case "statements.csv":
+        return this.statementsImported;
+      default:
+        return 0;
+    }
+  }
+
+  public String getSQLUpdateQuery() {
+    return "UPDATE local_set_info SET " +
+        "items_imported = " + this.itemsImported + ", " +
+        "total_items = " + this.totalItems + ", " +
+        "pages_imported = " + this.pagesImported + ", " +
+        "total_pages = " + this.totalPages + ", " +
+        "hyperlinks_imported = " + this.hyperlinksImported + ", " +
+        "total_hyperlinks = " + this.totalHyperlinks + ", " +
+        "properties_imported = " + this.propertiesImported + ", " +
+        "total_properties = " + this.totalProperties + ", " +
+        "statements_imported = " + this.statementsImported + ", " +
+        "total_statements = " + this.totalStatements + " " +
+        "WHERE id = 1;";
   }
 
   @Override
