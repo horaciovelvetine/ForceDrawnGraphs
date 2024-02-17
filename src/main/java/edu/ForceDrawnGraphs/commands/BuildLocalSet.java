@@ -23,7 +23,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int preparedStatementUpdateTrigger = 10;
+  private int batchSizeUpdateTrigger = 10;
+  private int sampleSizeLimit = 100;
 
   /**
    * Constructor for BuildLocalSet.
@@ -42,8 +43,13 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   public void build() {
     report("Begin 'build', looking for existing data...");
     findOrCreateLocalSetSchema();
-    importDatasetRecordsFromFile("resourceName", 0, "SQL INSERT STMNT");
-    //! END OF BUILD COMMAND EXECUTION
+
+    //TODO: Add commenting and reporting at each step.
+    //TODO: Pick a level of operation to report at and implement it throughout.
+    //TODO: Add reporting for each commit and batch (timestamp each one, for graphing)
+
+    importDatasetRecordsFromFile("item.csv", 3,
+        "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
     print("Gotta stop somewhere");
   }
 
@@ -55,30 +61,31 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    * @param sql                     the SQL statement for inserting records
    */
   private void importDatasetRecordsFromFile(String resourceName, int numOfAttributesExpected, String sql) {
-    int numOfObjectsInPrepSmnt = 0;
+    int lineNumRef = 1;
     PreparedStatement preparedStatement = getPreparedStatement(sql);
+
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
+      report(resourceName + " import process initiated...");
+      int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
+      advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
+
       String line = bufferedReader.readLine();
+      while (line != null && lineNumRef < (sampleSizeLimit + 1)) {
+        getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
 
-      //TODO: ADD CHECK FOR HEADER ROW -or- ADD THAT I MANUALLY REMOVED THESE FROM MY FILES
-      //TODO: ADD SKIP ROWS FOR INFO THAT IS ALREADY IN THE PROGRESSIMPORT
-      //TODO: ADD LINE_REF ATTRIBUTE SETUP FOR EACH RECORD INTO PROCESS
-
-      while (line != null) {
-        getAttributesAndSetPrepStmnt(line, numOfAttributesExpected, preparedStatement);
-
-        //TODO: update increment to work off metadata file? 
-        localSetInfo.increment("items");
-        numOfObjectsInPrepSmnt++;
-
-        if (numOfObjectsInPrepSmnt == preparedStatementUpdateTrigger) {
-          preparedStatement.executeUpdate();
-          numOfObjectsInPrepSmnt = 0;
+        if (lineNumRef % batchSizeUpdateTrigger == 0) {
+          preparedStatement.executeBatch();
+          commitLocalSetInfoImportProgress();
+          System.out.println("HIT COMMIT BENCH");
         }
+
+        localSetInfo.incrementImported(resourceName);
+        lineNumRef++;
         line = bufferedReader.readLine();
       }
-      preparedStatement.executeUpdate();
+      preparedStatement.executeBatch();
+      commitLocalSetInfoImportProgress();
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     }
@@ -89,6 +96,24 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   //? IMPORT DATASET RECORDS HELPERS
   //
   //!===========================================================>
+
+  public void advanceBufferedReaderToNLine(BufferedReader bufferedReader, int n) {
+    try {
+      for (int i = 0; i < n; i++) {
+        bufferedReader.readLine();
+      }
+    } catch (Exception e) {
+      report("Error advancing BufferedReader to line " + n + ": " + e.getMessage());
+    }
+  }
+
+  public void commitLocalSetInfoImportProgress() {
+    try {
+      jdbcTemplate.update(localSetInfo.getSQLUpdateQuery());
+    } catch (Exception e) {
+      report("Error committing local set info import progress: " + e.getMessage());
+    }
+  }
 
   /**
    * Creates a prepared statement for the given SQL String.
@@ -144,11 +169,12 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   /**
    * Retrieves the attributes from a CSV line and sets them in the prepared statement.
    * 
-   * @param line                        the String of text from a single line of a CSV file
+   * @param line                        the String of text from a single line of a CSV file\
+   * @param lineNumRef                     the reference number of the line
    * @param numOfAttributesExpected     the number of expected attributes
    * @param preparedStatement          the prepared statement
    */
-  private void getAttributesAndSetPrepStmnt(String line, int numOfAttributesExpected,
+  private void getAttributesAndSetPrepStmnt(String line, int lineNumRef, int numOfAttributesExpected,
       PreparedStatement preparedStatement) {
     String[] entData = getArrayOfStringAttributesFromCSV(line, numOfAttributesExpected);
     for (int i = 0; i < entData.length; i++) {
@@ -157,6 +183,16 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       } catch (SQLException e) {
         report("Error setting attribute value of prepared statement: " + e.getMessage());
       }
+    }
+    try {
+      preparedStatement.setInt(entData.length + 1, lineNumRef);
+    } catch (SQLException e) {
+      report("Error setting line reference value of prepared statement: " + e.getMessage());
+    }
+    try {
+      preparedStatement.addBatch();
+    } catch (SQLException e) {
+      report("Error adding batch to prepared statement: " + e.getMessage());
     }
   }
 
@@ -173,10 +209,10 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     try {
       SqlRowSet localSetInfoResults = jdbcTemplate.queryForRowSet("SELECT * FROM local_set_info");
       if (localSetInfoResults.next()) {
+        report("Found existing local set info, continuing import process...");
         localSetInfo.mapRowResultsToLocalSetInfo(localSetInfoResults);
       }
     } catch (Exception e) {
-      log(e);
       handleLocalSetInfoQueryException(e);
     }
   }
