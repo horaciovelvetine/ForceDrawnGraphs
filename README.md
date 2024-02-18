@@ -54,3 +54,29 @@ First step is to import the variety of files the dataset provides, including mos
   - source_item_id (int)
   - edge_property_id (int)
   - target_item_id (int)
+
+
+#### Optimizing Imports - Testing performance of PreparedStatements
+
+There are more than 141 million statements, and some 60 million additional entries in this (Wikipedia) dataset. Given this volume of data, each call to the DB (to write) will be the most costly part of the process. This write is done using the `PreparedStatement` class [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html), which provides the unique opportunity to dig into the PreparedStatement and see if and how the amount of data included with each commit effects the performance.
+
+Goal: What is the optimal size of the batch to be included in each commit?
+
+Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html#executeLargeUpdate()) it is likely there are diminishing returns as the size of the batch is increased, and so the limiting factor will be . Albeit, at some (integer overflow) point the `executeLargeUpdate` method would be required, but I believe this method is intended for running a large update across _all_ rows of a table to adjust something globally (like a timestamp). 
+
+Processes: `BuildLocalSet` contains the majority of the code for this module and is initialized with the `build` command. Tests are run on the same data (item.csv) to compare a variety of batch sizes for each commit. The import process is halted after the `sampleSizeLimit` is reached, and the time taken for the process is recorded. The data was pulled into Excel for analysis and visualization.
+
+Hardware/Software: 
+- 2021 16" MacBook Pro
+- Apple M1 Max
+- 64GB RAM
+- Ventura 13.0
+- Postgres v2.7.1
+- Java 17.0.1
+- Spring 3.2.2
+
+- All other data has been cleared out of any local Postgres DBs, each test is being run on a fresh DB hosted and connected to locally. 
+- No other applications/processes are running on the machine during the tests (within reason, the OS is still running),and all wireless connections are disabled.
+- The internal drive is approximately 25% full and is 2.0TB in size. 
+
+Results: Data.
