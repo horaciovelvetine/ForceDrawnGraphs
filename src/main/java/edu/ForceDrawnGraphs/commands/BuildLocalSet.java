@@ -13,6 +13,7 @@ import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.models.LocalSetInfo;
 import edu.ForceDrawnGraphs.util.ExecuteSQL;
+import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.util.Reportable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -23,8 +24,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 10;
-  private int sampleSizeLimit = 100;
+  private int batchSizeUpdateTrigger = 1000;
+  private int sampleSizeLimit = 10000;
 
   /**
    * Constructor for BuildLocalSet.
@@ -42,7 +43,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    report("Begin 'build', looking for existing data...");
+    report("build() initiated.");
     findOrCreateLocalSetSchema();
 
     //TODO: Add commenting and reporting at each step.
@@ -64,11 +65,12 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   private void importDatasetRecordsFromFile(String resourceName, int numOfAttributesExpected, String sql) {
     int lineNumRef = 1;
+    ProcessTimer processTimer = new ProcessTimer(
+        "importDatasetRecordsFromFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
     PreparedStatement preparedStatement = getPreparedStatement(sql);
 
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
-      report(resourceName + " import process initiated...");
       int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
       advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
 
@@ -79,6 +81,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
+          processTimer.lap();
         }
 
         localSetInfo.incrementImported(resourceName);
@@ -89,6 +92,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       commitLocalSetInfoImportProgress();
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
+    } finally {
+      processTimer.end();
     }
   }
 

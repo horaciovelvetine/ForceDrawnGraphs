@@ -22,7 +22,8 @@ public interface ExecuteSQL {
     if (sqlFileResourceName == null || sqlFileResourceName.isBlank()) {
       throw new IllegalArgumentException("sqlFileResourcePath cannot be null or blank");
     }
-    Resource resource = new ClassPathResource("sql/" + sqlFileResourceName);
+    
+    Resource resource = new ClassPathResource(sqlFileResourceName);
     byte[] sqlFileBytes = resource.getInputStream().readAllBytes();
     String sql = new String(sqlFileBytes);
 

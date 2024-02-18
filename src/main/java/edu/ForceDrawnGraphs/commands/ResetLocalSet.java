@@ -7,6 +7,7 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.util.ExecuteSQL;
+import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.util.Reportable;
 
 @ShellComponent
@@ -20,15 +21,15 @@ public class ResetLocalSet implements Reportable, ExecuteSQL {
 
   @ShellMethod("Drop tables and recreate the local set schema.")
   public void reset() {
-    report("Begin 'reset', looking for existing data...");
+    ProcessTimer processTimer = new ProcessTimer("ResetLocalSet.reset()");
     dropLocalSetSchema();
     createLocalSetSchema();
-    report("End 'reset', local set schema reset.");
+    processTimer.end();
   }
 
   private void dropLocalSetSchema() {
     try {
-      executeSQL("DropLocalSetSchema.sql", jdbcTemplate);
+      executeSQL("sql/DropLocalSetSchma.sql", jdbcTemplate);
     } catch (Exception e) {
       report(e);
     }
@@ -36,7 +37,7 @@ public class ResetLocalSet implements Reportable, ExecuteSQL {
 
   private void createLocalSetSchema() {
     try {
-      executeSQL("CreateLocalSetSchema.sql", jdbcTemplate);
+      executeSQL("sql/LocalSetSchema.sql", jdbcTemplate);
     } catch (Exception e) {
       report(e);
     }

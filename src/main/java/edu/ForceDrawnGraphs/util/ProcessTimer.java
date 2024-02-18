@@ -1,9 +1,13 @@
 package edu.ForceDrawnGraphs.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProcessTimer implements Reportable {
   private long startTime;
   private long endTime;
   private String processName;
+  private List<Long> laps = new ArrayList<>();
 
   public ProcessTimer(String processName) {
     this.startTime = System.currentTimeMillis();
@@ -30,7 +34,7 @@ public class ProcessTimer implements Reportable {
   }
 
   public void reportProcessTimerEnd() {
-    report(toString() + this.startTime + " " + this.endTime, "process.log");
+    report(toString() + this.startTime + " " + this.endTime + "\n" + laps, "process.log");
   }
 
   public long getTotalTime() {
@@ -39,6 +43,10 @@ public class ProcessTimer implements Reportable {
 
   public long getElapsedTime() {
     return System.currentTimeMillis() - this.startTime;
+  }
+
+  public void lap() {
+    this.laps.add(System.currentTimeMillis());
   }
 
   @Override
