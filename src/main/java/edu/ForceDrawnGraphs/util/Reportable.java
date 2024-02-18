@@ -54,14 +54,4 @@ public interface Reportable {
     log(msg, logFileName);
   }
 
-  public default void clearConsole() {
-    System.out.print("\033[H\033[2J");
-    System.out.flush();
-  }
-
-  public default void clear() {
-    System.out.print("\033[H\033[2J");
-    System.out.flush();
-  }
-
 }
