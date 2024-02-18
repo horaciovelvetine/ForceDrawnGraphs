@@ -13,6 +13,7 @@ import edu.ForceDrawnGraphs.util.Reportable;
 public class ResetLocalSet implements Reportable, ExecuteSQL {
   private JdbcTemplate jdbcTemplate;
 
+  @SuppressWarnings("null")
   public ResetLocalSet(DataSource dataSource) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
   }

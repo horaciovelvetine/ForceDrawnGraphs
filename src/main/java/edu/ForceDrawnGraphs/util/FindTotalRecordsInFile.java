@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import org.springframework.core.io.ClassPathResource;
 
+@SuppressWarnings("null")
 public interface FindTotalRecordsInFile {
   public default int findTotalRecordsInFile(String filePath) {
     ProcessTimer processTimer = new ProcessTimer("FindTotalRecordsInFile(@" + filePath + ") ");

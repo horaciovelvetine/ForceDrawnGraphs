@@ -31,6 +31,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    * 
    * @param dataSource configured in application.properties for the database
    */
+  @SuppressWarnings("null")
   public BuildLocalSet(DataSource dataSource) {
     this.dataSource = dataSource;
     this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -97,6 +98,12 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   //
   //!===========================================================>
 
+  /**
+   * Advances the BufferedReader to the specified line number.
+   * 
+   * @param bufferedReader the BufferedReader to advance
+   * @param n              the line number to advance to
+   */
   public void advanceBufferedReaderToNLine(BufferedReader bufferedReader, int n) {
     try {
       for (int i = 0; i < n; i++) {
@@ -107,6 +114,10 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
+  /**
+   * Commits the import progress of the local set info.
+   */
+  @SuppressWarnings("null")
   public void commitLocalSetInfoImportProgress() {
     try {
       jdbcTemplate.update(localSetInfo.getSQLUpdateQuery());
@@ -133,7 +144,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   /**
    * Retrieves a FileReader for the given classpath resource.
    * 
-   * @param path the path of the resource file
+   * @param resourceName the name of the resource file
    * @return the FileReader
    */
   private FileReader getFileReaderFromClassPathResource(String resourceName) {
