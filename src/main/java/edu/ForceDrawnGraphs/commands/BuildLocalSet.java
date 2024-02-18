@@ -225,7 +225,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private void handleLocalSetInfoQueryException(Exception e) {
     report("No existing data found, running LocalSetSchema.sql to create needed tables");
     try {
-      executeSQL("sql/LocalSetSchema.sql", jdbcTemplate);
+      executeSQL("LocalSetSchema.sql", jdbcTemplate);
     } catch (Exception sqlException) {
       handleLocalSetSchemaExecutionException(sqlException);
     }
