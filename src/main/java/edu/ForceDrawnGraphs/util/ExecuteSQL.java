@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /**
   * Execute the SQL file at the given resource path.
   * 
-  * @param sqlFileResourcePath the resource path of the SQL file
+  * @param sqlFileResourceName the name of the SQL file in the resources directory
   * 
   * @param jdbc the JdbcTemplate to execute the SQL statements
   * 
@@ -17,12 +17,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
   */
 public interface ExecuteSQL {
 
-  public default void executeSQL(String sqlFileResourcePath, JdbcTemplate jdbc)
+  public default void executeSQL(String sqlFileResourceName, JdbcTemplate jdbc)
       throws IOException, IllegalArgumentException {
-    if (sqlFileResourcePath == null || sqlFileResourcePath.isBlank()) {
+    if (sqlFileResourceName == null || sqlFileResourceName.isBlank()) {
       throw new IllegalArgumentException("sqlFileResourcePath cannot be null or blank");
     }
-    Resource resource = new ClassPathResource(sqlFileResourcePath);
+    Resource resource = new ClassPathResource("sql/" + sqlFileResourceName);
     byte[] sqlFileBytes = resource.getInputStream().readAllBytes();
     String sql = new String(sqlFileBytes);
 
