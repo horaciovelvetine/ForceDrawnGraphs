@@ -46,6 +46,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
 
     //TODO: Add commenting and reporting at each step.
     //TODO: Pick a level of operation to report at and implement it throughout.
+
     //TODO: Add reporting for each commit and batch (timestamp each one, for graphing)
 
     importDatasetRecordsFromFile("item.csv", 3,
@@ -77,7 +78,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
-          System.out.println("HIT COMMIT BENCH");
         }
 
         localSetInfo.incrementImported(resourceName);
