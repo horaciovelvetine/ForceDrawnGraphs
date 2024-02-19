@@ -34,7 +34,7 @@ public class ProcessTimer implements Reportable {
   }
 
   public void reportProcessTimerEnd() {
-    report(toString() + this.startTime + " " + this.endTime + "\n" + laps, "process.log");
+    report(toString() + this.startTime + ", " + this.endTime + ", " + laps, "process.log");
   }
 
   public long getTotalTime() {
@@ -51,6 +51,6 @@ public class ProcessTimer implements Reportable {
 
   @Override
   public String toString() {
-    return "Completed: " + this.processName + "in " + getTotalTime() + "ms.\n";
+    return this.processName + " finished in " + getTotalTime() + "ms.\n";
   }
 }
