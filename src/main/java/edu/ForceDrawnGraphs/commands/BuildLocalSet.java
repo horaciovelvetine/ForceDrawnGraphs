@@ -24,8 +24,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 1000;
-  private int sampleSizeLimit = 10000;
+  private int batchSizeUpdateTrigger = 10000;
+  private int sampleSizeLimit = 10000000;
 
   /**
    * Constructor for BuildLocalSet.
@@ -49,10 +49,10 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     //TODO: Add commenting and reporting at each step.
     //TODO: Pick a level of operation to report at and implement it throughout.
 
-    //TODO: Add reporting for each commit and batch (timestamp each one, for graphing)
-
     importDatasetRecordsFromFile("item.csv", 3,
         "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    
+    //! Stops.
     print("Gotta stop somewhere");
   }
 
@@ -241,7 +241,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private void handleLocalSetInfoQueryException(Exception e) {
     report("No existing data found, running LocalSetSchema.sql to create needed tables");
     try {
-      executeSQL("LocalSetSchema.sql", jdbcTemplate);
+      executeSQL("sql/LocalSetSchema.sql", jdbcTemplate);
     } catch (Exception sqlException) {
       handleLocalSetSchemaExecutionException(sqlException);
     }
