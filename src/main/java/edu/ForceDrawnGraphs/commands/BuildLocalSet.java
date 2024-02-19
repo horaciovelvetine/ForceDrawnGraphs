@@ -24,7 +24,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 10000;
+  private int batchSizeUpdateTrigger = 100;
   private int sampleSizeLimit = 10000000;
 
   /**
@@ -51,7 +51,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
 
     importDatasetRecordsFromFile("item.csv", 3,
         "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    
+
     //! Stops.
     print("Gotta stop somewhere");
   }
@@ -81,7 +81,10 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
-          processTimer.lap();
+          if (lineNumRef % 10000 == 0) {
+            // to limit the number of reports 
+            processTimer.lap();
+          }
         }
 
         localSetInfo.incrementImported(resourceName);
