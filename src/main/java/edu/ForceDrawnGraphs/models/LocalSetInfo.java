@@ -28,8 +28,8 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
     this.totalHyperlinks = 0;
     this.totalProperties = 0;
     this.totalStatements = 0; 
-    // JAVA AUTOMATICALLY RUNS THIS ON BEAN CREATION (WHEN THE APPLICATION STARTS)
-    // IT WILL TAKE SOME TIME TO RUN AND SO THE ALTERNATIVE IS 0's FOR THE VALUES
+    // SPRING CREATES THIS BEAN ON STARTUP
+    // THESE TAKE SOME TIME TO RUN AND SO THE ALTERNATIVE IS 0's FOR THE VALUES
     // TODO: Remove as comments, and find the correct place to run these calculations
     // this.totalItems = findTotalRecordsInFile("data/item.csv");
     // this.totalPages = findTotalRecordsInFile("data/page.csv");
