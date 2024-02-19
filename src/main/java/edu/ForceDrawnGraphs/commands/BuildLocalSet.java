@@ -66,29 +66,36 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     ProcessTimer processTimer = new ProcessTimer(
         "importDatasetRecordsFromFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
     PreparedStatement preparedStatement = getPreparedStatement(sql);
-    try (BufferedReader bufferedReader = new BufferedReader(
-        getFileReaderFromClassPathResource(resourceName))) {
+    try (BufferedReader bufferedReader = new BufferedReader(getFileReaderFromResource(resourceName))) {
+      // \n
       int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
       advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
       String line = bufferedReader.readLine();
+      // \n
       while (line != null && lineNumRef < (sampleSizeLimit + 1)) {
+        // \n
         getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
+        // \n
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
-          // if (lineNumRef % 10000 == 0) {
-          processTimer.lap();
-          // }
         }
+        // \n
+        if (lineNumRef % 10000 == 0) {
+          processTimer.lap();
+        }
+        // \n
         localSetInfo.incrementImported(resourceName);
         lineNumRef++;
         line = bufferedReader.readLine();
       }
+      // \n
       preparedStatement.executeBatch();
       commitLocalSetInfoImportProgress();
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     } finally {
+      // \n
       processTimer.end();
     }
   }
@@ -148,11 +155,11 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    * @param resourceName the name of the resource file
    * @return the FileReader
    */
-  private FileReader getFileReaderFromClassPathResource(String resourceName) {
+  private FileReader getFileReaderFromResource(String resourceName) {
     try {
       return new FileReader(new ClassPathResource("data/" + resourceName).getFile());
     } catch (Exception e) {
-      report("getFileReaderFromClassPathResource() error: " + e.getMessage());
+      report("getFileReaderFromResource() error: " + e.getMessage());
       return null;
     }
   }
