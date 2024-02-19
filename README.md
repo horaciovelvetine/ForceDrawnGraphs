@@ -66,17 +66,30 @@ Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [docs](http
 
 Processes: `BuildLocalSet` contains the majority of the code for this module and is initialized with the `build` command. Tests are run on the same data (item.csv) to compare a variety of batch sizes for each commit. The import process is halted after the `sampleSizeLimit` is reached, and the time taken for the process is recorded. The data was pulled into Excel for analysis and visualization.
 
+Batch sizes were: 100, 1000, 2500, 5000, 10000, 25000, 50000, 100000 objects per commit. Below is a snippet of the main method behind the import process.
+
+![snippet](/docs/Optimizing%20Imports%20-%20import%20code%20snippet%20v1.png)
+
 Hardware/Software: 
 - 2021 16" MacBook Pro
 - Apple M1 Max
 - 64GB RAM
 - Ventura 13.0
 - Postgres v2.7.1
-- Java 17.0.1
 - Spring 3.2.2
 
 - All other data has been cleared out of any local Postgres DBs, each test is being run on a fresh DB hosted and connected to locally. 
 - No other applications/processes are running on the machine during the tests (within reason, the OS is still running),and all wireless connections are disabled.
 - The internal drive is approximately 25% full and is 2.0TB in size. 
 
-Results: Data.
+Results v1.0:
+
+- On line 80 the commented out block is an if statement to check for divisibility by 10,000 to record a timestamp to track progress - For the larger batch sizes (>10k), this wasn't used. This caused there to be an uneven-ness in the data. The data for these runs is below - but the larger batch sizes (>10k) were excluded from the graph due to this uneven-ness. 
+- The data is recorded in [this Excel file.](docs/Optimizing%20Imports%20-%20Prepared%20Statements%20Data.xlsx) and shows a general trend that smaller batch sizes mean more commits, and as the batch size increases this time decreases. However, as predicted it appears that there are diminishing returns. 
+
+v1.1 Adjustments:
+
+Processes: The data will be re-run with new batch sizes focused around the larger batch sizes to better determine how and when diminishing returns begin to occur. The new batch sizes will be: 10,000, 25,000, 50,000, 100,000, 250,000, 500,000, 1,000,000, 2,500,000, 5,000,000, 10,000,000. Additionally, the 'lapping' process will be seperated out to allow for a consistent dataset to be recorded for each run. 
+
+Results v1.1:
+
