@@ -24,7 +24,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 100;
+  private int batchSizeUpdateTrigger = 100000;
   private int sampleSizeLimit = 10000000;
 
   /**
@@ -44,7 +44,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
     report("build() initiated.");
-    findOrCreateLocalSetSchema();
 
     //TODO: Add commenting and reporting at each step.
     //TODO: Pick a level of operation to report at and implement it throughout.
@@ -56,9 +55,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     print("Gotta stop somewhere");
   }
 
-  /**
+  /** BuildLocalSet.java
    * Imports dataset records from a file into the database.
-   * 
    * @param resourceName            the name of the resource file
    * @param numOfAttributesExpected the number of expected attributes in each record
    * @param sql                     the SQL statement for inserting records
@@ -68,25 +66,20 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     ProcessTimer processTimer = new ProcessTimer(
         "importDatasetRecordsFromFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
     PreparedStatement preparedStatement = getPreparedStatement(sql);
-
     try (BufferedReader bufferedReader = new BufferedReader(
         getFileReaderFromClassPathResource(resourceName))) {
       int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
       advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
-
       String line = bufferedReader.readLine();
       while (line != null && lineNumRef < (sampleSizeLimit + 1)) {
         getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
-
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
-          if (lineNumRef % 10000 == 0) {
-            // to limit the number of reports 
-            processTimer.lap();
-          }
+          // if (lineNumRef % 10000 == 0) {
+          processTimer.lap();
+          // }
         }
-
         localSetInfo.incrementImported(resourceName);
         lineNumRef++;
         line = bufferedReader.readLine();
@@ -213,50 +206,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     } catch (SQLException e) {
       report("Error adding batch to prepared statement: " + e.getMessage());
     }
-  }
-
-  //!===========================================================>
-  //
-  //? FIND OR RUN .SQL MIGRATION SETS UP SCHEMA (TABLES) IF NEEDED
-  //
-  //!===========================================================>
-
-  /**
-   * Finds or creates the local set schema by querying the database.
-   */
-  private void findOrCreateLocalSetSchema() {
-    try {
-      SqlRowSet localSetInfoResults = jdbcTemplate.queryForRowSet("SELECT * FROM local_set_info");
-      if (localSetInfoResults.next()) {
-        report("Found existing local set info, continuing import process...");
-        localSetInfo.mapRowResultsToLocalSetInfo(localSetInfoResults);
-      }
-    } catch (Exception e) {
-      handleLocalSetInfoQueryException(e);
-    }
-  }
-
-  /**
-   * Handles the exception that occurs when querying the local set info and no result is found.
-   * 
-   * @param e the exception that occurred
-   */
-  private void handleLocalSetInfoQueryException(Exception e) {
-    report("No existing data found, running LocalSetSchema.sql to create needed tables");
-    try {
-      executeSQL("sql/LocalSetSchema.sql", jdbcTemplate);
-    } catch (Exception sqlException) {
-      handleLocalSetSchemaExecutionException(sqlException);
-    }
-  }
-
-  /**
-   * Handles the exception that occurs when executing the LocalSetSchema.sql script.
-   * 
-   * @param sqlException the exception that occurred
-   */
-  private void handleLocalSetSchemaExecutionException(Exception sqlException) {
-    report("Error running LocalSetSchema.sql: " + sqlException.getMessage());
   }
 
 }
