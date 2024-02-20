@@ -23,7 +23,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 10;
+  private int batchSizeUpdateTrigger = 1000000;
   private int sampleSizeLimit = 10000000;
 
   /**
