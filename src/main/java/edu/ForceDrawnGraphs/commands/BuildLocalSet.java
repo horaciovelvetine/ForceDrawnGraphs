@@ -7,7 +7,6 @@ import javax.sql.DataSource;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
@@ -24,7 +23,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 100000;
+  private int batchSizeUpdateTrigger = 10;
   private int sampleSizeLimit = 10000000;
 
   /**
@@ -67,43 +66,40 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
         "importDatasetRecordsFromFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
     PreparedStatement preparedStatement = getPreparedStatement(sql);
     try (BufferedReader bufferedReader = new BufferedReader(getFileReaderFromResource(resourceName))) {
-      // \n
+
       int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
       advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
       String line = bufferedReader.readLine();
-      // \n
+
       while (line != null && lineNumRef < (sampleSizeLimit + 1)) {
-        // \n
+
         getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
-        // \n
+
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
-          commitLocalSetInfoImportProgress();
+          // commitLocalSetInfoImportProgress();
         }
-        // \n
-        if (lineNumRef % 10000 == 0) {
+
+        if (lineNumRef % 100000 == 0) {
           processTimer.lap();
         }
-        // \n
+
         localSetInfo.incrementImported(resourceName);
         lineNumRef++;
         line = bufferedReader.readLine();
       }
-      // \n
+
       preparedStatement.executeBatch();
       commitLocalSetInfoImportProgress();
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     } finally {
-      // \n
       processTimer.end();
     }
   }
 
   //!===========================================================>
-  //
   //? IMPORT DATASET RECORDS HELPERS
-  //
   //!===========================================================>
 
   /**
