@@ -27,15 +27,7 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
     this.totalPages = 0;
     this.totalHyperlinks = 0;
     this.totalProperties = 0;
-    this.totalStatements = 0; 
-    // SPRING CREATES THIS BEAN ON STARTUP
-    // THESE TAKE SOME TIME TO RUN AND SO THE ALTERNATIVE IS 0's FOR THE VALUES
-    // TODO: Remove as comments, and find the correct place to run these calculations
-    // this.totalItems = findTotalRecordsInFile("data/item.csv");
-    // this.totalPages = findTotalRecordsInFile("data/page.csv");
-    // this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
-    // this.totalProperties = findTotalRecordsInFile("data/property.csv");
-    // this.totalStatements = findTotalRecordsInFile("data/statement.csv");
+    this.totalStatements = 0;
   }
 
   public LocalSetInfo(int itemsImported, int totalItems, int pagesImported, int totalPages, int hyperlinksImported,
@@ -197,6 +189,14 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
         "statements_imported = " + this.statementsImported + ", " +
         "total_statements = " + this.totalStatements + " " +
         "WHERE id = 1;";
+  }
+
+  public void findRecordTotals() {
+    this.totalItems = findTotalRecordsInFile("data/item.csv");
+    this.totalPages = findTotalRecordsInFile("data/page.csv");
+    this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
+    this.totalProperties = findTotalRecordsInFile("data/property.csv");
+    this.totalStatements = findTotalRecordsInFile("data/statement.csv");
   }
 
   @Override
