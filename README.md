@@ -89,7 +89,14 @@ Results v1.0:
 
 v1.1 Adjustments:
 
-Processes: The data will be re-run with new batch sizes focused around the larger batch sizes to better determine how and when diminishing returns begin to occur. The new batch sizes will be: 10,000, 25,000, 50,000, 100,000, 250,000, 500,000, 1,000,000, 2,500,000, 5,000,000, 10,000,000. Additionally, the 'lapping' process will be seperated out to allow for a consistent dataset to be recorded for each run. 
+Processes: 
+- The data will be re-run with new batch sizes focused around the larger batch sizes to better determine how and when diminishing returns begin to occur. The new batch sizes will be: 10,000, 25,000, 50,000, 100,000, 250,000, 500,000, 1,000,000, 10,000,000, and additional 10,000,000 runs with heap size being increased.
+- The 'lapping' process will be seperated out to allow for a consistent dataset to be recorded for each run. 
 
 Results v1.1:
 
+![Results Visualization](docs/PreparedStatementsChart_v1.1.1.png)
+
+Takeaways: An interesting stepping trend becomes apparent as the batch size increases, after some reading it's clear the limitation here is my understanding of the inner workings of some of the underlying technologies. These tests once again focused on batch sizes that show a trend of continuing returns, but has been limited to my sample size of 10m objects.  The most performant batch sizes were the 100k, 10m & 10m(a) runs - but the degree of change is some 3000ms. over the entire sample set. With a variance of about 3 sec. per 10m objects, and a total of approx 210m objects to be imported total, instead of continuing to chase the rabbit down the hole, I will keep on moving forward. The extra minute the one time I have to actually import the full dataset, will be spent reading documentation trying to understand the problem, brb...
+
+### Module 2 -  Completing the Import Process (Once)
