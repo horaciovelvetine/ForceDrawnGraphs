@@ -30,20 +30,6 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
     this.totalStatements = 0;
   }
 
-  public LocalSetInfo(int itemsImported, int totalItems, int pagesImported, int totalPages, int hyperlinksImported,
-      int totalHyperlinks, int propertiesImported, int totalProperties, int statementsImported, int totalStatements) {
-    this.itemsImported = itemsImported;
-    this.totalItems = totalItems;
-    this.pagesImported = pagesImported;
-    this.totalPages = totalPages;
-    this.hyperlinksImported = hyperlinksImported;
-    this.totalHyperlinks = totalHyperlinks;
-    this.propertiesImported = propertiesImported;
-    this.totalProperties = totalProperties;
-    this.statementsImported = statementsImported;
-    this.totalStatements = totalStatements;
-  }
-
   public int getItemsImported() {
     return itemsImported;
   }
