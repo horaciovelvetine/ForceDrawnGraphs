@@ -192,11 +192,21 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
   }
 
   public void findRecordTotals() {
-    this.totalItems = findTotalRecordsInFile("data/item.csv");
-    this.totalPages = findTotalRecordsInFile("data/page.csv");
-    this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
-    this.totalProperties = findTotalRecordsInFile("data/property.csv");
-    this.totalStatements = findTotalRecordsInFile("data/statement.csv");
+    if (this.totalItems == 0) {
+      this.totalItems = findTotalRecordsInFile("data/item.csv");
+    }
+    if (this.totalPages == 0) {
+      this.totalPages = findTotalRecordsInFile("data/page.csv");
+    }
+    if (this.totalHyperlinks == 0) {
+      this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
+    }
+    if (this.totalProperties == 0) {
+      this.totalProperties = findTotalRecordsInFile("data/property.csv");
+    }
+    if (this.totalStatements == 0) {
+      this.totalStatements = findTotalRecordsInFile("data/statements.csv");
+    }
   }
 
   @Override
