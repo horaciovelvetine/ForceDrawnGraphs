@@ -77,14 +77,14 @@ INSERT INTO local_set_info (
     total_statements
 ) VALUES (
     1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
 );
