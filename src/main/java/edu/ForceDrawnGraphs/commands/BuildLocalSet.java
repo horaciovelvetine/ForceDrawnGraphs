@@ -10,21 +10,26 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import edu.ForceDrawnGraphs.models.Hyperlink;
+import edu.ForceDrawnGraphs.models.LinkAnnotatedTextRecord;
 import edu.ForceDrawnGraphs.models.LocalSetInfo;
+import edu.ForceDrawnGraphs.models.SectionRecord;
 import edu.ForceDrawnGraphs.util.ExecuteSQL;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.util.Reportable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 @ShellComponent
 public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 1000000;
-  private int sampleSizeLimit = 10000000;
+  private int batchSizeUpdateTrigger = 1000000; // How often to commit batches to the database
 
   /**
    * Constructor for BuildLocalSet.
@@ -42,46 +47,56 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    report("build() initiated.");
-
-    //TODO: Add commenting and reporting at each step.
-    //TODO: Pick a level of operation to report at and implement it throughout.
-
-    importDatasetRecordsFromFile("item.csv", 3,
+    importDataFromResourceFile("item.csv", 3,
         "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    importDataFromResourceFile("page.csv", 4,
+        "INSERT INTO pages (page_id, item_id, title, viewsl, line_ref) VALUES (?, ?, ?, ?, ?)");
+    importDataFromResourceFile("property.csv", 3,
+        "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    importDataFromResourceFile("statements.csv", 3,
+        "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    importDataFromResourceFile("link_annotated_text.jsonl", 0,
+        "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
 
-    //! Stops.
+    //TODO: ADDS HYPERLINK INGEST FUNC
+
     print("Gotta stop somewhere");
   }
+
+  //!===========================================================>
+  //? IMPORT DATASET RECORDS HELPERS
+  //!===========================================================>
 
   /** BuildLocalSet.java
    * Imports dataset records from a file into the database.
    * @param resourceName            the name of the resource file
    * @param numOfAttributesExpected the number of expected attributes in each record
    * @param sql                     the SQL statement for inserting records
+   * 
+   * @implNote This method requires the line_ref to be the last attribute in the insert SQL statement.
    */
-  private void importDatasetRecordsFromFile(String resourceName, int numOfAttributesExpected, String sql) {
-    int lineNumRef = 1;
+  private void importDataFromResourceFile(String resourceName, int numOfAttributesExpected, String sql) {
     ProcessTimer processTimer = new ProcessTimer(
-        "importDatasetRecordsFromFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
+        "importDataFromCSVResourceFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
+
+    int lineNumRef = localSetInfo.getImportProgress(resourceName);
     PreparedStatement preparedStatement = getPreparedStatement(sql);
+
     try (BufferedReader bufferedReader = new BufferedReader(getFileReaderFromResource(resourceName))) {
 
-      int numOfLinesToSkip = localSetInfo.getImportProgress(resourceName);
-      advanceBufferedReaderToNLine(bufferedReader, numOfLinesToSkip);
+      advanceReaderToLineNumRef(bufferedReader, lineNumRef);
       String line = bufferedReader.readLine();
 
-      while (line != null && lineNumRef < (sampleSizeLimit + 1)) {
+      while (line != null) {
+        if (resourceName.endsWith(".csv")) {
+          getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
+        } else {
+          getNewHyperlinksFromJSONLine(line, lineNumRef);
 
-        getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
-
+        }
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
-          // commitLocalSetInfoImportProgress();
-        }
-
-        if (lineNumRef % 100000 == 0) {
-          processTimer.lap();
+          commitLocalSetInfoImportProgress();
         }
 
         localSetInfo.incrementImported(resourceName);
@@ -91,6 +106,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
 
       preparedStatement.executeBatch();
       commitLocalSetInfoImportProgress();
+
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     } finally {
@@ -98,17 +114,13 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
-  //!===========================================================>
-  //? IMPORT DATASET RECORDS HELPERS
-  //!===========================================================>
-
   /**
-   * Advances the BufferedReader to the specified line number.
+   * Finds if any progress has already been made importing this file, then advances the reader to that line.
    * 
    * @param bufferedReader the BufferedReader to advance
-   * @param n              the line number to advance to
+   * @param n              the lineNumRef (deafult of 1) to advance to
    */
-  public void advanceBufferedReaderToNLine(BufferedReader bufferedReader, int n) {
+  public void advanceReaderToLineNumRef(BufferedReader bufferedReader, int n) {
     try {
       for (int i = 0; i < n; i++) {
         bufferedReader.readLine();
@@ -199,16 +211,63 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
         report("Error setting attribute value of prepared statement: " + e.getMessage());
       }
     }
+    setLineRefOnPrepStmnt(preparedStatement, lineNumRef, entData);
+    addBatchToPrepSmnt(preparedStatement);
+  }
+
+  /**
+   * Sets the line reference value on the prepared statement.
+   *
+   * @param preparedStatement The prepared statement to set the line reference value on.
+   * @param lineNumRef The line number reference value to set.
+   * @param entData The entity data array. Used to set the line reference value at the end of the array.
+   */
+  private void setLineRefOnPrepStmnt(PreparedStatement preparedStatement, int lineNumRef, String[] entData) {
     try {
       preparedStatement.setInt(entData.length + 1, lineNumRef);
     } catch (SQLException e) {
       report("Error setting line reference value of prepared statement: " + e.getMessage());
     }
+  }
+
+  /**
+   * Adds the current batch to the prepared statement.
+   *
+   * @param preparedStatement the prepared statement to add the batch to
+   */
+
+  private void addBatchToPrepSmnt(PreparedStatement preparedStatement) {
     try {
       preparedStatement.addBatch();
     } catch (SQLException e) {
       report("Error adding batch to prepared statement: " + e.getMessage());
     }
+  }
+
+  private HashMap<Integer, Hyperlink> getNewHyperlinksFromJSONLine(String JSONLineObj, int lineNumRef) {
+    HashMap<Integer, Hyperlink> hyperlinks = new HashMap<>();
+    LinkAnnotatedTextRecord record = serialzeLinkAnnotatedTextObject(JSONLineObj);
+    for (SectionRecord sectionRecord : record.sections) {
+      for (int targetPageId : sectionRecord.targetPageIds) {
+        if (hyperlinks.containsKey(targetPageId)) {
+          hyperlinks.get(targetPageId).incrementCount();
+        } else {
+          hyperlinks.put(targetPageId, new Hyperlink(record.pageId, targetPageId, lineNumRef));
+        }
+      }
+    }
+    return hyperlinks;
+  }
+
+  private LinkAnnotatedTextRecord serialzeLinkAnnotatedTextObject(String JSONLineObj) {
+    ObjectMapper mapper = new ObjectMapper();
+    LinkAnnotatedTextRecord record = null;
+    try {
+      record = mapper.readValue(JSONLineObj, LinkAnnotatedTextRecord.class);
+    } catch (Exception e) {
+      report("Error serializing JSON line object: " + e.getMessage());
+    }
+    return record;
   }
 
 }

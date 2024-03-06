@@ -18,16 +18,16 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
 
   public LocalSetInfo() {
     // default constructor
-    this.itemsImported = 0;
-    this.pagesImported = 0;
-    this.hyperlinksImported = 0;
-    this.propertiesImported = 0;
-    this.statementsImported = 0;
-    this.totalItems = 0;
-    this.totalPages = 0;
-    this.totalHyperlinks = 0;
-    this.totalProperties = 0;
-    this.totalStatements = 0;
+    this.itemsImported = 1;
+    this.pagesImported = 1;
+    this.hyperlinksImported = 1;
+    this.propertiesImported = 1;
+    this.statementsImported = 1;
+    this.totalItems = 1;
+    this.totalPages = 1;
+    this.totalHyperlinks = 1;
+    this.totalProperties = 1;
+    this.totalStatements = 1;
   }
 
   public int getItemsImported() {
@@ -158,7 +158,7 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
       case "statements.csv":
         return this.statementsImported;
       default:
-        return 0;
+        return 1;
     }
   }
 
@@ -178,19 +178,19 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
   }
 
   public void findRecordTotals() {
-    if (this.totalItems == 0) {
+    if (this.totalItems == 1) {
       this.totalItems = findTotalRecordsInFile("data/item.csv");
     }
-    if (this.totalPages == 0) {
+    if (this.totalPages == 1) {
       this.totalPages = findTotalRecordsInFile("data/page.csv");
     }
-    if (this.totalHyperlinks == 0) {
+    if (this.totalHyperlinks == 1) {
       this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
     }
-    if (this.totalProperties == 0) {
+    if (this.totalProperties == 1) {
       this.totalProperties = findTotalRecordsInFile("data/property.csv");
     }
-    if (this.totalStatements == 0) {
+    if (this.totalStatements == 1) {
       this.totalStatements = findTotalRecordsInFile("data/statements.csv");
     }
   }
