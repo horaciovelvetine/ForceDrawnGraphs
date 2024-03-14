@@ -47,18 +47,24 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    // importDataFromResourceFile("item.csv", 3,
-    //     "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    // importDataFromResourceFile("page.csv", 4,
-    //     "INSERT INTO pages (page_id, item_id, title, viewsl, line_ref) VALUES (?, ?, ?, ?, ?)");
-    // importDataFromResourceFile("property.csv", 3,
-    //     "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    // importDataFromResourceFile("statements.csv", 3,
-    //     "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    ProcessTimer processTimer = new ProcessTimer("build() run 1 started...");
+    importDataFromResourceFile("item.csv", 3,
+        "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    processTimer.lap();
+    importDataFromResourceFile("page.csv", 4,
+        "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
+    processTimer.lap();
+    importDataFromResourceFile("property.csv", 3,
+        "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    processTimer.lap();
+    importDataFromResourceFile("statements.csv", 3,
+        "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    processTimer.lap();
     importDataFromResourceFile("link_annotated_text.jsonl", 0,
         "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
+    processTimer.lap();
 
-    print("Gotta stop somewhere");
+    processTimer.end();
   }
 
   //!===========================================================>
