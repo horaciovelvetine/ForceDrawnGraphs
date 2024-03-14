@@ -29,7 +29,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
-  private int batchSizeUpdateTrigger = 1000000; // How often to commit batches to the database
+  private int batchSizeUpdateTrigger = 100000; // How often to commit batches to the database
 
   /**
    * Constructor for BuildLocalSet.
@@ -47,18 +47,16 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    importDataFromResourceFile("item.csv", 3,
-        "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    importDataFromResourceFile("page.csv", 4,
-        "INSERT INTO pages (page_id, item_id, title, viewsl, line_ref) VALUES (?, ?, ?, ?, ?)");
-    importDataFromResourceFile("property.csv", 3,
-        "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    importDataFromResourceFile("statements.csv", 3,
-        "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    // importDataFromResourceFile("item.csv", 3,
+    //     "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    // importDataFromResourceFile("page.csv", 4,
+    //     "INSERT INTO pages (page_id, item_id, title, viewsl, line_ref) VALUES (?, ?, ?, ?, ?)");
+    // importDataFromResourceFile("property.csv", 3,
+    //     "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    // importDataFromResourceFile("statements.csv", 3,
+    //     "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
     importDataFromResourceFile("link_annotated_text.jsonl", 0,
         "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
-
-    //TODO: ADDS HYPERLINK INGEST FUNC
 
     print("Gotta stop somewhere");
   }
@@ -88,25 +86,30 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       String line = bufferedReader.readLine();
 
       while (line != null) {
+        // Check for .JSONL or not 
         if (resourceName.endsWith(".csv")) {
           getAttributesAndSetPrepStmnt(line, lineNumRef, numOfAttributesExpected, preparedStatement);
         } else {
-          getNewHyperlinksFromJSONLine(line, lineNumRef);
-
+          HashMap<Integer, Hyperlink> hyperlinks = getNewHyperlinksFromJSONLine(line, lineNumRef);
+          for (Hyperlink hyperlink : hyperlinks.values()) {
+            addHyperlinkToBatch(preparedStatement, hyperlink);
+          }
         }
+        // Check for batch execution commit
         if (lineNumRef % batchSizeUpdateTrigger == 0) {
           preparedStatement.executeBatch();
           commitLocalSetInfoImportProgress();
+          processTimer.lap();
         }
-
+        //increment and move on to next line
         localSetInfo.incrementImported(resourceName);
         lineNumRef++;
         line = bufferedReader.readLine();
       }
-
+      // commit remainder batch ...
       preparedStatement.executeBatch();
       commitLocalSetInfoImportProgress();
-
+      // ends...
     } catch (Exception e) {
       report("Error importing dataset records: " + e.getMessage());
     } finally {
@@ -268,6 +271,18 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       report("Error serializing JSON line object: " + e.getMessage());
     }
     return record;
+  }
+
+  private void addHyperlinkToBatch(PreparedStatement preparedStatement, Hyperlink hyperlink) {
+    try {
+      preparedStatement.setInt(1, hyperlink.getFrom_page_id());
+      preparedStatement.setInt(2, hyperlink.getTo_page_id());
+      preparedStatement.setInt(3, hyperlink.getCount());
+      preparedStatement.setInt(4, hyperlink.getLineRef());
+      preparedStatement.addBatch();
+    } catch (SQLException e) {
+      report("Error adding hyperlink to batch: " + e.getMessage());
+    }
   }
 
 }
