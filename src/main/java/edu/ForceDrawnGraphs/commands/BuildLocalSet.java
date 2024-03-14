@@ -47,7 +47,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    ProcessTimer processTimer = new ProcessTimer("build() run 1 started...");
+    ProcessTimer processTimer = new ProcessTimer("build() run 2...");
     importDataFromResourceFile("item.csv", 3,
         "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
     processTimer.lap();
