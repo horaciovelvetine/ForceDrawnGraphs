@@ -47,7 +47,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    ProcessTimer processTimer = new ProcessTimer("build() run 2...");
+    ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ") run 3...");
     importDataFromResourceFile("item.csv", 3,
         "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
     processTimer.lap();
@@ -81,7 +81,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   private void importDataFromResourceFile(String resourceName, int numOfAttributesExpected, String sql) {
     ProcessTimer processTimer = new ProcessTimer(
-        "importDataFromCSVResourceFile(" + resourceName + " batchSize=" + batchSizeUpdateTrigger + ")");
+        "importDataFromCSVResourceFile(" + resourceName + ")");
 
     int lineNumRef = localSetInfo.getImportProgress(resourceName);
     PreparedStatement preparedStatement = getPreparedStatement(sql);
