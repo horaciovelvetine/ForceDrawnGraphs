@@ -8,6 +8,11 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import edu.ForceDrawnGraphs.util.FindTotalRecordsInFile;
 
+/**
+ * Represents the local set information for a graph data import.
+ * This class implements the FindTotalRecordsInFile interface.
+ * It provides methods to track and update the import progress and record totals.
+ */
 public class LocalSetInfo implements FindTotalRecordsInFile {
   private int itemsImported;
   private int totalItems;
