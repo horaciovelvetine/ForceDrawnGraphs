@@ -182,6 +182,9 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
   }
 
   public void findRecordTotals() {
+    if (recordTotalsAlreadyFound())
+      return;
+
     ExecutorService executor = Executors.newCachedThreadPool();
 
     CompletableFuture<Integer> totalItemsCount = CompletableFuture
@@ -211,6 +214,11 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
       this.totalStatements = totalStatementsCount.join();
     });
     executor.shutdown();
+  }
+
+  private boolean recordTotalsAlreadyFound() {
+    return this.totalItems > 1 && this.totalPages > 1 && this.totalHyperlinks > 1 && this.totalProperties > 1
+        && this.totalStatements > 1;
   }
 
   @Override
