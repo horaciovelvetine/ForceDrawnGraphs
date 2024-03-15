@@ -23,6 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CompletableFuture;
 
 @ShellComponent
 public class BuildLocalSet implements ExecuteSQL, Reportable {
@@ -48,23 +51,54 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
     ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ") run 5...");
-    importDataFromResourceFile("item.csv", 3,
-        "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    processTimer.lap();
-    importDataFromResourceFile("page.csv", 4,
-        "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
-    processTimer.lap();
-    importDataFromResourceFile("property.csv", 3,
-        "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    processTimer.lap();
-    importDataFromResourceFile("statements.csv", 3,
-        "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
-    processTimer.lap();
-    importDataFromResourceFile("link_annotated_text.jsonl", 0,
-        "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
-    processTimer.lap();
+    ExecutorService executor = Executors.newCachedThreadPool();
 
+    CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(() -> {
+      importDataFromResourceFile("item.csv", 3,
+          "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    }, executor);
+
+    CompletableFuture<Void> pageFuture = CompletableFuture.runAsync(() -> {
+      importDataFromResourceFile("page.csv", 4,
+          "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
+    }, executor);
+
+    CompletableFuture<Void> propertyFuture = CompletableFuture.runAsync(() -> {
+      importDataFromResourceFile("property.csv", 3,
+          "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    }, executor);
+
+    CompletableFuture<Void> statementsFuture = CompletableFuture.runAsync(() -> {
+      importDataFromResourceFile("statements.csv", 3,
+          "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    }, executor);
+
+    CompletableFuture<Void> linkAnnotatedTextFuture = CompletableFuture.runAsync(() -> {
+      importDataFromResourceFile("link_annotated_text.jsonl", 0,
+          "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
+    }, executor);
+
+    CompletableFuture<Void> allFutures = CompletableFuture.allOf(itemFuture, pageFuture, propertyFuture, statementsFuture,
+        linkAnnotatedTextFuture);
+
+    allFutures.join();
     processTimer.end();
+    executor.shutdown();
+    // importDataFromResourceFile("item.csv", 3,
+    //     "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    // processTimer.lap();
+    // importDataFromResourceFile("page.csv", 4,
+    //     "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
+    // processTimer.lap();
+    // importDataFromResourceFile("property.csv", 3,
+    //     "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+    // processTimer.lap();
+    // importDataFromResourceFile("statements.csv", 3,
+    //     "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
+    // processTimer.lap();
+    // importDataFromResourceFile("link_annotated_text.jsonl", 0,
+    //     "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
+    // processTimer.lap();
   }
 
   //!===========================================================>
