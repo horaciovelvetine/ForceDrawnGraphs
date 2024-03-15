@@ -50,7 +50,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ") run 5...");
+    ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ") run 1 -->");
     ExecutorService executor = Executors.newCachedThreadPool();
 
     CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(() -> {
