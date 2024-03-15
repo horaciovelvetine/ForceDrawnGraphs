@@ -1,5 +1,9 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import edu.ForceDrawnGraphs.util.FindTotalRecordsInFile;
@@ -178,21 +182,35 @@ public class LocalSetInfo implements FindTotalRecordsInFile {
   }
 
   public void findRecordTotals() {
-    if (this.totalItems == 1) {
-      this.totalItems = findTotalRecordsInFile("data/item.csv");
-    }
-    if (this.totalPages == 1) {
-      this.totalPages = findTotalRecordsInFile("data/page.csv");
-    }
-    if (this.totalHyperlinks == 1) {
-      this.totalHyperlinks = findTotalRecordsInFile("data/link_annotated_text.jsonl");
-    }
-    if (this.totalProperties == 1) {
-      this.totalProperties = findTotalRecordsInFile("data/property.csv");
-    }
-    if (this.totalStatements == 1) {
-      this.totalStatements = findTotalRecordsInFile("data/statements.csv");
-    }
+    ExecutorService executor = Executors.newCachedThreadPool();
+
+    CompletableFuture<Integer> totalItemsCount = CompletableFuture
+        .supplyAsync(() -> findTotalRecordsInFile("data/item.csv"), executor);
+
+    CompletableFuture<Integer> totalPagesCount = CompletableFuture
+        .supplyAsync(() -> findTotalRecordsInFile("data/page.csv"), executor);
+
+    CompletableFuture<Integer> totalHyperlinksCount = CompletableFuture
+        .supplyAsync(() -> findTotalRecordsInFile("data/link_annotated_text.jsonl"), executor);
+
+    CompletableFuture<Integer> totalPropertiesCount = CompletableFuture
+        .supplyAsync(() -> findTotalRecordsInFile("data/property.csv"), executor);
+
+    CompletableFuture<Integer> totalStatementsCount = CompletableFuture
+        .supplyAsync(() -> findTotalRecordsInFile("data/statements.csv"), executor);
+
+    CompletableFuture<Void> allOf = CompletableFuture.allOf(totalItemsCount, totalPagesCount, totalHyperlinksCount,
+        totalPropertiesCount, totalStatementsCount);
+    allOf.join();
+
+    allOf.thenRun(() -> {
+      this.totalItems = totalItemsCount.join();
+      this.totalPages = totalPagesCount.join();
+      this.totalHyperlinks = totalHyperlinksCount.join();
+      this.totalProperties = totalPropertiesCount.join();
+      this.totalStatements = totalStatementsCount.join();
+    });
+    executor.shutdown();
   }
 
   @Override
