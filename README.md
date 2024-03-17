@@ -107,7 +107,7 @@ Hypothesis: No-brainer here, the multi-threaded import will be faster. The quest
 
 Process: The `BuildLocalSet` command has been updated (pretty minimally) to allow importing of each of the 7 files in the dataset. The largest change in this process is the addition of the logic to process the .jsonl file, this file contains all the hyperlinking data & the logic for the process was completed in an earlier stage in this project build. This logic includes the JACKSON databind library to read the .jsonl file to some POJO's , which are then processed and committed to the database as `Hyperlink` objects. This process happens inside the `importDataFromResourceFile()` method, called inside the `build()` method.
 
-![imoprtDataFromResourceFile() snippet](docs/ImportDataFromResourceFileSnippetMod2.png)
+![imoprtDataFromResourceFile() snippet](docs/ImportDataFromResourceSnippetMod2.png)
 
 For the single-threaded process this method is called once for each of the 7 files (in a random order), and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [BuildLocalSet.java](src/main/java/edu/ForceDrawnGraphs/commands/BuildLocalSet.java) command. 
 
