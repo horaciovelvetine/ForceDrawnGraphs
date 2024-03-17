@@ -50,7 +50,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   @ShellMethod("Builds, or resumes building, the local set.")
   public void build() {
-    ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ") run 1 -->");
+    ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ")");
     ExecutorService executor = Executors.newCachedThreadPool();
 
     CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(() -> {
@@ -78,7 +78,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
           "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
     }, executor);
 
-    CompletableFuture<Void> allFutures = CompletableFuture.allOf(itemFuture, pageFuture, propertyFuture, statementsFuture,
+    CompletableFuture<Void> allFutures = CompletableFuture.allOf(itemFuture, pageFuture, propertyFuture,
+        statementsFuture,
         linkAnnotatedTextFuture);
 
     allFutures.join();
@@ -286,6 +287,13 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     }
   }
 
+  /**
+   * Retrieves a HashMap of new Hyperlinks from a JSON line object.
+   *
+   * @param JSONLineObj the JSON line object
+   * @param lineNumRef  the line number reference
+   * @return the HashMap of new Hyperlinks
+   */
   private HashMap<Integer, Hyperlink> getNewHyperlinksFromJSONLine(String JSONLineObj, int lineNumRef) {
     HashMap<Integer, Hyperlink> hyperlinks = new HashMap<>();
     LinkAnnotatedTextRecord record = serialzeLinkAnnotatedTextObject(JSONLineObj);
@@ -301,6 +309,12 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     return hyperlinks;
   }
 
+  /**
+   * Serializes a JSON line object into a LinkAnnotatedTextRecord.
+   *
+   * @param JSONLineObj the JSON line object
+   * @return the deserialized LinkAnnotatedTextRecord
+   */
   private LinkAnnotatedTextRecord serialzeLinkAnnotatedTextObject(String JSONLineObj) {
     ObjectMapper mapper = new ObjectMapper();
     LinkAnnotatedTextRecord record = null;
@@ -312,6 +326,12 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     return record;
   }
 
+  /**
+   * Adds a Hyperlink to the batch for batch processing.
+   *
+   * @param preparedStatement the prepared statement
+   * @param hyperlink         the Hyperlink to add
+   */
   private void addHyperlinkToBatch(PreparedStatement preparedStatement, Hyperlink hyperlink) {
     try {
       preparedStatement.setInt(1, hyperlink.getFrom_page_id());
