@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS local_set_info;
+DROP TABLE IF EXISTS statements;
+DROP TABLE IF EXISTS properties;
+DROP TABLE IF EXISTS hyperlinks;
+DROP TABLE IF EXISTS pages;
+DROP TABLE IF EXISTS items;
