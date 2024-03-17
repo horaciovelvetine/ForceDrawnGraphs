@@ -85,21 +85,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
     allFutures.join();
     processTimer.end();
     executor.shutdown();
-    // importDataFromResourceFile("item.csv", 3,
-    //     "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    // processTimer.lap();
-    // importDataFromResourceFile("page.csv", 4,
-    //     "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
-    // processTimer.lap();
-    // importDataFromResourceFile("property.csv", 3,
-    //     "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
-    // processTimer.lap();
-    // importDataFromResourceFile("statements.csv", 3,
-    //     "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
-    // processTimer.lap();
-    // importDataFromResourceFile("link_annotated_text.jsonl", 0,
-    //     "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
-    // processTimer.lap();
   }
 
   //!===========================================================>
@@ -109,7 +94,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   /** BuildLocalSet.java
    * Imports dataset records from a file into the database.
    * @param resourceName            the name of the resource file
-   * @param numOfAttributesExpected the number of expected attributes in each record
+   * @param numOfAttributesExpected the number of expected attributes in each record (CSV files only)
    * @param sql                     the SQL statement for inserting records
    * 
    * @implNote This method requires the line_ref to be the last attribute in the insert SQL statement.
