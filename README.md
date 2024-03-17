@@ -68,7 +68,7 @@ Processes: `BuildLocalSet` contains the majority of the code for this module and
 
 Batch sizes were: 100, 1000, 2500, 5000, 10000, 25000, 50000, 100000 objects per commit. Below is a snippet of the main method behind the import process.
 
-![snippet](/docs/Optimizing%20Imports%20-%20import%20code%20snippet%20v1.png)
+![snippet](/docs/ImportDataFromResourceSnippetMod1.png)
 
 Hardware/Software: 
 - 2021 16" MacBook Pro
@@ -99,4 +99,27 @@ Results v1.1:
 
 Takeaways: An interesting stepping trend becomes apparent as the batch size increases, after some reading it's clear the limitation here is my understanding of the inner workings of some of the underlying technologies. These tests once again focused on batch sizes that show a trend of continuing returns, but has been limited to my sample size of 10m objects.  The most performant batch sizes were the 100k, 10m & 10m(a) runs - but the degree of change is some 3000ms. over the entire sample set. With a variance of about 3 sec. per 10m objects, and a total of approx 210m objects to be imported total, instead of continuing to chase the rabbit down the hole, I will keep on moving forward. The extra minute the one time I have to actually import the full dataset, will be spent reading documentation trying to understand the problem, brb...
 
-### Module 2 -  Completing the Import Process (Once)
+### Module 2 -  Leveraging Multiple Threads to Import Data
+
+Goal: Demonstrate the effective difference between single and multi-threaded imports of the dataset. 
+
+Hypothesis: No-brainer here, the multi-threaded import will be faster. The question is how much faster?
+
+Process: The `BuildLocalSet` command has been updated (pretty minimally) to allow importing of each of the 7 files in the dataset. The largest change in this process is the addition of the logic to process the .jsonl file, this file contains all the hyperlinking data & the logic for the process was completed in an earlier stage in this project build. This logic includes the JACKSON databind library to read the .jsonl file to some POJO's , which are then processed and committed to the database as `Hyperlink` objects. This process happens inside the `importDataFromResourceFile()` method, called inside the `build()` method.
+
+![imoprtDataFromResourceFile() snippet](docs/ImportDataFromResourceFileSnippetMod2.png)
+
+For the single-threaded process this method is called once for each of the 7 files (in a random order), and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [BuildLocalSet.java](src/main/java/edu/ForceDrawnGraphs/commands/BuildLocalSet.java) command. 
+
+Results: 
+
+- The default batch commit size was set back to 100,000 due to limitations in heap sizing, and taking into account the results from the previous module. 
+- The data from Run-2 of the SIngle-Threaded process was run, then without thinking I continued to work in the background (chrome open, and excel, etc...) this caused this run to be noticeably slower than the other single-thread runs, and was subsequently excluded from the analysis.
+
+![Results Visualization](docs/LeveraginMultipleThreadsAvgs.png)
+
+Takeaways: The multi-threaded process ends up being some 2.2x faster than the single-threaded import. Given the performance uptik, the `counts` command was refactored to leverage multi-threading as well, to similar effect. When beginning this project my original time to complete an import was estimated to a few days, now that process has been reduced to UNDER 15 minutes - to create a COMPLETE local copy of the entirety of English Wikipedia (as of 2019 - the origianl date from Wikimedia's dump and the Kensho set).
+
+To give some additional insight - my logic for the import process adds roughly 5ms (on average) of time over the entirety of the import of some 210 million records (across all 7 files). The remaining overhead in the import process is added by Postgres and the Libraries used to interact with it, and had been minimized as much as is reasonable for the scope of this project. 
+
+### Module 3 - Analyzing Data and Building the Graph Set
