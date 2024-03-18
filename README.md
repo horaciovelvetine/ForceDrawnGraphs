@@ -60,11 +60,11 @@ First step is to import the variety of files the dataset provides, including mos
 
 There are more than 141 million statements, and some 60 million additional entries in this (Wikipedia) dataset. Given this volume of data, each call to the DB (to write) will be the most costly part of the process. This write is done using the `PreparedStatement` class [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html), which provides the unique opportunity to dig into the PreparedStatement and see if and how the amount of data included with each commit effects the performance.
 
-Goal: What is the optimal size of the batch to be included in each commit?
+Goal: Determine the optimal size of the batch to be included in each commit.
 
-Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html#executeLargeUpdate()) it is likely there are diminishing returns as the size of the batch is increased, and so the limiting factor will be . Albeit, at some (integer overflow) point the `executeLargeUpdate` method would be required, but I believe this method is intended for running a large update across _all_ rows of a table to adjust something globally (like a timestamp). 
+Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html#executeLargeUpdate()) I think there will be diminishing returns as the size of the batch is increased, so the limiting factor will be some combination of my hardware limitations. As the number of records increases point the `executeLargeUpdate` method must be required, but I believe this method is intended for running a large update across _all_ rows of a table to adjust something globally (like a timestamp) and not for writing new info to the database. 
 
-Processes: `BuildLocalSet` contains the majority of the code for this module and is initialized with the `build` command. Tests are run on the same data (item.csv) to compare a variety of batch sizes for each commit. The import process is halted after the `sampleSizeLimit` is reached, and the time taken for the process is recorded. The data was pulled into Excel for analysis and visualization.
+Processes: `BuildLocalSet.java` class contains the majority of the code for this module and is initialized with the `build()` command. Each test is run on the same data (item.csv) to compare a variety of batch sizes for each commit. The import process is halted after the `sampleSizeLimit` is reached, and the time taken for the process is recorded. The data was pulled into Excel for analysis and visualization.
 
 Batch sizes were: 100, 1000, 2500, 5000, 10000, 25000, 50000, 100000 objects per commit. Below is a snippet of the main method behind the import process.
 
@@ -97,29 +97,29 @@ Results v1.1:
 
 ![Results Visualization](docs/PreparedStatementsChart_v1.1.1.png)
 
-Takeaways: An interesting stepping trend becomes apparent as the batch size increases, after some reading it's clear the limitation here is my understanding of the inner workings of some of the underlying technologies. These tests once again focused on batch sizes that show a trend of continuing returns, but has been limited to my sample size of 10m objects.  The most performant batch sizes were the 100k, 10m & 10m(a) runs - but the degree of change is some 3000ms. over the entire sample set. With a variance of about 3 sec. per 10m objects, and a total of approx 210m objects to be imported total, instead of continuing to chase the rabbit down the hole, I will keep on moving forward. The extra minute the one time I have to actually import the full dataset, will be spent reading documentation trying to understand the problem, brb...
+Takeaways: An interesting stepping trend becomes apparent as with the increasing batch size, after some reading it's clear the limitation here is my understanding of the inner workings of some of the underlying technologies. These tests once again focused on batch sizes that show a trend of continuing returns, but has been limited to my sample size of 10m objects.  The most performant batch sizes were the 100k, 10m & 10m(a) runs - but the degree of change is only some 3000ms. over the entire sample set. With a variance of about 3 sec. per 10m objects, and a total of approx 210m objects to be imported, instead of continuing to chase the rabbit down the hole optimizing, I'll keep on moving forward.
 
 ### Module 2 -  Leveraging Multiple Threads to Import Data
 
-Goal: Demonstrate the effective difference between single and multi-threaded imports of the dataset. 
+Goal: Demonstrate the difference between single and multi-threaded imports of the dataset. 
 
-Hypothesis: No-brainer here, the multi-threaded import will be faster. The question is how much faster?
+Hypothesis: No-brainer here, the multi-threaded import will be faster. The question is how much.
 
-Process: The `BuildLocalSet` command has been updated (pretty minimally) to allow importing of each of the 7 files in the dataset. The largest change in this process is the addition of the logic to process the .jsonl file, this file contains all the hyperlinking data & the logic for the process was completed in an earlier stage in this project build. This logic includes the JACKSON databind library to read the .jsonl file to some POJO's , which are then processed and committed to the database as `Hyperlink` objects. This process happens inside the `importDataFromResourceFile()` method, called inside the `build()` method.
+Process: The `BuildLocalSet.java` class has been updated (pretty minimally) to allow importing of each of the 7 files in the dataset. The largest change in this process is the addition of the logic to process the .jsonl file, this file contains all the hyperlinking data & the logic for the process was completed in an earlier stage in this project and re-implemented here. This logic utilizes the JACKSON databind library to read the .jsonl file to some POJO's , which are then processed and committed to the database as `Hyperlink` objects. This process happens inside the `importDataFromResourceFile()` method, called inside from the `build()` command.
 
 ![imoprtDataFromResourceFile() snippet](docs/ImportDataFromResourceSnippetMod2.png)
 
-For the single-threaded process this method is called once for each of the 7 files (in a random order), and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [BuildLocalSet.java](src/main/java/edu/ForceDrawnGraphs/commands/BuildLocalSet.java) command. 
+For the single-threaded process this method is called once for each of the 7 files in order, and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [BuildLocalSet.java](src/main/java/edu/ForceDrawnGraphs/commands/BuildLocalSet.java) class. 
 
 Results: 
 
 - The default batch commit size was set back to 100,000 due to limitations in heap sizing, and taking into account the results from the previous module. 
-- The data from Run-2 of the SIngle-Threaded process was run, then without thinking I continued to work in the background (chrome open, and excel, etc...) this caused this run to be noticeably slower than the other single-thread runs, and was subsequently excluded from the analysis.
+- The data from Run-2 of the Single-Threaded process was run and without thinking I continued to work in the background (chrome open, and excel, etc...) this caused this run to be noticeably slower than the other single-threaded runs, and was subsequently excluded from analysis.
 
 ![Results Visualization](docs/LeveraginMultipleThreadsAvgs.png)
 
-Takeaways: The multi-threaded process ends up being some 2.2x faster than the single-threaded import. Given the performance uptik, the `counts` command was refactored to leverage multi-threading as well, to similar effect. When beginning this project my original time to complete an import was estimated to a few days, now that process has been reduced to UNDER 15 minutes - to create a COMPLETE local copy of the entirety of English Wikipedia (as of 2019 - the origianl date from Wikimedia's dump and the Kensho set).
+Takeaways: The multi-threaded process ends up being some 2.2x faster than the single-threaded import. Given the performance uptik, the `counts()` command in [FindAndUpdateRecordCounts.java](src/main/java/edu/ForceDrawnGraphs/commands/FindAndUpdateRecordCounts.java) was refactored to leverage multi-threading as well, to similar effect. When beginning this project my original time to complete an import was estimated to a few days, now that process has been reduced to UNDER 15 minutes - to create a COMPLETE local copy of the entirety of the English Wikipedia (as of 2019 - the origianl date from Wikimedia's dump and the Kensho set).
 
-To give some additional insight - my logic for the import process adds roughly 5ms (on average) of time over the entirety of the import of some 210 million records (across all 7 files). The remaining overhead in the import process is added by Postgres and the Libraries used to interact with it, and had been minimized as much as is reasonable for the scope of this project. 
+To give some additional insight - my logic for the import process adds 5ms (on average) of time over the entirety of the import of some 210 million records (across all 7 files). The remaining overhead in the import process is Postgres and the Libraries used to write to it, and had been minimized as much as is reasonable for the scope of this project. 
 
 ### Module 3 - Analyzing Data and Building the Graph Set
