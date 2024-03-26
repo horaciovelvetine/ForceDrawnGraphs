@@ -7,9 +7,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
+import edu.ForceDrawnGraphs.functions.FindTotalRecordsInFile;
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.LocalSetInfo;
-import edu.ForceDrawnGraphs.util.FindTotalRecordsInFile;
-import edu.ForceDrawnGraphs.util.Reportable;
 
 /**
  * This class is responsible for finding and updating the record counts in each file of the data set.

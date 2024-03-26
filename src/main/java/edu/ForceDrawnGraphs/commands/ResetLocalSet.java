@@ -6,12 +6,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
-import edu.ForceDrawnGraphs.util.ExecuteSQL;
-import edu.ForceDrawnGraphs.util.ProcessTimer;
-import edu.ForceDrawnGraphs.util.Reportable;
+import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
+import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 @ShellComponent
-public class ResetLocalSet implements Reportable, ExecuteSQL {
+public class ResetLocalSet implements Reportable, ExecuteSQLResourceFile {
   private JdbcTemplate jdbcTemplate;
 
   @SuppressWarnings("null")
