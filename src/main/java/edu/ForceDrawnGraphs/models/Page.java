@@ -2,8 +2,6 @@ package edu.ForceDrawnGraphs.models;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import com.fasterxml.jackson.databind.JsonSerializable.Base;
-
 public class Page extends BaseDatasetRecord {
   public String RESOURCE_FILE_NAME = "page.csv";
   private String pageID;

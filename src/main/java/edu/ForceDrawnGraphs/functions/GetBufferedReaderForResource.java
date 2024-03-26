@@ -7,6 +7,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
+@SuppressWarnings("null")
 public interface GetBufferedReaderForResource extends Reportable {
   public default BufferedReader getBufferedReaderForResource(String resourceName) {
     try {

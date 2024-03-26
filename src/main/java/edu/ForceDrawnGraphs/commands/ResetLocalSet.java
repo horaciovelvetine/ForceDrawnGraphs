@@ -8,10 +8,9 @@ import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
-import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 @ShellComponent
-public class ResetLocalSet implements Reportable, ExecuteSQLResourceFile {
+public class ResetLocalSet implements ExecuteSQLResourceFile {
   private JdbcTemplate jdbcTemplate;
 
   @SuppressWarnings("null")

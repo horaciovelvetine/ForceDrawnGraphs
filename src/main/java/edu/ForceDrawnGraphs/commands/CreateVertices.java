@@ -11,13 +11,12 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
-import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Item;
 import edu.ForceDrawnGraphs.models.Page;
 import edu.ForceDrawnGraphs.models.Vertex;
 
 @ShellComponent
-public class CreateVertices implements Reportable, GetPreparedStmt {
+public class CreateVertices implements GetPreparedStmt {
   private JdbcTemplate jdbcTemplate;
   private Set<Item> itemQueue = new HashSet<>();
   private boolean initialSetFetched = false;

@@ -10,7 +10,6 @@ import edu.ForceDrawnGraphs.interfaces.Reportable;
  * This interface provides a method to get a prepared statement for executing SQL queries.
  * It extends the Reportable interface.
  */
-@SuppressWarnings("null")
 public interface GetPreparedStmt extends Reportable {
 
   /**

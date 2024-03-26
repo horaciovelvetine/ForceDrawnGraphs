@@ -1,11 +1,9 @@
 package edu.ForceDrawnGraphs.commands;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 
 import javax.sql.DataSource;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
