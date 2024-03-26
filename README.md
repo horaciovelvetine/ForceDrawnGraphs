@@ -16,7 +16,7 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 
 - Spring-Shell: [site](https://docs.spring.io/spring-shell/docs/current/reference/htmlsingle/)
 - Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
-- JUNG: Java Universal Network/Graph Framework  [site](https://jung.sourceforge.net/)
+- JUNG: Java Universal Network/Graph Framework: [site](https://jung.sourceforge.net/)
 
 ### Module 1 - Creating a local copy of the dataset.
 
@@ -122,4 +122,58 @@ Takeaways: The multi-threaded process ends up being some 2.2x faster than the si
 
 To give some additional insight - my logic for the import process adds 5ms (on average) of time over the entirety of the import of some 210 million records (across all 7 files). The remaining overhead in the import process is Postgres and the Libraries used to write to it, and had been minimized as much as is reasonable for the scope of this project. 
 
-### Module 3 - Analyzing Data and Building the Graph Set
+### Module 3 - Analyzing Data and Building Nodes/Edges
+
+Goal: Create the underlying nodes and edges to run through the JUNG library to create a graph representation of the data.
+
+Unpacking the process: 
+
+- At the end of this command there should be (in two new tables) a complete list of all the nodes and edges in the dataset. 
+- The data can be pretty neatly subdivided into two categories: 
+  - Nodes: Items, Pages
+  - Edges: Statements, Hyperlinks, Properties
+- Any edge cannot have a matching source and target node.
+- There should be only one edge between any two nodes with a cumalative strength which may represent the number of times the edge is present in the dataset.
+- Given the volume of data the trick will be to minimize the number of queries to the database to get the data needed to build the graph.
+- The advantage is the nature of the 1 to 1 realtionships can be exploited to abuse the unique constraints for columns on each of the new models and a catch block to update any duplicates with any value that is not present in the intended object. 
+- Adopting the language of the JUNG library, the nodes will be the vertices and the edges will be the edges.
+- While there will be source and target vertex attributes, the edges are not directional, this is only to provide a means of addressing either end of the edge.
+
+Record Totals:
+  - 26,048,882 Items
+  - 5,362,173 Pages
+  ---------------------- 
+  - 105,305,624 Hyperlinks
+  - 141,206852 Statements
+  - 6,984 Properties
+
+Object Design: 
+
+- PrepVertices (PrepVertex.java):
+  - id (int)
+  - x (double)
+  - y (double)
+  - z (double)
+  - srcItemId (int)
+  - srcPageId (int)
+  - label (String) - Page.title || Item.enLabel
+  - description (String) - Item.enDescription
+  - views (int) - Page.views
+
+- PrepEdges (PrepEdge.java):
+  - id (int)
+  - srcVertId (int) 
+  - tgtVertId (int)
+  - weight (int) - Hyperlink.count
+  - edgeType (String) - Statement.edge_property_id.(property).enLabel
+  - edgeDescription (String) - Statement.edge_property_id.(property).enDescription
+
+- Properties (Property.java):
+  - id (int)
+  - propertyId (int)
+  - label (String)
+  - description (String)
+
+Object Notes: 
+- Property can probably just be cached and stored in memory since the size of this set will be reasonably small enought to store w/o slowdowns
+- Looking up the source records for edges should be a matter of looking for either hyperlinks or statements with the same srcItemId or srcPageId and then getting the corresponding tgtItemId or tgtPageId to get the corresponding vertex id.
