@@ -10,15 +10,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import edu.ForceDrawnGraphs.functions.AddBatchToStmt;
+import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
+import edu.ForceDrawnGraphs.functions.GetBufferedReaderForResource;
+import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
+import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.models.Hyperlink;
 import edu.ForceDrawnGraphs.models.LinkAnnotatedTextRecord;
 import edu.ForceDrawnGraphs.models.LocalSetInfo;
 import edu.ForceDrawnGraphs.models.SectionRecord;
-import edu.ForceDrawnGraphs.util.ExecuteSQL;
-import edu.ForceDrawnGraphs.util.ProcessTimer;
-import edu.ForceDrawnGraphs.util.Reportable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -28,7 +29,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.CompletableFuture;
 
 @ShellComponent
-public class BuildLocalSet implements ExecuteSQL, Reportable {
+public class BuildLocalSet
+    implements ExecuteSQLResourceFile, GetPreparedStmt, AddBatchToStmt, GetBufferedReaderForResource {
   private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
   private LocalSetInfo localSetInfo = new LocalSetInfo();
@@ -48,7 +50,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   /**
    * Builds, or resumes building, the local set.
    */
-  @ShellMethod("Builds, or resumes building, the local set.")
+  @ShellMethod("Builds the local PG set by inserting resources from the /data directory.")
   public void build() {
     ProcessTimer processTimer = new ProcessTimer("build(batchSize = " + batchSizeUpdateTrigger + ")");
     ExecutorService executor = Executors.newCachedThreadPool();
@@ -88,7 +90,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   }
 
   //!===========================================================>
-  //? IMPORT DATASET RECORDS HELPERS
+  //! IMPORT DATASET RECORDS HELPERS
   //!===========================================================>
 
   /** BuildLocalSet.java
@@ -101,13 +103,11 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   private void importDataFromResourceFile(String resourceName, int numOfAttributesExpected, String sql) {
     ProcessTimer processTimer = new ProcessTimer(
-        "importDataFromCSVResourceFile(" + resourceName + ")");
+        "importDataFromResourceFile(" + resourceName + ")");
     int lineNumRef = localSetInfo.getImportProgress(resourceName);
-    PreparedStatement preparedStatement = getPreparedStatement(sql);
+    PreparedStatement preparedStatement = getPreparedStmt(sql, dataSource);
 
-    try (BufferedReader bufferedReader = new BufferedReader(getFileReaderFromResource(resourceName))) {
-
-      advanceReaderToLineNumRef(bufferedReader, lineNumRef);
+    try (BufferedReader bufferedReader = getBufferedReaderForResource("data/" + resourceName)) {
       String line = bufferedReader.readLine();
 
       while (line != null) {
@@ -143,22 +143,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   }
 
   /**
-   * Finds if any progress has already been made importing this file, then advances the reader to that line.
-   * 
-   * @param bufferedReader the BufferedReader to advance
-   * @param n              the lineNumRef (deafult of 1) to advance to
-   */
-  public void advanceReaderToLineNumRef(BufferedReader bufferedReader, int n) {
-    try {
-      for (int i = 0; i < n; i++) {
-        bufferedReader.readLine();
-      }
-    } catch (Exception e) {
-      report("Error advancing BufferedReader to line " + n + ": " + e.getMessage());
-    }
-  }
-
-  /**
    * Commits the import progress of the local set info.
    */
   @SuppressWarnings("null")
@@ -171,40 +155,10 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   }
 
   /**
-   * Creates a prepared statement for the given SQL String.
-   * 
-   * @param sql the SQL statement
-   * @return the prepared statement
-   */
-  private PreparedStatement getPreparedStatement(String sql) {
-    try {
-      return dataSource.getConnection().prepareStatement(sql);
-    } catch (SQLException e) {
-      report("getPreparedStatement() error: " + e.getMessage());
-      return null;
-    }
-  }
-
-  /**
-   * Retrieves a FileReader for the given classpath resource.
-   * 
-   * @param resourceName the name of the resource file
-   * @return the FileReader
-   */
-  private FileReader getFileReaderFromResource(String resourceName) {
-    try {
-      return new FileReader(new ClassPathResource("data/" + resourceName).getFile());
-    } catch (Exception e) {
-      report("getFileReaderFromResource() error: " + e.getMessage());
-      return null;
-    }
-  }
-
-  /**
    * Retrieves an array of string attributes from a CSV line.
    * 
    * @param line                   the String of text from a single line of a CSV file
-   * @param numOfAttributesExpected the number of expected attributes
+   * @param numOfAttributesExpected the number of expected attributes (columns in the CSV file)
    * @return the array of string attributes
    */
   private String[] getArrayOfStringAttributesFromCSV(String line, int numOfAttributesExpected) {
@@ -224,7 +178,7 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   /**
    * Retrieves the attributes from a CSV line and sets them in the prepared statement.
    * 
-   * @param line                        the String of text from a single line of a CSV file\
+   * @param line                        the String of text from a single line of a CSV file
    * @param lineNumRef                     the reference number of the line
    * @param numOfAttributesExpected     the number of expected attributes
    * @param preparedStatement          the prepared statement
@@ -240,11 +194,11 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       }
     }
     setLineRefOnPrepStmnt(preparedStatement, lineNumRef, entData);
-    addBatchToPrepSmnt(preparedStatement);
+    addBatchToStmt(preparedStatement);
   }
 
   /**
-   * Sets the line reference value on the prepared statement.
+   * Sets the line reference value for an object on the prepared statement.
    *
    * @param preparedStatement The prepared statement to set the line reference value on.
    * @param lineNumRef The line number reference value to set.
@@ -259,20 +213,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
   }
 
   /**
-   * Adds the current batch to the prepared statement.
-   *
-   * @param preparedStatement the prepared statement to add the batch to
-   */
-
-  private void addBatchToPrepSmnt(PreparedStatement preparedStatement) {
-    try {
-      preparedStatement.addBatch();
-    } catch (SQLException e) {
-      report("Error adding batch to prepared statement: " + e.getMessage());
-    }
-  }
-
-  /**
    * Retrieves a HashMap of new Hyperlinks from a JSON line object.
    *
    * @param JSONLineObj the JSON line object
@@ -281,7 +221,8 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
    */
   private HashMap<Integer, Hyperlink> getNewHyperlinksFromJSONLine(String JSONLineObj, int lineNumRef) {
     HashMap<Integer, Hyperlink> hyperlinks = new HashMap<>();
-    LinkAnnotatedTextRecord record = serialzeLinkAnnotatedTextObject(JSONLineObj);
+    LinkAnnotatedTextRecord record = new LinkAnnotatedTextRecord().createLATRFromStringData(JSONLineObj);
+
     for (SectionRecord sectionRecord : record.sections) {
       for (int targetPageId : sectionRecord.targetPageIds) {
         if (hyperlinks.containsKey(targetPageId)) {
@@ -292,23 +233,6 @@ public class BuildLocalSet implements ExecuteSQL, Reportable {
       }
     }
     return hyperlinks;
-  }
-
-  /**
-   * Serializes a JSON line object into a LinkAnnotatedTextRecord.
-   *
-   * @param JSONLineObj the JSON line object
-   * @return the deserialized LinkAnnotatedTextRecord
-   */
-  private LinkAnnotatedTextRecord serialzeLinkAnnotatedTextObject(String JSONLineObj) {
-    ObjectMapper mapper = new ObjectMapper();
-    LinkAnnotatedTextRecord record = null;
-    try {
-      record = mapper.readValue(JSONLineObj, LinkAnnotatedTextRecord.class);
-    } catch (Exception e) {
-      report("Error serializing JSON line object: " + e.getMessage());
-    }
-    return record;
   }
 
   /**
