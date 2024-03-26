@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
-import edu.ForceDrawnGraphs.util.FindTotalRecordsInFile;
+import edu.ForceDrawnGraphs.functions.FindTotalRecordsInFile;
 
 /**
  * Represents the local set information for a graph data import.
