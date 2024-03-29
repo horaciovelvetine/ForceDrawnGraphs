@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS edges;
+
 CREATE TABLE edges (
   id SERIAL PRIMARY KEY,
   src_vertex_id INT,

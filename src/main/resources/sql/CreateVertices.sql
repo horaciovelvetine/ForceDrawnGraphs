@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS vertices;
+
 CREATE TABLE vertices (
     id SERIAL PRIMARY KEY,
     x DOUBLE,
