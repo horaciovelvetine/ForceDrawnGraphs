@@ -10,5 +10,5 @@ CREATE TABLE vertices (
     en_description TEXT,
     views int,
     src_item_id VARCHAR(255),
-    src_page_id VARCHAR(255),
-)
+    src_page_id VARCHAR(255)
+);
