@@ -32,9 +32,8 @@ public interface ExecuteSQLResourceFile extends Reportable {
           jdbc.execute(statement);
         }
       }
-
     } catch (Exception e) {
-      report("@line 35 of ExecuteSQL().java:", e);
+      report("@ExecuteSQL().java:", e);
     }
   }
 }
