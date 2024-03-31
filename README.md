@@ -178,3 +178,45 @@ Object Design:
 Object Notes: 
 - Property can probably just be cached and stored in memory since the size of this set will be reasonably small enough to store w/o slowdowns
 - Looking up the source records for edges should be a matter of looking for either hyperlinks or statements with the same srcItemId or srcPageId and then getting the corresponding tgtItemId or tgtPageId to get the corresponding vertex id.
+
+Still Unpacking The Process: 
+
+The basic code outline of the above process for Vertices (v1.0) ended up as follows inside of the new Graphset.java class: 
+
+```java
+  @ShellMethod("Merge Items and Pages data to create Vertices for the Graphset")
+  public void initVerts() {
+    ProcessTimer timer = new ProcessTimer("Init-Graphset-Vertices");
+
+    Set<Item> queriedItemsQueue = new HashSet<>();
+    PreparedStatement vertextInsertStmt = getPreparedStmt(
+        "INSERT INTO vertices (x, y, z, label, en_description, views, src_item_id, src_page_id) VALUES (?,?,?,?,?,?,?,?);",
+        dataSource);
+
+    addItemsToQueriedItemsQueue(queriedItemsQueue);
+    while (!queriedItemsQueue.isEmpty()) {
+      Item item = queriedItemsQueue.iterator().next();
+      Page page = getPageByItemId(item.getItemID());
+      Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+      addVertextToBatchInsert(vertextInsertStmt, vertex);
+
+      if (itemsInBatch >= 1000) {
+        try {
+          vertextInsertStmt.executeBatch();
+          itemsInserted += itemsInBatch;
+          timer.lap();
+          itemsInBatch = 0;
+        } catch (Exception e) {
+          report(e);
+        }
+      }
+      queriedItemsQueue.remove(item);
+    }
+  }
+```
+This initial unpacking of the process does the job, enormously slowly - but it does the job. Given the size of the dataset this has me looking at the data itself in a few different ways. 
+
+- Most items don't have a corresponding page record, but the items with pages are going to be the ones (mostly) worth displaying. 
+- Any item that has a page really just has hyperlinks, and so combining them onto the vertex object is a good fit data wise, but not imperative to do in any sort of order (or even in the initial creation of all these vertex objects if that ends up being the route that makes the most sense).
+- More reading on graphset creation has also led me to hypothesize that the number of edges & nodes which I will be able to process/display/need access to at any given time will be limited (especially given I am not leveraging any DB or GPU options specifically build for graph data).
+- Removing the mostly blank getPages() sped this up insanely, but at the same time highlighed how useless doing the process in this way is.
