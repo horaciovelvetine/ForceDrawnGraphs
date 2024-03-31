@@ -17,6 +17,7 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 - Spring-Shell: [site](https://docs.spring.io/spring-shell/docs/current/reference/htmlsingle/)
 - Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
 - JUNG: Java Universal Network/Graph Framework: [site](https://jung.sourceforge.net/)
+- Spring Embedders and Force Directed Graph Drawing Algorithims: [Academic Paper](https://arxiv.org/abs/1201.3011)
 
 ### Module 1 - Creating a local copy of the dataset.
 
