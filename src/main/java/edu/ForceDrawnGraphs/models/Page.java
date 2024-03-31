@@ -8,7 +8,6 @@ public class Page extends BaseDatasetRecord {
   private String itemID;
   private String title;
   private String views;
-  private int lineRef;
 
   public Page(int id, String pageID, String itemID, String title, String views, int lineRef) {
     super(id, lineRef); // Explicitly invoke the super constructor
@@ -16,7 +15,6 @@ public class Page extends BaseDatasetRecord {
     this.itemID = itemID;
     this.title = title;
     this.views = views;
-    this.lineRef = lineRef;
   }
 
   public String getPageID() {
