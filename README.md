@@ -150,22 +150,22 @@ Record Totals:
 
 Object Design: 
 
-- PrepVertices (PrepVertex.java):
+- Vertices (Vertex.java):
   - id (int)
-  - x (double)
-  - y (double)
-  - z (double)
+  - x (float)
+  - y (float)
+  - z (float)
   - srcItemId (int)
   - srcPageId (int)
   - label (String) - Page.title || Item.enLabel
   - description (String) - Item.enDescription
   - views (int) - Page.views
 
-- PrepEdges (PrepEdge.java):
+- Edges (Edge.java):
   - id (int)
   - srcVertId (int) 
   - tgtVertId (int)
-  - weight (int) - Hyperlink.count
+  - weight (float) - Hyperlink.count
   - edgeType (String) - Statement.edge_property_id.(property).enLabel
   - edgeDescription (String) - Statement.edge_property_id.(property).enDescription
 
@@ -176,5 +176,5 @@ Object Design:
   - description (String)
 
 Object Notes: 
-- Property can probably just be cached and stored in memory since the size of this set will be reasonably small enought to store w/o slowdowns
+- Property can probably just be cached and stored in memory since the size of this set will be reasonably small enough to store w/o slowdowns
 - Looking up the source records for edges should be a matter of looking for either hyperlinks or statements with the same srcItemId or srcPageId and then getting the corresponding tgtItemId or tgtPageId to get the corresponding vertex id.
