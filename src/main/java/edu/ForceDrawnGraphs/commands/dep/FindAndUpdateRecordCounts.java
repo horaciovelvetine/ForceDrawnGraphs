@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.commands;
+package edu.ForceDrawnGraphs.commands.dep;
 
 import javax.sql.DataSource;
 
