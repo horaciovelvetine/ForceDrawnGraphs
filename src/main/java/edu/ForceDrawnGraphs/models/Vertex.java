@@ -5,9 +5,9 @@ package edu.ForceDrawnGraphs.models;
  */
 public class Vertex {
   private int id;
-  private double x;
-  private double y;
-  private double z;
+  private float x;
+  private float y;
+  private float z;
   private String srcItemId;
   private String srcPageId;
   private String label;
@@ -47,15 +47,15 @@ public class Vertex {
     this.id = id;
   }
 
-  public void setX(double x) {
+  public void setX(float x) {
     this.x = x;
   }
 
-  public void setY(double y) {
+  public void setY(float y) {
     this.y = y;
   }
 
-  public void setZ(double z) {
+  public void setZ(float z) {
     this.z = z;
   }
 
@@ -84,15 +84,15 @@ public class Vertex {
     return id;
   }
 
-  public double getX() {
+  public float getX() {
     return x;
   }
 
-  public double getY() {
+  public float getY() {
     return y;
   }
 
-  public double getZ() {
+  public float getZ() {
     return z;
   }
 
