@@ -11,6 +11,13 @@ import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 
 @SuppressWarnings("null")
 public interface FindTotalRecordsInFile {
+  
+  /**
+   * Finds the total number of records in a file.
+   * 
+   * @param filePath the path of the file to be processed
+   * @return the total number of records in the file
+   */
   public default int findTotalRecordsInFile(String filePath) {
     ProcessTimer processTimer = new ProcessTimer("FindTotalRecordsInFile(@" + filePath + ") ");
     long totalRecords = 0;
