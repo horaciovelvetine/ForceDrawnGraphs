@@ -30,7 +30,7 @@ public class Graphset implements GetPreparedStmt {
 
   // STATE? BUT I HATE THIS BEING HERE
   private int itemsImportedOffset = 0;
-  private int paginationSize = 100000;
+  private int paginationSize = 10000;
   private int itemsInBatch = 0;
   private int itemsInserted = 0;
 
@@ -46,20 +46,22 @@ public class Graphset implements GetPreparedStmt {
     addItemsToQueriedItemsQueue(queriedItemsQueue);
     while (!queriedItemsQueue.isEmpty()) {
       Item item = queriedItemsQueue.iterator().next();
-      Page page = getPageByItemId(item.getItemID());
-      Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+      // Page page = getPageByItemId(item.getItemID());
+      Vertex vertex = Vertex.createNewVertexFromRecords(item);
       addVertextToBatchInsert(vertextInsertStmt, vertex);
 
-      if (itemsInBatch >= 10000) {
+      if (itemsInBatch >= 1000) {
         try {
           vertextInsertStmt.executeBatch();
           itemsInserted += itemsInBatch;
           timer.lap();
           itemsInBatch = 0;
+          addItemsToQueriedItemsQueue(queriedItemsQueue);
         } catch (Exception e) {
           report(e);
         }
       }
+      queriedItemsQueue.remove(item);
     }
   }
 

@@ -133,4 +133,14 @@ public class Vertex {
     }
     return new Vertex(item);
   }
+
+  /**
+   * Creates a new Vertex object from the given item.
+   *
+   * @param item The item associated with the vertex.
+   * @return A new Vertex object.
+   */
+  public static Vertex createNewVertexFromRecords(Item item) {
+    return new Vertex(item);
+  }
 }
