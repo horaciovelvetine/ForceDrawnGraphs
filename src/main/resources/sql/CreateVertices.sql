@@ -2,9 +2,9 @@ DROP TABLE IF EXISTS vertices;
 
 CREATE TABLE vertices (
     id SERIAL PRIMARY KEY,
-    x DOUBLE,
-    y DOUBLE,
-    z DOUBLE,
+    x FLOAT,
+    y FLOAT,
+    z FLOAT,
     label VARCHAR(255),
     en_label VARCHAR(255),
     en_description TEXT,

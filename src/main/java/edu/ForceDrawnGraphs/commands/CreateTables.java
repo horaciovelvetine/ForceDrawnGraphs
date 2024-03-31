@@ -1,5 +1,7 @@
 package edu.ForceDrawnGraphs.commands;
 
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -9,11 +11,16 @@ import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
 
 @ShellComponent
 public class CreateTables implements ExecuteSQLResourceFile {
-  private String sqlPath = "sql/";
   private JdbcTemplate jdbcTemplate;
 
+  @SuppressWarnings("null")
+  public CreateTables(DataSource datasource) {
+    this.jdbcTemplate = new JdbcTemplate(datasource);
+  }
+
   @ShellMethod("Create a variety of tables (destructively).")
-  public String create(@ShellOption(defaultValue = "no-input") String target) {
+  public void create(@ShellOption(defaultValue = "no-input") String target) {
+    String sqlPath = "sql/";
     switch (target) {
       case "edges":
         sqlPath += "CreateEdges.sql";
@@ -43,11 +50,9 @@ public class CreateTables implements ExecuteSQLResourceFile {
       // case "appState": OMITTED
       // DEFAULT
       default:
-        return "Please specify a target: edges, hyperlinks, items, pages, properties, statements, vertices, all";
+        report("Please specify a target: edges, hyperlinks, items, pages, properties, statements, vertices, all");
     }
 
     executeSQL(sqlPath, jdbcTemplate);
-
-    return "doom";
   }
 }
