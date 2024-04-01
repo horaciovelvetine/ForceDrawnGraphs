@@ -175,12 +175,6 @@ Object Design:
   - label (String)
   - description (String)
 
-Object Notes: 
-- Property can probably just be cached and stored in memory since the size of this set will be reasonably small enough to store w/o slowdowns
-- Looking up the source records for edges should be a matter of looking for either hyperlinks or statements with the same srcItemId or srcPageId and then getting the corresponding tgtItemId or tgtPageId to get the corresponding vertex id.
-
-Still Unpacking The Process: 
-
 The basic code outline of the above process for Vertices (v1.0) ended up as follows inside of the new Graphset.java class: 
 
 ```java
@@ -218,5 +212,12 @@ This initial unpacking of the process does the job, enormously slowly - but it d
 
 - Most items don't have a corresponding page record, but the items with pages are going to be the ones (mostly) worth displaying. 
 - Any item that has a page really just has hyperlinks, and so combining them onto the vertex object is a good fit data wise, but not imperative to do in any sort of order (or even in the initial creation of all these vertex objects if that ends up being the route that makes the most sense).
-- More reading on graphset creation has also led me to hypothesize that the number of edges & nodes which I will be able to process/display/need access to at any given time will be limited (especially given I am not leveraging any DB or GPU options specifically build for graph data).
+- More reading on graphset creation has also led me to hypothesize that the number of edges & nodes which I will be able to process/display/need access to at any given time will be limited (especially given I am not leveraging any DB or GPU options specifically built for graph data).
 - Removing the mostly blank getPages() sped this up insanely, but at the same time highlighed how useless doing the process in this way is.
+
+DUH - If the interesting items are the ones that have pages, maybe it makes more sense A to start there, and B to look primarily at data that will be interesting to display in the limited data which can be displayed.
+
+### Module 3.1 - Nodes (Vertices) & Edges - Round 2 FIGHT! 
+
+
+
