@@ -28,6 +28,42 @@ public class Graphset implements GetPreparedStmt {
     this.jdbcTemplate = new JdbcTemplate(datasource);
   }
 
+  @ShellMethod
+  public void demoset() {
+    // Page page = Page.getRandomAssPage();
+    // Item item = Item.getItemById(page.getItemID());
+    // Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+    // List<Hyperlink> hyperlinks = Hyperlink.getHyperlinksByPageId(page.getPageID());
+    // List<Statements> statements = Statements.getStatementsByItemIds(item.getItemID());
+    // PROCESS TO HERE BUILDS A VERTEX AND THEN GETS ALLLLL THE EDGE ITEMS WHICH ARE CONNECTED ON ONE SIDE TO THE VERTEX. 
+
+    // THEN WE NEED TO GET THE OTHER SIDE OF THE EDGE AND BUILD A VERTEX FOR THAT.
+    // THEN WE NEED TO BUILD THE EDGE BETWEEN THE TWO VERTICES.
+    // List<Ids> vertexIds = new ArrayList<>();
+    // for (Hyperlink hyperlink : hyperlinks) { // For each hyperlink, get the other page and build a vertex for it.
+    //   Page otherPage = Page.getPageById(hyperlink.getTo_page_id());
+    //   Item otherItem = Item.getItemById(otherPage.getItemID());
+    //   Vertex otherVertex = Vertex.createNewVertexFromRecords(otherItem, otherPage);
+    //   vertexIds.add(otherVertex.getVertexID());
+    // }
+    // for (Statement statement : statements) { // For each statement, get the other item and build a vertex for it.
+    //   Item otherItem = Item.getItemById(statement.getOtherItemId());
+    //   Page otherPage = Page.getPageByItemId(otherItem.getItemID());
+    //   Vertex otherVertex = Vertex.createNewVertexFromRecords(otherItem, otherPage);
+    //   vertexIds.add(otherVertex.getVertexID());
+    // }
+    // for (Id vertexId : vertexIds) { // For each vertex, build an edge between the two vertices.
+    //   Edge edge = new Edge(vertex.getVertexID(), vertexId);
+    //   edge.save();
+    // }
+  }
+
+  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
+  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
+  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
+  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
+  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
+
   // STATE? BUT I HATE THIS BEING HERE
   private int itemsImportedOffset = 0;
   private int paginationSize = 10000;
