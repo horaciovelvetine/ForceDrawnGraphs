@@ -219,5 +219,14 @@ DUH - If the interesting items are the ones that have pages, maybe it makes more
 
 ### Module 3.1 - Nodes (Vertices) & Edges - Round 2 FIGHT! 
 
+Goal: Start small, build the underlying infrastructure to support the creation of a graphset. 
 
+Hypothesis: The simplist graph is one with two nodes. So let's start there.
 
+Process: *The irony of drawing out this process is that in and of itself the kind of flowcharts often used to unpack processes like this are themselves belong to the same family of graphs.* 
+
+A. Select a randome item/page row from the dataset. 
+-> Get the corresponding Links and Statements.
+-> Map out all of the nodes and edges that can be created from this data.
+
+By 2 I meant a depth of 2. A node, and all of its edges.
