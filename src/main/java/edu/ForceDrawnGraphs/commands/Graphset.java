@@ -1,8 +1,9 @@
 package edu.ForceDrawnGraphs.commands;
 
-import java.sql.PreparedStatement;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.sql.DataSource;
 
@@ -12,9 +13,11 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
-import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
+
 import edu.ForceDrawnGraphs.models.Item;
+import edu.ForceDrawnGraphs.models.Hyperlink;
 import edu.ForceDrawnGraphs.models.Page;
+import edu.ForceDrawnGraphs.models.Statement;
 import edu.ForceDrawnGraphs.models.Vertex;
 
 @ShellComponent
@@ -30,9 +33,14 @@ public class Graphset implements GetPreparedStmt {
 
   @ShellMethod
   public void demoset() {
-    // Page page = Page.getRandomAssPage();
-    // Item item = Item.getItemById(page.getItemID());
-    // Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+    Page page = getRandomPage();
+    Item item = getItemByPage(page);
+    Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+    List<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
+    List<Statement> statements = getStatementsByItemID(item.getItemID());
+
+    Set<String> otherVertexIds = new HashSet<>();
+
     // List<Hyperlink> hyperlinks = Hyperlink.getHyperlinksByPageId(page.getPageID());
     // List<Statements> statements = Statements.getStatementsByItemIds(item.getItemID());
     // PROCESS TO HERE BUILDS A VERTEX AND THEN GETS ALLLLL THE EDGE ITEMS WHICH ARE CONNECTED ON ONE SIDE TO THE VERTEX. 
@@ -58,73 +66,10 @@ public class Graphset implements GetPreparedStmt {
     // }
   }
 
-  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
-  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
-  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
-  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
-  // ! THIS IS A BIG OL DIVIDER VISUALLY SO I CAN FOCUS AND IGNORE MY OLD USELESS CODE
-
-  // STATE? BUT I HATE THIS BEING HERE
-  private int itemsImportedOffset = 0;
-  private int paginationSize = 10000;
-  private int itemsInBatch = 0;
-  private int itemsInserted = 0;
-
-  @ShellMethod("Merge Items and Pages data to create Vertices for the Graphset")
-  public void initVerts() {
-    ProcessTimer timer = new ProcessTimer("Init-Graphset-Vertices");
-
-    Set<Item> queriedItemsQueue = new HashSet<>();
-    PreparedStatement vertextInsertStmt = getPreparedStmt(
-        "INSERT INTO vertices (x, y, z, label, en_description, views, src_item_id, src_page_id) VALUES (?,?,?,?,?,?,?,?);",
-        dataSource);
-
-    addItemsToQueriedItemsQueue(queriedItemsQueue);
-    while (!queriedItemsQueue.isEmpty()) {
-      Item item = queriedItemsQueue.iterator().next();
-      // Page page = getPageByItemId(item.getItemID());
-      Vertex vertex = Vertex.createNewVertexFromRecords(item);
-      addVertextToBatchInsert(vertextInsertStmt, vertex);
-
-      if (itemsInBatch >= 1000) {
-        try {
-          vertextInsertStmt.executeBatch();
-          itemsInserted += itemsInBatch;
-          timer.lap();
-          itemsInBatch = 0;
-          addItemsToQueriedItemsQueue(queriedItemsQueue);
-        } catch (Exception e) {
-          report(e);
-        }
-      }
-      queriedItemsQueue.remove(item);
-    }
-  }
-
-  private void addItemsToQueriedItemsQueue(Set<Item> queriedItemsQueue) {
-    String sql = "SELECT * FROM items LIMIT " + paginationSize + " OFFSET " + itemsImportedOffset + ";";
+  private Page getRandomPage() {
+    String sql = "SELECT * FROM pages ORDER BY RANDOM() LIMIT 1;";
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-      boolean itemsFetched = false;
-      while (results.next()) {
-        Item item = Item.mapSqlRowSetToItem(results);
-        queriedItemsQueue.add(item);
-        itemsFetched = true;
-      }
-      if (itemsFetched) {
-        itemsImportedOffset += paginationSize; // Prepare offset for the next iteration
-      } else {
-        print("No more items to fetch."); // Handle case when no more items are available
-      }
-    } catch (Exception e) {
-      report(e);
-    }
-  }
-
-  private Page getPageByItemId(String itemId) {
-    String sql = "SELECT * FROM pages WHERE item_id = ?;";
-    try {
-      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, itemId);
       if (results.next()) {
         return Page.mapSQLRowSetToPage(results);
       }
@@ -134,20 +79,47 @@ public class Graphset implements GetPreparedStmt {
     return null;
   }
 
-  private void addVertextToBatchInsert(PreparedStatement stmt, Vertex vertex) {
+  private Item getItemByPage(Page page) {
+    String sql = "SELECT * FROM items WHERE item_id = ?;";
+
     try {
-      stmt.setFloat(1, vertex.getX());
-      stmt.setFloat(2, vertex.getY());
-      stmt.setFloat(3, vertex.getZ());
-      stmt.setString(4, vertex.getLabel());
-      stmt.setString(5, vertex.getDescription());
-      stmt.setString(6, vertex.getViews());
-      stmt.setString(7, vertex.getSrcItemId());
-      stmt.setString(8, vertex.getSrcPageId());
-      stmt.addBatch();
-      itemsInBatch++;
+      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, page.getItemID());
+      if (results.next()) {
+        return Item.mapSqlRowSetToItem(results);
+      }
     } catch (Exception e) {
       report(e);
     }
+    return null;
+  }
+
+  private List<Hyperlink> getHyperlinksByPageID(String pageId) {
+    String sql = "SELECT * FROM hyperlinks WHERE from_page_id = ? OR to_page_id = ?;";
+    try {
+      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, pageId, pageId);
+      List<Hyperlink> hyperlinks = new ArrayList<>();
+      while (results.next()) {
+        hyperlinks.add(Hyperlink.mapSQLRowSetToHyperlink(results));
+      }
+      return hyperlinks;
+    } catch (Exception e) {
+      report(e);
+    }
+    return null;
+  }
+
+  private List<Statement> getStatementsByItemID(String itemId) {
+    String sql = "SELECT * FROM statements WHERE source_item_id = ? OR target_item_id = ?;";
+    try {
+      SqlRowSet results = jdbcTemplate.queryForRowSet(sql, itemId, itemId);
+      List<Statement> statements = new ArrayList<>();
+      while (results.next()) {
+        statements.add(Statement.mapSqlRowSetToStatement(results));
+      }
+      return statements;
+    } catch (Exception e) {
+      report(e);
+    }
+    return null;
   }
 }
