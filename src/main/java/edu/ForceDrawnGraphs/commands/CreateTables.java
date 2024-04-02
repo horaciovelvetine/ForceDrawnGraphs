@@ -8,6 +8,7 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
+import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 
 @ShellComponent
 public class CreateTables implements ExecuteSQLResourceFile {
@@ -20,39 +21,46 @@ public class CreateTables implements ExecuteSQLResourceFile {
 
   @ShellMethod("Create a variety of tables (destructively).")
   public void create(@ShellOption(defaultValue = "no-input") String target) {
-    String sqlPath = "sql/";
+    ProcessTimer timer = new ProcessTimer("createTable(" + target + ") in CreateTables.java");
     switch (target) {
       case "edges":
-        sqlPath += "CreateEdges.sql";
+        sqlRunner("CreateEdges.sql");
         break;
       case "hyperlinks":
       case "links":
-        sqlPath += "CreateHyperlinks.sql";
+        sqlRunner("CreateHyperlinks.sql");
         break;
       case "items":
-        sqlPath += "CreateItems.sql";
+        sqlRunner("CreateItems.sql");
         break;
       case "pages":
-        sqlPath += "CreatePages.sql";
+        sqlRunner("CreatePages.sql");
         break;
       case "properties":
-        sqlPath += "CreateProperties.sql";
+        sqlRunner("CreateProperties.sql");
         break;
       case "statements":
-        sqlPath += "CreateStatements.sql";
+        sqlRunner("CreateStatements.sql");
         break;
       case "vertices":
-        sqlPath += "CreateVertices.sql";
+        sqlRunner("CreateVertices.sql");
         break;
       case "all":
-        sqlPath += "CreateAll.sql";
+        sqlRunner("CreateVertices.sql");
+        sqlRunner("CreateItems.sql");
+        sqlRunner("CreateHyperlinks.sql");
+        sqlRunner("CreateEdges.sql");
+        sqlRunner("CreatePages.sql");
+        sqlRunner("CreateProperties.sql");
+        sqlRunner("CreateStatements.sql");
         break;
-      // case "appState": OMITTED
-      // DEFAULT
       default:
         report("Please specify a target: edges, hyperlinks, items, pages, properties, statements, vertices, all");
     }
+    timer.end();
+  }
 
-    executeSQL(sqlPath, jdbcTemplate);
+  private void sqlRunner(String sqlFileName) {
+    executeSQL("sql/" + sqlFileName, jdbcTemplate);
   }
 }
