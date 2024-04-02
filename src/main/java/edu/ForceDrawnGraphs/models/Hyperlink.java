@@ -1,13 +1,15 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class Hyperlink {
   private int id;
-  private int from_page_id;
-  private int to_page_id;
-  private int count;
-  private int lineRef;
+  private String from_page_id;
+  private String to_page_id;
+  private String count;
 
   /**
    * Constructs a hyperlink with from and to page IDs, a default count of 1, and the line reference. 
@@ -16,13 +18,11 @@ public class Hyperlink {
    *
    * @param from_page_id the ID of the source page
    * @param to_page_id   the ID of the target page
-   * @param lineRef      the line reference of the hyperlink
    */
-  public Hyperlink(int from_page_id, int to_page_id, int lineRef) {
+  public Hyperlink(String from_page_id, String to_page_id) {
     this.from_page_id = from_page_id;
     this.to_page_id = to_page_id;
-    this.count = 1;
-    this.lineRef = lineRef;
+    this.count = "1";
   }
 
   /**
@@ -34,14 +34,12 @@ public class Hyperlink {
    * @param from_page_id  the ID of the source page
    * @param to_page_id    the ID of the target page
    * @param count         the count of the hyperlink
-   * @param lineRef       the line reference of the hyperlink
    */
-  public Hyperlink(int id, int from_page_id, int to_page_id, int count, int lineRef) {
+  public Hyperlink(int id, String from_page_id, String to_page_id, String count) {
     this.id = id;
     this.from_page_id = from_page_id;
     this.to_page_id = to_page_id;
     this.count = count;
-    this.lineRef = lineRef;
   };
 
   /**
@@ -58,7 +56,7 @@ public class Hyperlink {
    *
    * @return the ID of the source page
    */
-  public int getFrom_page_id() {
+  public String getFromPageID() {
     return from_page_id;
   }
 
@@ -67,7 +65,7 @@ public class Hyperlink {
    *
    * @param from_page_id the ID of the source page
    */
-  public void setFrom_page_id(int from_page_id) {
+  public void setFromPageID(String from_page_id) {
     this.from_page_id = from_page_id;
   }
 
@@ -76,7 +74,7 @@ public class Hyperlink {
    *
    * @return the ID of the target page
    */
-  public int getTo_page_id() {
+  public String getToPageID() {
     return to_page_id;
   }
 
@@ -85,7 +83,7 @@ public class Hyperlink {
    *
    * @param to_page_id the ID of the target page
    */
-  public void setTo_page_id(int to_page_id) {
+  public void setToPageID(String to_page_id) {
     this.to_page_id = to_page_id;
   }
 
@@ -94,7 +92,7 @@ public class Hyperlink {
    *
    * @return the count of the hyperlink
    */
-  public int getCount() {
+  public String getCount() {
     return count;
   }
 
@@ -103,35 +101,21 @@ public class Hyperlink {
    *
    * @param count the count of the hyperlink
    */
-  public void setCount(int count) {
+  public void setCount(String count) {
     this.count = count;
-  }
-
-  /**
-   * Returns the line reference of the hyperlink.
-   *
-   * @return the line reference of the hyperlink
-   */
-  public int getLineRef() {
-    return lineRef;
-  }
-
-  /**
-   * Sets the line reference of the hyperlink.
-   *
-   * @param lineRef the line reference of the hyperlink
-   */
-  public void setLineRef(int lineRef) {
-    this.lineRef = lineRef;
   }
 
   /**
    * Increments the count of the hyperlink by 1.
    */
+
   public void incrementCount() {
-    this.count++;
+    this.count = Integer.toString(Integer.parseInt(this.count) + 1);
   }
 
+  /**
+   * Increments the count of the hyperlink by 1.
+   */
   /**
    * Maps the data from a SQL row set to a Hyperlink object.
    *
@@ -139,7 +123,23 @@ public class Hyperlink {
    * @return the Hyperlink object mapped from the SQL row set
    */
   public static Hyperlink mapSQLRowSetToHyperlink(SqlRowSet row) {
-    return new Hyperlink(row.getInt("id"), row.getInt("from_page_id"), row.getInt("to_page_id"),
-        row.getInt("count"), row.getInt("line_ref"));
+    return new Hyperlink(row.getInt("id"), row.getString("from_page_id"), row.getString("to_page_id"),
+        Integer.toString(row.getInt("count")));
+  }
+
+  /**
+   * Sets the values of the hyperlink and adds it to the batch for execution.
+   *
+   * @param stmt the prepared statement to set the values on
+   */
+  public void setAndAddHyperlinkToBatch(PreparedStatement stmt) {
+    try {
+      stmt.setString(1, this.from_page_id);
+      stmt.setString(2, this.to_page_id);
+      stmt.setInt(3, Integer.parseInt(this.count));
+      stmt.addBatch();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 }

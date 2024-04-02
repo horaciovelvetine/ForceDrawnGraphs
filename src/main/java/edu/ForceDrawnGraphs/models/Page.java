@@ -9,8 +9,8 @@ public class Page extends BaseDatasetRecord {
   private String title;
   private String views;
 
-  public Page(int id, String pageID, String itemID, String title, String views, int lineRef) {
-    super(id, lineRef); // Explicitly invoke the super constructor
+  public Page(int id, String pageID, String itemID, String title, String views) {
+    super(id); // Explicitly invoke the super constructor
     this.pageID = pageID;
     this.itemID = itemID;
     this.title = title;
@@ -56,6 +56,6 @@ public class Page extends BaseDatasetRecord {
   public static Page mapSQLRowSetToPage(SqlRowSet results) {
     return new Page(results.getInt("id"), results.getString("page_id"), results.getString("item_id"),
         results.getString("title"),
-        results.getString("views"), results.getInt("line_ref"));
+        results.getString("views"));
   }
 }

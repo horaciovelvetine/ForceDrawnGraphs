@@ -22,7 +22,7 @@ public class Statement extends BaseDatasetRecord {
    * @param tgtItemID The target item ID of the statement.
    */
   public Statement(int id, int lineRef, int srcItemID, int tgtItemID) {
-    super(id, lineRef);
+    super(id);
     this.srcItemID = srcItemID;
     this.tgtItemID = tgtItemID;
   }

@@ -8,8 +8,8 @@ public class Item extends BaseDatasetRecord {
   private String enLabel;
   private String enDescription;
 
-  private Item(int id, String itemID, String enLabel, String enDescription, int lineRef) {
-    super(id, lineRef);
+  private Item(int id, String itemID, String enLabel, String enDescription) {
+    super(id);
     this.itemID = itemID;
     this.enLabel = enLabel;
     this.enDescription = enDescription;
@@ -45,6 +45,6 @@ public class Item extends BaseDatasetRecord {
 
   public static Item mapSqlRowSetToItem(SqlRowSet results) {
     return new Item(results.getInt("id"), results.getString("item_id"), results.getString("en_label"),
-        results.getString("en_description"), results.getInt("line_ref"));
+        results.getString("en_description"));
   }
 }
