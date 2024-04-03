@@ -7,8 +7,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class Hyperlink {
   private int id;
-  private String from_page_id;
-  private String to_page_id;
+  private String fromPageID;
+  private String toPageID;
   private String count;
 
   /**
@@ -19,9 +19,9 @@ public class Hyperlink {
    * @param from_page_id the ID of the source page
    * @param to_page_id   the ID of the target page
    */
-  public Hyperlink(String from_page_id, String to_page_id) {
-    this.from_page_id = from_page_id;
-    this.to_page_id = to_page_id;
+  public Hyperlink(String fromPageID, String toPageID) {
+    this.fromPageID = fromPageID;
+    this.toPageID = toPageID;
     this.count = "1";
   }
 
@@ -35,10 +35,10 @@ public class Hyperlink {
    * @param to_page_id    the ID of the target page
    * @param count         the count of the hyperlink
    */
-  public Hyperlink(int id, String from_page_id, String to_page_id, String count) {
+  public Hyperlink(int id, String fromPageID, String toPageID, String count) {
     this.id = id;
-    this.from_page_id = from_page_id;
-    this.to_page_id = to_page_id;
+    this.fromPageID = fromPageID;
+    this.toPageID = toPageID;
     this.count = count;
   };
 
@@ -57,16 +57,16 @@ public class Hyperlink {
    * @return the ID of the source page
    */
   public String getFromPageID() {
-    return from_page_id;
+    return fromPageID;
   }
 
   /**
    * Sets the ID of the source page.
    *
-   * @param from_page_id the ID of the source page
+   * @param fromPageID the ID of the source page
    */
-  public void setFromPageID(String from_page_id) {
-    this.from_page_id = from_page_id;
+  public void setFromPageID(String fromPageID) {
+    this.fromPageID = fromPageID;
   }
 
   /**
@@ -75,16 +75,16 @@ public class Hyperlink {
    * @return the ID of the target page
    */
   public String getToPageID() {
-    return to_page_id;
+    return toPageID;
   }
 
   /**
    * Sets the ID of the target page.
    *
-   * @param to_page_id the ID of the target page
+   * @param toPageID the ID of the target page
    */
-  public void setToPageID(String to_page_id) {
-    this.to_page_id = to_page_id;
+  public void setToPageID(String toPageID) {
+    this.toPageID = toPageID;
   }
 
   /**
@@ -135,8 +135,8 @@ public class Hyperlink {
    */
   public void setAndAddHyperlinkToBatch(PreparedStatement stmt) {
     try {
-      stmt.setString(1, this.from_page_id);
-      stmt.setString(2, this.to_page_id);
+      stmt.setString(1, this.fromPageID);
+      stmt.setString(2, this.toPageID);
       stmt.setString(3, this.count);
       stmt.addBatch();
     } catch (SQLException e) {
