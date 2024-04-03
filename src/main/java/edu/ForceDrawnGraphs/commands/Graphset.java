@@ -40,14 +40,11 @@ public class Graphset implements GetPreparedStmt {
     List<Statement> statements = getStatementsByItemID(item.getItemID());
 
     Set<String> otherVertexIds = new HashSet<>();
-
-    // List<Hyperlink> hyperlinks = Hyperlink.getHyperlinksByPageId(page.getPageID());
-    // List<Statements> statements = Statements.getStatementsByItemIds(item.getItemID());
-    // PROCESS TO HERE BUILDS A VERTEX AND THEN GETS ALLLLL THE EDGE ITEMS WHICH ARE CONNECTED ON ONE SIDE TO THE VERTEX. 
-
-    // THEN WE NEED TO GET THE OTHER SIDE OF THE EDGE AND BUILD A VERTEX FOR THAT.
-    // THEN WE NEED TO BUILD THE EDGE BETWEEN THE TWO VERTICES.
-    // List<Ids> vertexIds = new ArrayList<>();
+    // For each hyperlink, get the OTHER page (non-current page) and build a vertex for it.
+    for (Hyperlink hyperlink : hyperlinks) {
+      String otherPageId = hyperlink.getFromPageID();
+    }
+    
     // for (Hyperlink hyperlink : hyperlinks) { // For each hyperlink, get the other page and build a vertex for it.
     //   Page otherPage = Page.getPageById(hyperlink.getTo_page_id());
     //   Item otherItem = Item.getItemById(otherPage.getItemID());
