@@ -22,6 +22,13 @@ import edu.ForceDrawnGraphs.models.Hyperlink;
 import edu.ForceDrawnGraphs.models.LinkAnnotatedTextRecord;
 import edu.ForceDrawnGraphs.models.SectionRecord;
 
+/**
+ * This class imports the original Kensho derived wikimedia dataset to the local PostgreSQL database.
+ * 
+ * @version 1.0
+ * @since 1.0
+ */
+
 @ShellComponent
 public class OriginalDataset
     implements ExecuteSQLResourceFile, GetPreparedStmt, AddBatchToStmt, GetBufferedReaderForResource,
@@ -42,32 +49,31 @@ public class OriginalDataset
 
     CompletableFuture<Void> itemFuture = CompletableFuture.runAsync(() -> {
       importDataFromResourceFile("item.csv", 3,
-          "INSERT INTO items (item_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+          "INSERT INTO items (item_id, en_label, en_description) VALUES (?, ?, ?)");
     }, executor);
 
     CompletableFuture<Void> pageFuture = CompletableFuture.runAsync(() -> {
       importDataFromResourceFile("page.csv", 4,
-          "INSERT INTO pages (page_id, item_id, title, views, line_ref) VALUES (?, ?, ?, ?, ?)");
+          "INSERT INTO pages (page_id, item_id, title, views) VALUES (?, ?, ?, ?)");
     }, executor);
 
     CompletableFuture<Void> propertyFuture = CompletableFuture.runAsync(() -> {
       importDataFromResourceFile("property.csv", 3,
-          "INSERT INTO properties (property_id, en_label, en_description, line_ref) VALUES (?, ?, ?, ?)");
+          "INSERT INTO properties (property_id, en_label, en_description) VALUES (?, ?, ?)");
     }, executor);
 
-    CompletableFuture<Void> statementsFuture = CompletableFuture.runAsync(() -> {
-      importDataFromResourceFile("statements.csv", 3,
-          "INSERT INTO statements (source_item_id, edge_property_id, target_item_id, line_ref) VALUES (?, ?, ?, ?)");
-    }, executor);
+    // CompletableFuture<Void> statementsFuture = CompletableFuture.runAsync(() -> {
+    //   importDataFromResourceFile("statements.csv", 3,
+    //       "INSERT INTO statements (source_item_id, edge_property_id, target_item_id) VALUES (?, ?, ?)");
+    // }, executor);
 
-    CompletableFuture<Void> linkAnnotatedTextFuture = CompletableFuture.runAsync(() -> {
-      importDataFromResourceFile("link_annotated_text.jsonl", 0,
-          "INSERT INTO hyperlinks (from_page_id, to_page_id, count, line_ref) VALUES (?, ?, ?, ?)");
-    }, executor);
+    // CompletableFuture<Void> linkAnnotatedTextFuture = CompletableFuture.runAsync(() -> {
+    //   importDataFromResourceFile("link_annotated_text.jsonl", 0,
+    //       "INSERT INTO hyperlinks (from_page_id, to_page_id, count) VALUES (?, ?, ?)");
+    // }, executor);
 
-    CompletableFuture<Void> allFutures = CompletableFuture.allOf(itemFuture, pageFuture, propertyFuture,
-        statementsFuture,
-        linkAnnotatedTextFuture);
+    CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+       itemFuture, pageFuture, propertyFuture);
 
     allFutures.join();
     timer.end();
@@ -97,17 +103,25 @@ public class OriginalDataset
           getAndSetAttributesForJSONLFileOBJ(line, preparedStmt);
         }
         batchCounter++; // increment the batch counter for set and add
-        if (batchCounter < batchSizeLimit) {
+        if (batchCounter % batchSizeLimit == 0) {
           preparedStmt.executeBatch();
           timer.lap();
           batchCounter = 0;
         }
         line = reader.readLine();
       }
+      preparedStmt.executeBatch(); // exectue the remainder of any batch
+      timer.lap();
     } catch (Exception e) {
       report("importDataFromResourceFile() in OriginalDataset.java was unable to process: " + resourceFileName
           + "see more details in the debug log", e);
     } finally {
+      try {
+        preparedStmt.close();
+      } catch (Exception e) {
+        report("importDataFromResourceFile() in OriginalDataset.java was unable to close the prepared statement",
+            e);
+      }
       timer.end();
     }
   }

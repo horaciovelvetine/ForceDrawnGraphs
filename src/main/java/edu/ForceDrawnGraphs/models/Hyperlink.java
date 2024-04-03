@@ -110,7 +110,8 @@ public class Hyperlink {
    */
 
   public void incrementCount() {
-    this.count = Integer.toString(Integer.parseInt(this.count) + 1);
+    int currentCount = Integer.parseInt(this.count);
+    this.count = Integer.toString(currentCount + 1);
   }
 
   /**
@@ -136,7 +137,7 @@ public class Hyperlink {
     try {
       stmt.setString(1, this.from_page_id);
       stmt.setString(2, this.to_page_id);
-      stmt.setInt(3, Integer.parseInt(this.count));
+      stmt.setString(3, this.count);
       stmt.addBatch();
     } catch (SQLException e) {
       e.printStackTrace();
