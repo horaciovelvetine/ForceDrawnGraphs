@@ -61,6 +61,7 @@ public class CreateTables implements ExecuteSQLResourceFile {
   }
 
   private void sqlRunner(String sqlFileName) {
+    report("Executing " + sqlFileName + "...");
     executeSQL("sql/" + sqlFileName, jdbcTemplate);
   }
 }
