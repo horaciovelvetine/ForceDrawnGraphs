@@ -40,27 +40,7 @@ public class Graphset implements GetPreparedStmt {
     List<Statement> statements = getStatementsByItemID(item.getItemID());
 
     Set<String> otherVertexIds = new HashSet<>();
-    // For each hyperlink, get the OTHER page (non-current page) and build a vertex for it.
-    for (Hyperlink hyperlink : hyperlinks) {
-      String otherPageId = hyperlink.getFromPageID();
-    }
-    
-    // for (Hyperlink hyperlink : hyperlinks) { // For each hyperlink, get the other page and build a vertex for it.
-    //   Page otherPage = Page.getPageById(hyperlink.getTo_page_id());
-    //   Item otherItem = Item.getItemById(otherPage.getItemID());
-    //   Vertex otherVertex = Vertex.createNewVertexFromRecords(otherItem, otherPage);
-    //   vertexIds.add(otherVertex.getVertexID());
-    // }
-    // for (Statement statement : statements) { // For each statement, get the other item and build a vertex for it.
-    //   Item otherItem = Item.getItemById(statement.getOtherItemId());
-    //   Page otherPage = Page.getPageByItemId(otherItem.getItemID());
-    //   Vertex otherVertex = Vertex.createNewVertexFromRecords(otherItem, otherPage);
-    //   vertexIds.add(otherVertex.getVertexID());
-    // }
-    // for (Id vertexId : vertexIds) { // For each vertex, build an edge between the two vertices.
-    //   Edge edge = new Edge(vertex.getVertexID(), vertexId);
-    //   edge.save();
-    // }
+
   }
 
   private Page getRandomPage() {
@@ -71,7 +51,7 @@ public class Graphset implements GetPreparedStmt {
         return Page.mapSQLRowSetToPage(results);
       }
     } catch (Exception e) {
-      report(e);
+      report("Error in getRandomPage()", e);
     }
     return null;
   }
@@ -85,38 +65,36 @@ public class Graphset implements GetPreparedStmt {
         return Item.mapSqlRowSetToItem(results);
       }
     } catch (Exception e) {
-      report(e);
+      report("Unable getItemByPage()", e);
     }
     return null;
   }
 
   private List<Hyperlink> getHyperlinksByPageID(String pageId) {
     String sql = "SELECT * FROM hyperlinks WHERE from_page_id = ? OR to_page_id = ?;";
+    List<Hyperlink> hyperlinks = new ArrayList<>();
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, pageId, pageId);
-      List<Hyperlink> hyperlinks = new ArrayList<>();
       while (results.next()) {
         hyperlinks.add(Hyperlink.mapSQLRowSetToHyperlink(results));
       }
-      return hyperlinks;
     } catch (Exception e) {
-      report(e);
+      report("unable to getHyperlinksByPageID()", e);
     }
-    return null;
+    return hyperlinks;
   }
 
   private List<Statement> getStatementsByItemID(String itemId) {
     String sql = "SELECT * FROM statements WHERE source_item_id = ? OR target_item_id = ?;";
+    List<Statement> statements = new ArrayList<>();
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, itemId, itemId);
-      List<Statement> statements = new ArrayList<>();
       while (results.next()) {
         statements.add(Statement.mapSqlRowSetToStatement(results));
       }
-      return statements;
     } catch (Exception e) {
-      report(e);
+      report("unable to getStatementsByItemID()", e);
     }
-    return null;
+    return statements;
   }
 }
