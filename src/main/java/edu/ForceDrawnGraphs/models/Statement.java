@@ -10,8 +10,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
  * This class extends the BaseDatasetRecord class.
  */
 public class Statement extends BaseDatasetRecord {
-  private int srcItemID;
-  private int tgtItemID;
+  private String srcItemID;
+  private String tgtItemID;
+  private String edgePropertyID;
 
   /**
    * Constructs a new Statement object with the specified ID, line reference, source item ID, and target item ID.
@@ -21,10 +22,11 @@ public class Statement extends BaseDatasetRecord {
    * @param srcItemID The source item ID of the statement.
    * @param tgtItemID The target item ID of the statement.
    */
-  public Statement(int id, int srcItemID, int tgtItemID) {
+  public Statement(int id, String srcItemID, String tgtItemID, String edgePropertyID) {
     super(id);
     this.srcItemID = srcItemID;
     this.tgtItemID = tgtItemID;
+    this.edgePropertyID = edgePropertyID;
   }
 
   /**
@@ -32,7 +34,7 @@ public class Statement extends BaseDatasetRecord {
    * 
    * @return The source item ID.
    */
-  public int getSrcItemID() {
+  public String getSrcItemID() {
     return srcItemID;
   }
 
@@ -41,7 +43,7 @@ public class Statement extends BaseDatasetRecord {
    * 
    * @param srcItemID The source item ID to set.
    */
-  public void setSrcItemID(int srcItemID) {
+  public void setSrcItemID(String srcItemID) {
     this.srcItemID = srcItemID;
   }
 
@@ -50,7 +52,7 @@ public class Statement extends BaseDatasetRecord {
    * 
    * @return The target item ID.
    */
-  public int getTgtItemID() {
+  public String getTgtItemID() {
     return tgtItemID;
   }
 
@@ -59,8 +61,28 @@ public class Statement extends BaseDatasetRecord {
    * 
    * @param tgtItemID The target item ID to set.
    */
-  public void setTgtItemID(int tgtItemID) {
+  public void setTgtItemID(String tgtItemID) {
     this.tgtItemID = tgtItemID;
+  }
+
+  /**
+   * Gets the edge property ID of the statement.
+   * 
+   * @return The edge property ID.
+   */
+
+  public String getEdgePropertyID() {
+    return edgePropertyID;
+  }
+
+  /**
+   * Sets the edge property ID of the statement.
+   * 
+   * @param edgePropertyID The edge property ID to set.
+   */
+
+  public void setEdgePropertyID(String edgePropertyID) {
+    this.edgePropertyID = edgePropertyID;
   }
 
   /**
@@ -70,6 +92,7 @@ public class Statement extends BaseDatasetRecord {
    * @return A new Statement object mapped from the SQL row set.
    */
   public static Statement mapSqlRowSetToStatement(SqlRowSet results) {
-    return new Statement(results.getInt("id"), results.getInt("source_item_id"), results.getInt("target_item_id"));
+    return new Statement(results.getInt("id"), results.getString("source_item_id"),
+        results.getString("target_item_id"), results.getString("edge_property_id"));
   }
 }
