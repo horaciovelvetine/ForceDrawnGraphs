@@ -21,7 +21,7 @@ public class Statement extends BaseDatasetRecord {
    * @param srcItemID The source item ID of the statement.
    * @param tgtItemID The target item ID of the statement.
    */
-  public Statement(int id, int lineRef, int srcItemID, int tgtItemID) {
+  public Statement(int id, int srcItemID, int tgtItemID) {
     super(id);
     this.srcItemID = srcItemID;
     this.tgtItemID = tgtItemID;
@@ -70,7 +70,6 @@ public class Statement extends BaseDatasetRecord {
    * @return A new Statement object mapped from the SQL row set.
    */
   public static Statement mapSqlRowSetToStatement(SqlRowSet results) {
-    return new Statement(results.getInt("id"), results.getInt("line_ref"),
-        results.getInt("source_item_id"), results.getInt("target_item_id"));
+    return new Statement(results.getInt("id"), results.getInt("source_item_id"), results.getInt("target_item_id"));
   }
 }
