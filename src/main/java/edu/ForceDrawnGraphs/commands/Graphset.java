@@ -22,12 +22,10 @@ import edu.ForceDrawnGraphs.models.Vertex;
 
 @ShellComponent
 public class Graphset implements GetPreparedStmt {
-  private DataSource dataSource;
   private JdbcTemplate jdbcTemplate;
 
   @SuppressWarnings("null")
   public Graphset(DataSource datasource) {
-    this.dataSource = datasource;
     this.jdbcTemplate = new JdbcTemplate(datasource);
   }
 
@@ -38,9 +36,7 @@ public class Graphset implements GetPreparedStmt {
     Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
     List<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
     List<Statement> statements = getStatementsByItemID(item.getItemID());
-
     Set<String> otherVertexIds = new HashSet<>();
-
   }
 
   private Page getRandomPage() {
@@ -51,23 +47,26 @@ public class Graphset implements GetPreparedStmt {
         return Page.mapSQLRowSetToPage(results);
       }
     } catch (Exception e) {
-      report("Error in getRandomPage()", e);
+      report("Error on getRandomPage() in Graphset.java:", e);
     }
     return null;
   }
 
   private Item getItemByPage(Page page) {
     String sql = "SELECT * FROM items WHERE item_id = ?;";
+    Item item = null;
 
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, page.getItemID());
       if (results.next()) {
         return Item.mapSqlRowSetToItem(results);
+      } else {
+        report("No item found for page " + page.getPageID());
       }
     } catch (Exception e) {
-      report("Unable getItemByPage()", e);
+      report("Error on getItemByPage() in Graphset.java:", e);
     }
-    return null;
+    return item;
   }
 
   private List<Hyperlink> getHyperlinksByPageID(String pageId) {
@@ -79,7 +78,7 @@ public class Graphset implements GetPreparedStmt {
         hyperlinks.add(Hyperlink.mapSQLRowSetToHyperlink(results));
       }
     } catch (Exception e) {
-      report("unable to getHyperlinksByPageID()", e);
+      report("Error on getHyperlinksByPageID() in Graphset.java:", e);
     }
     return hyperlinks;
   }
@@ -93,7 +92,7 @@ public class Graphset implements GetPreparedStmt {
         statements.add(Statement.mapSqlRowSetToStatement(results));
       }
     } catch (Exception e) {
-      report("unable to getStatementsByItemID()", e);
+      report("Error on getStatementsByItemID() in Graphset.java:", e);
     }
     return statements;
   }
