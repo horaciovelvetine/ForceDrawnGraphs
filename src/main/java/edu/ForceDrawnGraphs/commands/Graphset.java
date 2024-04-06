@@ -34,8 +34,8 @@ public class Graphset implements GetPreparedStmt {
     Page page = getRandomPage();
     Item item = getItemByPage(page);
     Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
-    List<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
-    List<Statement> statements = getStatementsByItemID(item.getItemID());
+    Set<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
+    Set<Statement> statements = getStatementsByItemID(item.getItemID());
     Set<String> otherVertexIds = new HashSet<>();
   }
 
@@ -69,9 +69,9 @@ public class Graphset implements GetPreparedStmt {
     return item;
   }
 
-  private List<Hyperlink> getHyperlinksByPageID(String pageId) {
+  private Set<Hyperlink> getHyperlinksByPageID(String pageId) {
     String sql = "SELECT * FROM hyperlinks WHERE from_page_id = ? OR to_page_id = ?;";
-    List<Hyperlink> hyperlinks = new ArrayList<>();
+    Set<Hyperlink> hyperlinks = new HashSet<Hyperlink>();
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, pageId, pageId);
       while (results.next()) {
@@ -83,9 +83,9 @@ public class Graphset implements GetPreparedStmt {
     return hyperlinks;
   }
 
-  private List<Statement> getStatementsByItemID(String itemId) {
+  private Set<Statement> getStatementsByItemID(String itemId) {
     String sql = "SELECT * FROM statements WHERE source_item_id = ? OR target_item_id = ?;";
-    List<Statement> statements = new ArrayList<>();
+    Set<Statement> statements = new HashSet<Statement>();
     try {
       SqlRowSet results = jdbcTemplate.queryForRowSet(sql, itemId, itemId);
       while (results.next()) {
