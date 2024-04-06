@@ -6,3 +6,5 @@ CREATE TABLE items (
     en_label VARCHAR(255),
     en_description TEXT
 );
+
+CREATE INDEX idx_item_id ON items (item_id);

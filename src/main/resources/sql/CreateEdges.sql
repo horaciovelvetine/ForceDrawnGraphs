@@ -8,3 +8,6 @@ CREATE TABLE edges (
   edge_type VARCHAR(255),
   edge_property_id VARCHAR(255)
 );
+
+CREATE INDEX idx_src_vertex_id ON edges (src_vertex_id);
+CREATE INDEX idx_tgt_vertex_id ON edges (tgt_vertex_id);

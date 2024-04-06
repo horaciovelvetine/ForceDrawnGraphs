@@ -11,3 +11,6 @@ CREATE TABLE vertices (
     src_item_id VARCHAR(255),
     src_page_id VARCHAR(255)
 );
+
+CREATE INDEX idx_src_item_id ON vertices (src_item_id);
+CREATE INDEX idx_src_page_id ON vertices (src_page_id);
