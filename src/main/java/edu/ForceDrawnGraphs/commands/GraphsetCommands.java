@@ -11,36 +11,43 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
+import edu.ForceDrawnGraphs.functions.ReadSQLFileAsString;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.models.Item;
+import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Hyperlink;
 import edu.ForceDrawnGraphs.models.Page;
 import edu.ForceDrawnGraphs.models.Statement;
 import edu.ForceDrawnGraphs.models.Vertex;
 
 @ShellComponent
-public class Graphset implements GetPreparedStmt {
+public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
   private JdbcTemplate jdbcTemplate;
+  private Graphset graphset;
 
   @SuppressWarnings("null")
-  public Graphset(DataSource datasource) {
+  public GraphsetCommands(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
   }
 
   @ShellMethod
   public void demoset() {
-    // RANDOM PAGE
-    Page page = getRandomPage(); // Omit randomPageGetting from process timing.
-    // RANDOM PAGE
     ProcessTimer timer = new ProcessTimer("demoset()");
 
+    // The vertex only requires knowledge of the page to be created (item whic may be null)
+    Page page = getRandomPage();
     Item item = getItemByPage(page);
-    Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+    Vertex vertex = createAndAddVertex(page, item);
 
+    // But then the info from a vertex is needed to create the edges - but this can be an independant process.
+    // Potentially this vertex can have a variety of edges but some of that data has to also be overlapping
+    // The goal is to have 0 overlapping edges. Each edge should be unique and not have any other edge with the same source and target
+    // Instead any overlapping edge information should be indicated on the edge itself.
+    // Edge object will definitley need to be re-examined at this point. 
     Set<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
     Set<Statement> statements = getStatementsByItemID(item.getItemID());
 
-    Set<String> otherVertexIds = new HashSet<>();
+    timer.end();
   }
 
   private Page getRandomPage() {
@@ -110,4 +117,11 @@ public class Graphset implements GetPreparedStmt {
     }
     return statements;
   }
+
+  private Vertex createAndAddVertex(Page page, Item item) {
+    Vertex vertex = Vertex.createNewVertexFromRecords(item, page);
+    graphset.addVertex(vertex);
+    return vertex;
+  }
+
 }
