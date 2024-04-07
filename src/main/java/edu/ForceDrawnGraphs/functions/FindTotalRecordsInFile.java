@@ -9,9 +9,8 @@ import org.springframework.core.io.ClassPathResource;
 
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 
-@SuppressWarnings("null")
 public interface FindTotalRecordsInFile {
-  
+
   /**
    * Finds the total number of records in a file.
    * 

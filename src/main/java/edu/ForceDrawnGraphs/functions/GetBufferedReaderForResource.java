@@ -11,9 +11,8 @@ import edu.ForceDrawnGraphs.interfaces.Reportable;
  * This interface provides a method to get a BufferedReader for a given resource name.
  * It extends the Reportable interface.
  */
-@SuppressWarnings("null")
 public interface GetBufferedReaderForResource extends Reportable {
-  
+
   /**
    * Returns a BufferedReader for the specified resource name.
    * 

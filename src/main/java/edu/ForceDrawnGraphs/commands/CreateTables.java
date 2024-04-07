@@ -14,7 +14,6 @@ import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 public class CreateTables implements ExecuteSQLResourceFile {
   private JdbcTemplate jdbcTemplate;
 
-  @SuppressWarnings("null")
   public CreateTables(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
   }

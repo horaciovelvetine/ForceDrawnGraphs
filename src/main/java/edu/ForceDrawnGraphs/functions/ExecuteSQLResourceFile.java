@@ -9,7 +9,6 @@ import edu.ForceDrawnGraphs.interfaces.Reportable;
 /**
  * This interface provides a method to execute SQL files on the local DB.
  */
-@SuppressWarnings("null")
 public interface ExecuteSQLResourceFile extends Reportable {
 
   /**
