@@ -230,3 +230,19 @@ A. Select a randome item/page row from the dataset.
 -> Map out all of the nodes and edges that can be created from this data.
 
 By 2 I meant a depth of 2. A node, and all of its edges.
+
+Implemented: Commit #67v2a5d0 --> Contains the details and complete Graphset.java demoset() method which gets all the pertinent data for the construction of a single vertex, and all of its edges. Even this small implementation has pretty significant time cost in SQL Queries.
+
+### Module 3.2 - Nodes & Edges - Making the Graphset Calculable
+
+Goal: Timing and unpacking different approaches to reducing the records into Vertices and Edges.
+
+Outline: Each creation of a Vertex & Edge requires parsing the dataset from the DB, this is a slow process and the goal of each of the todo's will be to establish some baselines for the time it takes to create Vertexes and Edges with a few different approaches. From the last module, the process to build the dataset is likely best started inside a random Page.java record. Each Page record (should) will have a corresponding Item record, from there the Hyperlinks and Statements can be pulled to create the Vertex and Edges.
+
+Approaches & Todo's:
+- [X] Import the dataset with newly indexed columns so that look up times between will be faster with the columns being used as IDs.
+- [ ] Time and average out the baseline process timing how long it takes to query all the info needed to create a Vertex and all of its Edges. Using the code completed in the last module. Most of the work is inside these queries.
+
+```java
+String ex_sql = "SELECT * FROM statements/hyperlinks WHERE source_item_id = ? OR target_item_id = ?;";
+```
