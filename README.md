@@ -240,9 +240,43 @@ Goal: Timing and unpacking different approaches to reducing the records into Ver
 Outline: Each creation of a Vertex & Edge requires parsing the dataset from the DB, this is a slow process and the goal of each of the todo's will be to establish some baselines for the time it takes to create Vertexes and Edges with a few different approaches. From the last module, the process to build the dataset is likely best started inside a random Page.java record. Each Page record (should) will have a corresponding Item record, from there the Hyperlinks and Statements can be pulled to create the Vertex and Edges.
 
 Approaches & Todo's:
-- [X] Import the dataset with newly indexed columns so that look up times between will be faster with the columns being used as IDs.
-- [ ] Time and average out the baseline process timing how long it takes to query all the info needed to create a Vertex and all of its Edges. Using the code completed in the last module. Most of the work is inside these queries.
+- [X] Import the dataset with newly indexed columns so that look up times between will be faster with the columns being used as IDs. (This is probably going to 99% of the work I'm realizing as I test this - I didnt take metrics before and after, but from hundreds of MS to 1's and 2's of MS).
+- [X] Time and average out the baseline process timing how long it takes to query all the info needed to create a Vertex and all of its Edges. Using the code completed in the last module. Most of the work is inside these queries.
 
 ```java
 String ex_sql = "SELECT * FROM statements/hyperlinks WHERE source_item_id = ? OR target_item_id = ?;";
 ```
+  Results: approx. range 5-27ms. per demoset() call for a variety of sizes of sets (a few had 300+ statemtts/hyperlinks, most had 10-20). Potentially this could be split across 4 queries, but the time to run the queries is so low that the overhead of the additional queries would likely be more costly than the time saved in the queries themselves.
+
+- [ ] An "all relevant items" approach. This would be to query all of the items and pages, and then all of the hyperlinks and statements.
+
+```sql resources/queries/GetRelevantRecords.sql
+WITH RelevantItems AS (
+    SELECT i.item_id, i.en_label, i.en_description
+    FROM items i
+    INNER JOIN pages p ON p.item_id = i.item_id
+    WHERE p.page_id = '1599379' -- EX ID
+), RelevantHyperlinks AS (
+    SELECT h.from_page_id, h.to_page_id, h.count
+    FROM hyperlinks h
+    INNER JOIN pages p ON p.page_id = h.from_page_id OR p.page_id = h.to_page_id
+    WHERE p.page_id = '1599379' -- EX ID
+), RelevantStatements AS (
+    SELECT s.source_item_id, s.edge_property_id, s.target_item_id
+    FROM statements s
+    INNER JOIN RelevantItems ri ON ri.item_id = s.source_item_id OR ri.item_id = s.target_item_id
+)
+SELECT p.*, ri.*, rh.*, rs.*
+FROM pages p
+LEFT JOIN RelevantItems ri ON p.item_id = ri.item_id
+LEFT JOIN RelevantHyperlinks rh ON p.page_id = rh.from_page_id OR p.page_id = rh.to_page_id
+LEFT JOIN RelevantStatements rs ON ri.item_id = rs.source_item_id OR ri.item_id = rs.target_item_id
+WHERE p.page_id = '1599379'; -- EX ID
+```
+  
+  Query is designed to get any record w/ releated data to the page_id provided. This provides ALL data, and isn't neccasarily the most concise way to get the data, but that may be easier/better to parse in code for the intended goal.
+
+  Resultant Rows: { id (page_serial), page_id, item_id, title, views, item_id, en_label , en_description , from_page_id, to_page_id, count, source_item_id, target_item_id }
+
+  Ultimately untangling this data was not more effective, just confusing. KISS principle applies here, and the original approach is almost readable.
+
