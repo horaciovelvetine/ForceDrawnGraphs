@@ -25,9 +25,9 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
   private JdbcTemplate jdbcTemplate;
   private Graphset graphset;
 
-  @SuppressWarnings("null")
   public GraphsetCommands(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
+    this.graphset = new Graphset();
   }
 
   @ShellMethod
@@ -39,13 +39,30 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     Item item = getItemByPage(page);
     Vertex vertex = createAndAddVertex(page, item);
 
-    // But then the info from a vertex is needed to create the edges - but this can be an independant process.
-    // Potentially this vertex can have a variety of edges but some of that data has to also be overlapping
-    // The goal is to have 0 overlapping edges. Each edge should be unique and not have any other edge with the same source and target
-    // Instead any overlapping edge information should be indicated on the edge itself.
-    // Edge object will definitley need to be re-examined at this point. 
-    Set<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID());
-    Set<Statement> statements = getStatementsByItemID(item.getItemID());
+    // Next is creating adn adding the edges
+    Set<Hyperlink> hyperlinks = getHyperlinksByPageID(page.getPageID()); // has a bunch src and tgt page ids in it you don't know yet
+    Set<Statement> statements = getStatementsByItemID(item.getItemID()); // has a bunch of src and tgt item ids in it you don't know yet
+
+    Set<String> targetPageIDS = new HashSet<String>();
+    Set<String> targetItemIDS = new HashSet<String>();
+
+    for (Hyperlink hyperlink : hyperlinks) {
+      if (hyperlink.getFromPageID().equals(page.getPageID())) {
+        targetPageIDS.add(hyperlink.getToPageID());
+      } else {
+        targetPageIDS.add(hyperlink.getFromPageID());
+      }
+    }
+
+    for (Statement statement : statements) {
+      if (statement.getSrcItemID().equals(item.getItemID())) {
+        targetItemIDS.add(statement.getTgtItemID());
+      } else {
+        targetItemIDS.add(statement.getSrcItemID());
+      }
+    }
+
+    print("GOTTA STOP SOMEWHERE");
 
     timer.end();
   }
