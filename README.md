@@ -233,7 +233,7 @@ By 2 I meant a depth of 2. A node, and all of its edges.
 
 Implemented: Commit #67v2a5d0 --> Contains the details and complete Graphset.java demoset() method which gets all the pertinent data for the construction of a single vertex, and all of its edges. Even this small implementation has pretty significant time cost in SQL Queries.
 
-### Module 3.2 - Nodes & Edges - Making the Graphset Calculable
+### Module 3.2 - Nodes & Edges - Getting back at the data
 
 Goal: Timing and unpacking different approaches to reducing the records into Vertices and Edges.
 
@@ -280,3 +280,6 @@ WHERE p.page_id = '1599379'; -- EX ID
 
   Ultimately untangling this data was not more effective, just confusing. KISS principle applies here, and the original approach is almost readable.
 
+### Module 3.3 - Vertices & Edges - Basic Graphset Assembly
+
+- Issue: I think having the edge be completely ignorant of the data from which they originate was good in theory, but there are a lot more Item/Statment pairs which would have a much harder time being represseented in the graph w/o some sort of info about the data they represent being present. Gonna sleep on this.
