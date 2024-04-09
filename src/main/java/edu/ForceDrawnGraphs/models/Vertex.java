@@ -14,6 +14,10 @@ public class Vertex {
   private String description;
   private String views;
 
+  public Vertex() {
+    //Default no vars constructor
+  }
+
   /**
    * Constructs a new Vertex object with the given item.
    *
@@ -24,6 +28,18 @@ public class Vertex {
     this.srcItemId = item.getItemID();
     this.label = item.getEnLabel();
     this.description = item.getEnDescription();
+  }
+
+  /**
+   * Constructs a new Vertex object with the given page.
+   *
+   * @param page The page associated with the vertex.
+   * @implNote Used on initialization pre DB commit.
+   */
+  public Vertex(Page page) {
+    this.srcPageId = page.getPageID();
+    this.label = page.getTitle();
+    this.views = page.getViews();
   }
 
   /**
@@ -140,6 +156,17 @@ public class Vertex {
    * @param item The item associated with the vertex.
    * @return A new Vertex object.
    */
+  public static Vertex createNewVertexFromRecords(Page page) {
+    return new Vertex(page);
+  }
+
+  /**
+   * Creates a new Vertex object from the given page.
+   *
+   * @param page The page associated with the vertex.
+   * @return A new Vertex object.
+   */
+
   public static Vertex createNewVertexFromRecords(Item item) {
     return new Vertex(item);
   }

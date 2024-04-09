@@ -3,7 +3,6 @@ package edu.ForceDrawnGraphs.models;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class Page extends BaseDatasetRecord {
-  public String RESOURCE_FILE_NAME = "page.csv";
   private String pageID;
   private String itemID;
   private String title;
