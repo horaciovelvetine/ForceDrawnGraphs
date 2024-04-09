@@ -23,7 +23,7 @@ This application uses Spring-Shell to provide a CLI interface to run the various
 
 First step is to import the variety of files the dataset provides, including mostly .csv and a .jsonl file. Each file gets a corresponding table. For now aliases will be excluded. The PK ID for each model will be internal to the local PG DB, while the original ID-ing structure will remain stored as ints, this will allow any FK contraints to be mitigated on import.
 
-![Wikiset Breakdown Diagram](/docs/Wikiset%20Breakdown%20Diagram%20v0.2.svg)
+![Wikiset Breakdown Diagram](/docs/images/KenshoSetBreakdownDiagramV0.2.svg)
 
 - [ ] items 
   - id (int)
@@ -69,7 +69,7 @@ Processes: `BuildLocalSet.java` class contains the majority of the code for this
 
 Batch sizes were: 100, 1000, 2500, 5000, 10000, 25000, 50000, 100000 objects per commit. Below is a snippet of the main method behind the import process.
 
-![snippet](/docs/ImportDataFromResourceSnippetMod1.png)
+![snippet](docs/images/ImportDataFromResourceSnippetMod1.png)
 
 Hardware/Software: 
 - 2021 16" MacBook Pro
@@ -86,7 +86,7 @@ Hardware/Software:
 Results v1.0:
 
 - On line 80 the commented out block is an if statement to check for divisibility by 10,000 to record a timestamp to track progress - For the larger batch sizes (>10k), this wasn't used. This caused there to be an uneven-ness in the data. The data for these runs is below - but the larger batch sizes (>10k) were excluded from the graph due to this uneven-ness. 
-- The data is recorded in [this Excel file.](docs/Optimizing%20Imports%20-%20Prepared%20Statements%20Data.xlsx) and shows a general trend that smaller batch sizes mean more commits, and as the batch size increases this time decreases. However, as predicted it appears that there are diminishing returns. 
+- The data is recorded in [this Excel file.](docs/resources/Optimizing%20Imports%20-%20Prepared%20Statements%20Data.xlsx) and shows a general trend that smaller batch sizes mean more commits, and as the batch size increases this time decreases. However, as predicted it appears that there are diminishing returns. 
 
 v1.1 Adjustments:
 
@@ -96,7 +96,7 @@ Processes:
 
 Results v1.1:
 
-![Results Visualization](docs/PreparedStatementsChart_v1.1.1.png)
+![Results Visualization](docs/images/PreparedStatementsChart_v1.1.1.png)
 
 Takeaways: An interesting stepping trend becomes apparent as with the increasing batch size, after some reading it's clear the limitation here is my understanding of the inner workings of some of the underlying technologies. These tests once again focused on batch sizes that show a trend of continuing returns, but has been limited to my sample size of 10m objects.  The most performant batch sizes were the 100k, 10m & 10m(a) runs - but the degree of change is only some 3000ms. over the entire sample set. With a variance of about 3 sec. per 10m objects, and a total of approx 210m objects to be imported, instead of continuing to chase the rabbit down the hole optimizing, I'll keep on moving forward.
 
@@ -108,9 +108,9 @@ Hypothesis: No-brainer here, the multi-threaded import will be faster. The quest
 
 Process: The `BuildLocalSet.java` class has been updated (pretty minimally) to allow importing of each of the 7 files in the dataset. The largest change in this process is the addition of the logic to process the .jsonl file, this file contains all the hyperlinking data & the logic for the process was completed in an earlier stage in this project and re-implemented here. This logic utilizes the JACKSON databind library to read the .jsonl file to some POJO's , which are then processed and committed to the database as `Hyperlink` objects. This process happens inside the `importDataFromResourceFile()` method, called inside from the `build()` command.
 
-![imoprtDataFromResourceFile() snippet](docs/ImportDataFromResourceSnippetMod2.png)
+![imoprtDataFromResourceFile() snippet](docs/images/ImportDataFromResourceSnippetMod2.png)
 
-For the single-threaded process this method is called once for each of the 7 files in order, and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [BuildLocalSet.java](src/main/java/edu/ForceDrawnGraphs/commands/BuildLocalSet.java) class. 
+For the single-threaded process this method is called once for each of the 7 files in order, and for the multi-threaded process each of these methods is called asynchronously using an `ExecutorService` with a cached thread pool. Otherwise the underlying logic for the process is all the same utilizing all of the helpers inside of the [OriginalDataset](src/main/java/edu/ForceDrawnGraphs/commands/OriginalDataset.java) class. 
 
 Results: 
 
@@ -119,7 +119,7 @@ Results:
 
 ![Results Visualization](docs/LeveraginMultipleThreadsAvgs.png)
 
-Takeaways: The multi-threaded process ends up being some 2.2x faster than the single-threaded import. Given the performance uptik, the `counts()` command in [FindAndUpdateRecordCounts.java](src/main/java/edu/ForceDrawnGraphs/commands/FindAndUpdateRecordCounts.java) was refactored to leverage multi-threading as well, to similar effect. When beginning this project my original time to complete an import was estimated to a few days, now that process has been reduced to UNDER 15 minutes - to create a COMPLETE local copy of the entirety of the English Wikipedia (as of 2019 - the origianl date from Wikimedia's dump and the Kensho set).
+Takeaways: The multi-threaded process ends up being some 2.2x faster than the single-threaded import. Given the performance uptik, the `counts()` command was refactored to leverage multi-threading as well, to similar effect. When beginning this project my original time to complete an import was estimated to a few days, now that process has been reduced to UNDER 15 minutes - to create a COMPLETE local copy of the entirety of the English Wikipedia (as of 2019 - the origianl date from Wikimedia's dump and the Kensho set).
 
 To give some additional insight - my logic for the import process adds 5ms (on average) of time over the entirety of the import of some 210 million records (across all 7 files). The remaining overhead in the import process is Postgres and the Libraries used to write to it, and had been minimized as much as is reasonable for the scope of this project. 
 
@@ -280,6 +280,14 @@ WHERE p.page_id = '1599379'; -- EX ID
 
   Ultimately untangling this data was not more effective, just confusing. KISS principle applies here, and the original approach is almost readable.
 
-### Module 3.3 - Vertices & Edges - Basic Graphset Assembly
+### Module 3.3 - Sidetracking myself - rectifying inadvertant refactor mistakes
 
-- Issue: I think having the edge be completely ignorant of the data from which they originate was good in theory, but there are a lot more Item/Statment pairs which would have a much harder time being represseented in the graph w/o some sort of info about the data they represent being present. Gonna sleep on this.
+Goal: The `build()` command inside the OriginalDataset.java class was refactored to be more modular, in removing the lineRef() method the process broke for the import of statements & hyperlinks. This break slows the process down enormously (more than quadrupling the time taken to do this).
+
+Hypothesis: The refactor overlooked the way which lineRef was used in order to pace commits to the DB, and this needs to be rolled back and properly refactored. 
+
+(a lot of time spent fiddling later...)
+
+The obvious answer: Indexing. I added indexing for a pretty significant number of the columns, this is whats slowing it down. Duh.
+
+### Module 3.4 - Back to Vertices & Edges 
