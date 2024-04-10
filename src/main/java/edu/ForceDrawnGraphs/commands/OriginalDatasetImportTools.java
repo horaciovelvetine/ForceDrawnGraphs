@@ -58,30 +58,29 @@ public class OriginalDatasetImportTools
       return;
     }
 
-    if (importTarget == Target.ALL) {
-      itemFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.ITEMS), executor);
-      pageFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PAGES), executor);
-      propertyFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PROPERTIES), executor);
-      statementFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.STATEMENTS), executor);
-      hyperlinkFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.LINKS), executor);
-    } else {
-      switch (importTarget) {
-        case ITEMS:
-          itemFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.ITEMS), executor);
-          break;
-        case PAGES:
-          pageFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PAGES), executor);
-          break;
-        case PROPERTIES:
-          propertyFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PROPERTIES), executor);
-          break;
-        case STATEMENTS:
-          statementFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.STATEMENTS), executor);
-          break;
-        case LINKS:
-          hyperlinkFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.LINKS), executor);
-          break;
-      }
+    switch (importTarget) {
+      case ITEMS:
+        itemFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.ITEMS), executor);
+        break;
+      case PAGES:
+        pageFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PAGES), executor);
+        break;
+      case PROPERTIES:
+        propertyFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PROPERTIES), executor);
+        break;
+      case STATEMENTS:
+        statementFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.STATEMENTS), executor);
+        break;
+      case LINKS:
+        hyperlinkFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.LINKS), executor);
+        break;
+      case ALL:
+        itemFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.ITEMS), executor);
+        pageFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PAGES), executor);
+        propertyFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.PROPERTIES), executor);
+        statementFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.STATEMENTS), executor);
+        hyperlinkFuture = CompletableFuture.runAsync(() -> importDataFromResourceFile(Target.LINKS), executor);
+        break;
     }
 
     try {
