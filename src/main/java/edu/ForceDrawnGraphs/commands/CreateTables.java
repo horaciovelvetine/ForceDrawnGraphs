@@ -19,7 +19,7 @@ public class CreateTables implements ExecuteSQLResourceFile {
   }
 
   @ShellMethod("Create a variety of tables (destructively).")
-  public void create(@ShellOption(defaultValue = "no-input") String target) {
+  public void createTable(@ShellOption(defaultValue = "no-input") String target) {
     ProcessTimer timer = new ProcessTimer("createTable(" + target + ") in CreateTables.java");
     switch (target) {
       case "edges":
