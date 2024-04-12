@@ -3,7 +3,9 @@ package edu.ForceDrawnGraphs.models;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Graphset {
+import edu.ForceDrawnGraphs.interfaces.Reportable;
+
+public class Graphset implements Reportable {
   private Set<Vertex> vertices;
   private Set<Edge> edges;
 
@@ -26,5 +28,31 @@ public class Graphset {
 
   public Set<Edge> getEdges() {
     return this.edges;
+  }
+
+  public Vertex getVertexByHyperlink(Hyperlink link) {
+    for (Vertex vertex : this.vertices) {
+      if (vertex.getSrcPageID().equals(link.getFromPageID())) {
+        return vertex;
+      } else if (vertex.getSrcPageID().equals(link.getToPageID())) {
+        return vertex;
+      } else {
+        report("@getVertexByHyperlink() error:" + link.getId());
+      }
+    }
+    return null;
+  }
+
+  public Vertex getVertexByStatemtn(Statement statement) {
+    for (Vertex vertex : this.vertices) {
+      if (vertex.getSrcItemID().equals(statement.getSrcItemID())) {
+        return vertex;
+      } else if (vertex.getSrcItemID().equals(statement.getTgtItemID())) {
+        return vertex;
+      } else {
+        report("@getVertexByStatemtn() error:" + statement.getId());
+      }
+    }
+    return null;
   }
 }
