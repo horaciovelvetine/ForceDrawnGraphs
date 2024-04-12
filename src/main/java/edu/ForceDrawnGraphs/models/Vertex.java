@@ -75,11 +75,11 @@ public class Vertex {
     this.z = z;
   }
 
-  public void setSrcItemId(String srcItemId) {
+  public void setSrcItemID(String srcItemId) {
     this.srcItemId = srcItemId;
   }
 
-  public void setSrcPageId(String srcPageId) {
+  public void setSrcPageID(String srcPageId) {
     this.srcPageId = srcPageId;
   }
 
@@ -112,11 +112,11 @@ public class Vertex {
     return z;
   }
 
-  public String getSrcItemId() {
+  public String getSrcItemID() {
     return srcItemId;
   }
 
-  public String getSrcPageId() {
+  public String getSrcPageID() {
     return srcPageId;
   }
 
