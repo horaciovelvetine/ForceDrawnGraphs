@@ -26,8 +26,8 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
 
   private Graphset graphset;
 
-  private Set<Item> itemCache = new HashSet<Item>();
-  private Set<Page> pageCache = new HashSet<Page>();
+  // private Set<Item> itemCache = new HashSet<Item>();
+  // private Set<Page> pageCache = new HashSet<Page>();
 
   public GraphsetCommands(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
@@ -43,8 +43,7 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     Page page = getRandomPage();
     Item item = getItemByPage(page);
     Vertex genesisVertex = createAndAddVertexToGraphset(page, item); // use return value as 'srcVertexID'
-
-    //! DIVIDER FOR VERTEX VS. EDGE CREATION IN THE PROCESS
+    // instantiate HashSets to keep track of related info...
     Set<Hyperlink> relatedHyperlinks = new HashSet<Hyperlink>();
     Set<Statement> relatedStatements = new HashSet<Statement>();
     Set<String> relatedPageIDs = new HashSet<String>();
@@ -61,31 +60,42 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     }
     // Check local graphset for existing references to target pages and items
     for (Vertex vertex : graphset.getVertices()) {
-      if (relatedPageIDs.contains(vertex.getSrcPageId()) || relatedItemIDs.contains(vertex.getSrcItemId())) {
-        relatedPageIDs.remove(vertex.getSrcPageId());
-        relatedItemIDs.remove(vertex.getSrcItemId());
+      if (relatedPageIDs.contains(vertex.getSrcPageID()) || relatedItemIDs.contains(vertex.getSrcItemID())) {
+        relatedPageIDs.remove(vertex.getSrcPageID());
+        relatedItemIDs.remove(vertex.getSrcItemID());
       }
     }
-    //! DIVIDER FOR RELATED VERTEX CRTATION IN THE PROCESS
-    // Create and add vertices for each remaining target page and item
-    for (String relatedPageID : relatedPageIDs) {
-      Page relatedPage = getPageByID(relatedPageID);
-      Item relatedItem = getItemByPage(relatedPage);
-      createAndAddVertexToGraphset(relatedPage, relatedItem);
-      // relatedPageIDs.remove(relatedPageID); // causes concurrent modification exception
-      // ! This is a null return candidate for async execution
+    // Create vertices for related pages and items
+    createVerticesFromRelatedPageIDs(relatedPageIDs);
+    createVerticesFromRelatedItemIDs(relatedItemIDs);
+    // Create edges for related linked vertices
+    for (Hyperlink hyperlink : relatedHyperlinks) {
+      Vertex targetVertex = graphset.getVertexByHyperlink(hyperlink);
     }
-    for (String relatedItemID : relatedItemIDs) {
-      Item relatedItem = getItemByID(relatedItemID);
-      Page relatedPage = getPageByItem(relatedItem);
-      createAndAddVertexToGraphset(relatedPage, relatedItem);
-      // relatedItemIDs.remove(relatedItemID); // causes concurrent modification exception
-      // ! This is a null return candidate for async execution
+
+    for (Statement statement : relatedStatements) {
+      Vertex targetVertex = graphset.getVertexByStatemtn(statement);
     }
 
     print("GOTTA STOP SOMEWHERE");
 
     timer.end();
+  }
+
+  private void createVerticesFromRelatedPageIDs(Set<String> relatedPageIDs) {
+    for (String relatedPageID : relatedPageIDs) {
+      Page relatedPage = getPageByID(relatedPageID);
+      Item relatedItem = getItemByPage(relatedPage);
+      createAndAddVertexToGraphset(relatedPage, relatedItem);
+    }
+  }
+
+  private void createVerticesFromRelatedItemIDs(Set<String> relatedItemIDs) {
+    for (String relatedItemID : relatedItemIDs) {
+      Item relatedItem = getItemByID(relatedItemID);
+      Page relatedPage = getPageByItem(relatedItem);
+      createAndAddVertexToGraphset(relatedPage, relatedItem);
+    }
   }
 
   private Page getPageByID(String pageID) {
