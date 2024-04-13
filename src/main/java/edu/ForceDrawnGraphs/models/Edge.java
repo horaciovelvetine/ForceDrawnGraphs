@@ -1,5 +1,7 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.util.Set;
+
 public class Edge {
   private int id;
   private int srcVertexId; // actual serial ID
@@ -13,18 +15,10 @@ public class Edge {
     //Default no vars constructor
   }
 
-  public Edge(Vertex srcVertex, Vertex tgtVertex, Hyperlink hyperlink) {
-    this.srcVertexId = srcVertex.getId();
-    this.tgtVertextId = tgtVertex.getId();
-    this.srcHyperlinkID = hyperlink.getId();
-    this.weight = Integer.parseInt(hyperlink.getCount());
-  }
-
-  public Edge(Vertex srcVertex, Vertex tgtVertex, Statement statement) {
-    this.srcVertexId = srcVertex.getId();
-    this.tgtVertextId = tgtVertex.getId();
-    this.srcStatementID = statement.getId();
-    // This has to be the start of building edge types from properties
-    // this.weight = Property.evaluateWeight(statement.getEdgePropertyID());
+  public Edge(Vertex srcVertex, Vertex tgtVertex, Set<Hyperlink> hyperlinks, Set<Statement> statements) {
+    this.srcVertexId = srcVertex.getID();
+    this.tgtVertextId = tgtVertex.getID();
+    // this.srcHyperlinkID = hyperlink.getId();
+    // this.weight = Integer.parseInt(hyperlink.getCount());
   }
 }

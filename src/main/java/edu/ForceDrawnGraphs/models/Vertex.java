@@ -10,9 +10,10 @@ public class Vertex {
   private float z;
   private String srcItemId;
   private String srcPageId;
-  private String label;
-  private String description;
-  private String views;
+  private String label; // Label is from the item parent
+  private String title; // Title is from the page parent
+  private String description; // Description is from the item parent
+  private String views; // Views is from the page parent
 
   public Vertex() {
     //Default no vars constructor
@@ -38,7 +39,7 @@ public class Vertex {
    */
   public Vertex(Page page) {
     this.srcPageId = page.getPageID();
-    this.label = page.getTitle();
+    this.title = page.getTitle();
     this.views = page.getViews();
   }
 
@@ -53,13 +54,14 @@ public class Vertex {
   public Vertex(Item item, Page page) {
     this.srcItemId = item.getItemID();
     this.label = item.getEnLabel();
+    this.title = page.getTitle();
     this.description = item.getEnDescription();
     this.srcPageId = page.getPageID();
     this.views = page.getViews();
   }
 
   // Setters
-  public void setId(int id) {
+  public void setID(int id) {
     this.id = id;
   }
 
@@ -95,8 +97,12 @@ public class Vertex {
     this.views = views;
   }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   // Getters
-  public int getId() {
+  public int getID() {
     return id;
   }
 
@@ -130,6 +136,10 @@ public class Vertex {
 
   public String getViews() {
     return views;
+  }
+
+  public String getTitle() {
+    return title;
   }
   //! ===========================================================================
   //! ENDS GETTERS AND SETTER INFRASTRUCTURE

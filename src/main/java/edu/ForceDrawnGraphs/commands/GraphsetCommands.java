@@ -23,11 +23,7 @@ import edu.ForceDrawnGraphs.models.Vertex;
 @ShellComponent
 public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
   private JdbcTemplate jdbcTemplate;
-
   private Graphset graphset;
-
-  // private Set<Item> itemCache = new HashSet<Item>();
-  // private Set<Page> pageCache = new HashSet<Page>();
 
   public GraphsetCommands(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
@@ -48,12 +44,12 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     Set<Statement> relatedStatements = new HashSet<Statement>();
     Set<String> relatedPageIDs = new HashSet<String>();
     Set<String> relatedItemIDs = new HashSet<String>();
+    Set<Vertex> relatedVertices = new HashSet<Vertex>();
     // Get and hyperlinks or statements which reference the page or item
     if (page != null) {
       relatedHyperlinks = getHyperlinksByPageID(page.getPageID());
       relatedPageIDs = getUniqueTargetPageIDs(relatedHyperlinks, page.getPageID());
     }
-
     if (item != null) {
       relatedStatements = getStatementsByItemID(item.getItemID());
       relatedItemIDs = getUniqueTargetItemIDs(relatedStatements, item.getItemID());
@@ -66,15 +62,43 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
       }
     }
     // Create vertices for related pages and items
-    createVerticesFromRelatedPageIDs(relatedPageIDs);
-    createVerticesFromRelatedItemIDs(relatedItemIDs);
-    // Create edges for related linked vertices
-    for (Hyperlink hyperlink : relatedHyperlinks) {
-      Vertex targetVertex = graphset.getVertexByHyperlink(hyperlink);
-    }
+    createVerticesFromRelatedPageIDs(relatedPageIDs, relatedVertices);
+    createVerticesFromRelatedItemIDs(relatedItemIDs, relatedVertices);
+    // Instantiate edges between the genesis vertex and related vertices
+    for (Vertex targetVertex : relatedVertices) {
+      Set<Hyperlink> relevantHyperlinks = new HashSet<Hyperlink>();
+      Set<Statement> relevantStatements = new HashSet<Statement>();
+      // both page & item refer to the above objects used to instantiate the genesis vertex
+      for (Hyperlink hyperlink : relatedHyperlinks) {
+        if (page != null && targetVertex.getSrcPageID() != null) {
+          if (hyperlink.getFromPageID().equals(page.getPageID())
+              && hyperlink.getToPageID().equals(targetVertex.getSrcPageID())
+              || hyperlink.getFromPageID().equals(targetVertex.getSrcPageID())
+                  && hyperlink.getToPageID().equals(page.getPageID())) {
+            relevantHyperlinks.add(hyperlink);
+          }
+        } else {
+          report(
+              "Somehow we've reached a point where a page doesnt exist, but there are relevant hyperlinks. Something has gone conceptually wrong.");
+        }
+      }
 
-    for (Statement statement : relatedStatements) {
-      Vertex targetVertex = graphset.getVertexByStatemtn(statement);
+      for (Statement statement : relatedStatements) {
+        if (item != null && targetVertex.getSrcItemID() != null) {
+          if (statement.getSrcItemID().equals(item.getItemID())
+              && statement.getTgtItemID().equals(targetVertex.getSrcItemID())
+              || statement.getSrcItemID().equals(targetVertex.getSrcItemID())
+                  && statement.getTgtItemID().equals(item.getItemID())) {
+            relevantStatements.add(statement);
+          }
+        } else {
+          report(
+              "Somehow we've reached a point where an item doesnt exist, but there are relevant statements. Something has gone conceptually wrong.");
+        }
+      }
+
+      print("Where AM I?");
+
     }
 
     print("GOTTA STOP SOMEWHERE");
@@ -82,19 +106,21 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     timer.end();
   }
 
-  private void createVerticesFromRelatedPageIDs(Set<String> relatedPageIDs) {
+  private void createVerticesFromRelatedPageIDs(Set<String> relatedPageIDs, Set<Vertex> relatedVertices) {
     for (String relatedPageID : relatedPageIDs) {
       Page relatedPage = getPageByID(relatedPageID);
       Item relatedItem = getItemByPage(relatedPage);
-      createAndAddVertexToGraphset(relatedPage, relatedItem);
+      Vertex relatedVert = createAndAddVertexToGraphset(relatedPage, relatedItem);
+      relatedVertices.add(relatedVert);
     }
   }
 
-  private void createVerticesFromRelatedItemIDs(Set<String> relatedItemIDs) {
+  private void createVerticesFromRelatedItemIDs(Set<String> relatedItemIDs, Set<Vertex> relatedVertices) {
     for (String relatedItemID : relatedItemIDs) {
       Item relatedItem = getItemByID(relatedItemID);
       Page relatedPage = getPageByItem(relatedItem);
-      createAndAddVertexToGraphset(relatedPage, relatedItem);
+      Vertex relatedVert = createAndAddVertexToGraphset(relatedPage, relatedItem);
+      relatedVertices.add(relatedVert);
     }
   }
 
@@ -229,10 +255,9 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
   }
 
   private Vertex createAndAddVertexToGraphset(Page page, Item item) {
-    ProcessTimer timer = new ProcessTimer("createAndAddVertexToGraphset();");
     Vertex vertex = null;
     if (page == null || item == null) {
-      report("No page or item found for vertex creation.");
+      report("No page or item found for record during vertex creation.");
     }
     if (item != null && page != null) {
       vertex = new Vertex(item, page);
@@ -243,7 +268,6 @@ public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
     }
 
     graphset.addVertex(vertex);
-    timer.end();
     return vertex;
   }
 
