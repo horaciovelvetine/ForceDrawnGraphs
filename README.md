@@ -25,37 +25,6 @@ First step is to import the variety of files the dataset provides, including mos
 
 ![Wikiset Breakdown Diagram](/docs/images/KenshoSetBreakdownDiagramV0.2.svg)
 
-- [ ] items 
-  - id (int)
-  - item_id (int)
-  - en_label (string)
-  - en_description (string)
-
-- [ ] pages 
-  - id (int)
-  - page_id (int)
-  - item_id (int)
-  - title (string)
-  - views (int)
-
-- [ ] hyperlinks
-  - id (int)
-  - from_page_id (int)
-  - to_page_id (int)
-  - count (int)
-
-- [ ] properties
-  - id (int)
-  - property_id (int)
-  - en_label (string)
-  - en_description (string)
-
-- [ ] statements
-  - id (int)
-  - source_item_id (int)
-  - edge_property_id (int)
-  - target_item_id (int)
-
 
 #### Optimizing Imports - Testing performance of PreparedStatements
 
@@ -63,7 +32,7 @@ There are more than 141 million statements, and some 60 million additional entri
 
 Goal: Determine the optimal size of the batch to be included in each commit.
 
-Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [docs](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html#executeLargeUpdate()) I think there will be diminishing returns as the size of the batch is increased, so the limiting factor will be some combination of my hardware limitations. As the number of records increases point the `executeLargeUpdate` method must be required, but I believe this method is intended for running a large update across _all_ rows of a table to adjust something globally (like a timestamp) and not for writing new info to the database. 
+Hypothesis: Given the inclusion of the `executeLargeUpdate()` method [(docs)](https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/PreparedStatement.html#executeLargeUpdate()) I think there will be diminishing returns as the size of the batch is increased, so the limiting factor will be some combination of my hardware limitations. As the number of records increases point the `executeLargeUpdate` method must be required, but I believe this method is intended for running a large update across _all_ rows of a table to adjust something globally (like a timestamp) and not for writing new info to the database. 
 
 Processes: `BuildLocalSet.java` class contains the majority of the code for this module and is initialized with the `build()` command. Each test is run on the same data (item.csv) to compare a variety of batch sizes for each commit. The import process is halted after the `sampleSizeLimit` is reached, and the time taken for the process is recorded. The data was pulled into Excel for analysis and visualization.
 
@@ -144,38 +113,11 @@ Record Totals:
   - 26,048,882 Items
   - 5,362,173 Pages
   ---------------------- 
-  - 105,305,624 Hyperlinks
-  - 141,206852 Statements
+  - 105,305,959 Hyperlinks
+  - 141,206,852 Statements
   - 6,984 Properties
 
 Object Design: 
-
-- Vertices (Vertex.java):
-  - id (int)
-  - x (float)
-  - y (float)
-  - z (float)
-  - srcItemId (int)
-  - srcPageId (int)
-  - label (String) - Page.title || Item.enLabel
-  - description (String) - Item.enDescription
-  - views (int) - Page.views
-
-- Edges (Edge.java):
-  - id (int)
-  - srcVertId (int) 
-  - tgtVertId (int)
-  - weight (float) - Hyperlink.count
-  - edgeType (String) - Statement.edge_property_id.(property).enLabel
-  - edgeDescription (String) - Statement.edge_property_id.(property).enDescription
-
-- Properties (Property.java):
-  - id (int)
-  - propertyId (int)
-  - label (String)
-  - description (String)
-
-The basic code outline of the above process for Vertices (v1.0) ended up as follows inside of the new Graphset.java class: 
 
 ```java
   @ShellMethod("Merge Items and Pages data to create Vertices for the Graphset")
