@@ -30,9 +30,13 @@ A seperate process was used to asses the number_of_refs for `Properties` wherein
 
 <h4>Gotta Start Somewhere</h4>
 
-Being a novice and finding resources on for solving the big idea in your head often involves the enormous frustration of not knowing where to start. I started this project with the pretty minimal knowledge regarding cartesian coordinates, and not a single clue that Force Directed Graphs were a thing. 
+Being a novice and finding resources for solving the big idea in your head often involves the enormous frustration of not knowing where to start. I started this project with pretty minimal knowledge regarding cartesian coordinates, working with big datasets, and not a single clue that Force Directed Graphs were a thing. 
 
-Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Page" in 3D space, and that the relationship between pages could be represented by the distance between them. This is a pretty simple concept. So I started with the with a pretty basic idea, averages. In math terms you may recall this as the "mean" which has a neighbor called "weighted means". The thinking was that if you could get a page to act as the "center" of the graph (naturally this is Kevin Bacon) you could assume its coordinates were unknown, but by finding the weighted average of each related page you could create a cluster of pages around a center, place the center (starting at `(0,0,0)` with Kevin Bacon because you Gotta Start Somewhere), and continue on to run that process for each of the related pages with their related pages (building out).
+Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Wikipedia Page" in 3D space, and that the relationship between pages could be represented by the distance between them. In practice a pretty simple concept, so thats where I started, a pretty basic idea, averages. This led to building a tool and doing some reasearch for existing solutions for building graphs, and you can find more detail on that in this repository: [Finding Centroids](https://github.com/horaciovelvetine/finding-centroids)
+
+<a href="https://github.com/horaciovelvetine/finding-centroids"><img src="docs/../images/wmeans_3_vertices_2d_with_strength_radius.png"></a>
+
+<h4>Force Directed Graphs</h4>
 
 <div align="center">
 <h3>Steps for Running Locally</h3>
