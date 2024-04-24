@@ -5,14 +5,19 @@ package edu.ForceDrawnGraphs.models;
  */
 public class Vertex {
   private int id;
-  private double x;
-  private double y;
-  private double z;
+  private float x;
+  private float y;
+  private float z;
   private String srcItemId;
   private String srcPageId;
-  private String label;
-  private String description;
-  private String views;
+  private String label; // Label is from the item parent
+  private String title; // Title is from the page parent
+  private String description; // Description is from the item parent
+  private String views; // Views is from the page parent
+
+  public Vertex() {
+    //Default no vars constructor
+  }
 
   /**
    * Constructs a new Vertex object with the given item.
@@ -27,6 +32,18 @@ public class Vertex {
   }
 
   /**
+   * Constructs a new Vertex object with the given page.
+   *
+   * @param page The page associated with the vertex.
+   * @implNote Used on initialization pre DB commit.
+   */
+  public Vertex(Page page) {
+    this.srcPageId = page.getPageID();
+    this.title = page.getTitle();
+    this.views = page.getViews();
+  }
+
+  /**
    * Constructs a new Vertex object with the given item and page.
    *
    * @param item The item associated with the vertex.
@@ -37,33 +54,34 @@ public class Vertex {
   public Vertex(Item item, Page page) {
     this.srcItemId = item.getItemID();
     this.label = item.getEnLabel();
+    this.title = page.getTitle();
     this.description = item.getEnDescription();
     this.srcPageId = page.getPageID();
     this.views = page.getViews();
   }
 
   // Setters
-  public void setId(int id) {
+  public void setID(int id) {
     this.id = id;
   }
 
-  public void setX(double x) {
+  public void setX(float x) {
     this.x = x;
   }
 
-  public void setY(double y) {
+  public void setY(float y) {
     this.y = y;
   }
 
-  public void setZ(double z) {
+  public void setZ(float z) {
     this.z = z;
   }
 
-  public void setSrcItemId(String srcItemId) {
+  public void setSrcItemID(String srcItemId) {
     this.srcItemId = srcItemId;
   }
 
-  public void setSrcPageId(String srcPageId) {
+  public void setSrcPageID(String srcPageId) {
     this.srcPageId = srcPageId;
   }
 
@@ -79,28 +97,32 @@ public class Vertex {
     this.views = views;
   }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
   // Getters
-  public int getId() {
+  public int getID() {
     return id;
   }
 
-  public double getX() {
+  public float getX() {
     return x;
   }
 
-  public double getY() {
+  public float getY() {
     return y;
   }
 
-  public double getZ() {
+  public float getZ() {
     return z;
   }
 
-  public String getSrcItemId() {
+  public String getSrcItemID() {
     return srcItemId;
   }
 
-  public String getSrcPageId() {
+  public String getSrcPageID() {
     return srcPageId;
   }
 
@@ -114,6 +136,10 @@ public class Vertex {
 
   public String getViews() {
     return views;
+  }
+
+  public String getTitle() {
+    return title;
   }
   //! ===========================================================================
   //! ENDS GETTERS AND SETTER INFRASTRUCTURE
@@ -131,6 +157,27 @@ public class Vertex {
     if (page != null) {
       return new Vertex(item, page);
     }
+    return new Vertex(item);
+  }
+
+  /**
+   * Creates a new Vertex object from the given item.
+   *
+   * @param item The item associated with the vertex.
+   * @return A new Vertex object.
+   */
+  public static Vertex createNewVertexFromRecords(Page page) {
+    return new Vertex(page);
+  }
+
+  /**
+   * Creates a new Vertex object from the given page.
+   *
+   * @param page The page associated with the vertex.
+   * @return A new Vertex object.
+   */
+
+  public static Vertex createNewVertexFromRecords(Item item) {
     return new Vertex(item);
   }
 }

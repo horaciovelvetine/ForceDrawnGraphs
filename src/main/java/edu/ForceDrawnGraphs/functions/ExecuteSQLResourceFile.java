@@ -9,7 +9,6 @@ import edu.ForceDrawnGraphs.interfaces.Reportable;
 /**
  * This interface provides a method to execute SQL files on the local DB.
  */
-@SuppressWarnings("null")
 public interface ExecuteSQLResourceFile extends Reportable {
 
   /**
@@ -32,9 +31,10 @@ public interface ExecuteSQLResourceFile extends Reportable {
           jdbc.execute(statement);
         }
       }
-
+      resource.getInputStream().close();
     } catch (Exception e) {
-      report("@line 35 of ExecuteSQL().java:", e);
+      report("@ExecuteSQL().java:", e);
     }
+
   }
 }

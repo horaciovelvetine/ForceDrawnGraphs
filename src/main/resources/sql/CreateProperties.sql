@@ -5,5 +5,7 @@ CREATE TABLE properties (
     property_id VARCHAR(255),
     en_label VARCHAR(255),
     en_description TEXT,
-    line_ref INT
+    number_of_references INT DEFAULT 0
 );
+
+CREATE INDEX idx_property_id ON properties (property_id);

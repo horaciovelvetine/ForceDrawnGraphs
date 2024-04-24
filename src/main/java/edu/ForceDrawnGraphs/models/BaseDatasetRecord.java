@@ -2,11 +2,9 @@ package edu.ForceDrawnGraphs.models;
 
 public class BaseDatasetRecord {
   private int id;
-  private int lineRef;
 
-  public BaseDatasetRecord(int id, int lineRef) {
+  public BaseDatasetRecord(int id) {
     this.id = id;
-    this.lineRef = lineRef;
   }
 
   public int getId() {
@@ -15,13 +13,5 @@ public class BaseDatasetRecord {
 
   public void setId(int id) {
     this.id = id;
-  }
-
-  public int getLineRef() {
-    return lineRef;
-  }
-
-  public void setLineRef(int lineRef) {
-    this.lineRef = lineRef;
   }
 }

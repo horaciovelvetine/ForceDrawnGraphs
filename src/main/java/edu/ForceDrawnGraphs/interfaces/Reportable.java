@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * The Reportable interface provides methods for logging and reporting messages and exceptions.
+ * An interface for logging and reporting messages and exceptions during runtime, in a meaningful way.
  */
 public interface Reportable {
 
   /**
-   * The path to the log files.
+   * Default Log file path.
    */
   public static final String LOG_FILE_PATH = "src/main/resources/logs/";
 
@@ -27,7 +27,7 @@ public interface Reportable {
   }
 
   /**
-   * Logs exception.
+   * Timestamps & prints exception to the default log file, by calling .getMessage() on the exception.
    *
    * @param e the exception to be logged
    */
@@ -36,7 +36,7 @@ public interface Reportable {
   }
 
   /**
-   * Logs message.
+   * Timestamps & prints exception to the default log file.
    *
    * @param message the message to be logged
    */
@@ -45,7 +45,7 @@ public interface Reportable {
   }
 
   /**
-   * Logs message to the specified log file.
+   * Timestamps & prints the specified message to a specified log file (file location printed to the console).
    *
    * @param message     the message to be logged
    * @param logFileName the name of the log file
@@ -109,7 +109,7 @@ public interface Reportable {
   }
 
   /**
-   * Reports message by printing it to the console and logging it to the specified log file.
+   * Reports message by printing it to the console and logging it to the default log file.
    *
    * @param originMsg   Message placed before the exception message to include more context
    * @param e           the exception to be reported

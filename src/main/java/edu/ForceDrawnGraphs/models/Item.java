@@ -4,19 +4,15 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 public class Item extends BaseDatasetRecord {
   public String RESOURCE_FILE_NAME = "item.csv";
-  private int id;
   private String itemID;
   private String enLabel;
   private String enDescription;
-  private int lineRef;
 
-  private Item(int id, String itemID, String enLabel, String enDescription, int lineRef) {
-    super(id, lineRef);
-    this.id = id;
+  private Item(int id, String itemID, String enLabel, String enDescription) {
+    super(id);
     this.itemID = itemID;
     this.enLabel = enLabel;
     this.enDescription = enDescription;
-    this.lineRef = lineRef;
   }
 
   public String getItemID() {
@@ -49,6 +45,6 @@ public class Item extends BaseDatasetRecord {
 
   public static Item mapSqlRowSetToItem(SqlRowSet results) {
     return new Item(results.getInt("id"), results.getString("item_id"), results.getString("en_label"),
-        results.getString("en_description"), results.getInt("line_ref"));
+        results.getString("en_description"));
   }
 }
