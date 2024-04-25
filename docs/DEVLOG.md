@@ -1,24 +1,3 @@
-# ForceDrawnGraphs
-
-Original Dataset [here](https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data)
-
-Goal: analyze the data to create a graph set representation reflection the relative relationship between wikipedia pages.
-
-## Configuration
-
-The dataset linked above is >20GB and requires some time to download, however a local copy is needed in `src/main/resources/data/`. Additional configuration will be required for your preferred local DB, this implements a local Postgres DB to track the graph data.
-
-## Running
-
-This application uses Spring-Shell to provide a CLI interface to run the various commands `help` will list all of the available commands and a summary of what they do
-
-## Resources
-
-- Spring-Shell: [site](https://docs.spring.io/spring-shell/docs/current/reference/htmlsingle/)
-- Overview of Spring-Shell: [site](https://reflectoring.io/spring-shell/)
-- JUNG: Java Universal Network/Graph Framework: [site](https://jung.sourceforge.net/)
-- Spring Embedders and Force Directed Graph Drawing Algorithims: [Academic Paper](https://arxiv.org/abs/1201.3011)
-
 ### Module 1 - Creating a local copy of the dataset.
 
 First step is to import the variety of files the dataset provides, including mostly .csv and a .jsonl file. Each file gets a corresponding table. For now aliases will be excluded. The PK ID for each model will be internal to the local PG DB, while the original ID-ing structure will remain stored as ints, this will allow any FK contraints to be mitigated on import.
@@ -39,18 +18,6 @@ Processes: `BuildLocalSet.java` class contains the majority of the code for this
 Batch sizes were: 100, 1000, 2500, 5000, 10000, 25000, 50000, 100000 objects per commit. Below is a snippet of the main method behind the import process.
 
 ![snippet](docs/images/ImportDataFromResourceSnippetMod1.png)
-
-Hardware/Software: 
-- 2021 16" MacBook Pro
-- Apple M1 Max
-- 64GB RAM
-- Ventura 13.0
-- Postgres v2.7.1
-- Spring 3.2.2
-
-- All other data has been cleared out of any local Postgres DBs, each test is being run on a fresh DB hosted and connected to locally. 
-- No other applications/processes are running on the machine during the tests (within reason, the OS is still running),and all wireless connections are disabled.
-- The internal drive is approximately 25% full and is 2.0TB in size. 
 
 Results v1.0:
 
@@ -232,4 +199,10 @@ Hypothesis: The refactor overlooked the way which lineRef was used in order to p
 
 The obvious answer: Indexing. I added indexing for a pretty significant number of the columns, this is whats slowing it down. Duh.
 
-### Module 3.4 - Back to Vertices & Edges 
+### Module 3.4 - Complete a vertex and edge creation process, but I think theres a proble.
+
+After analyzing the data, it isn't clear wether  the paired down set of data is going to be a trustworthy source. Either from a structure I am misunderstanding, or some very fundamental flaw which I am missing after several reviews of my code it's clear the original data iceberg I was intending to avoid is full-steam dead ahead. This is to say sourcing the data from the origin is the best way to go about this.
+
+Wikidata has a publically maintained tool for JAVA which can be used to acces the data, so it's back to square one (to some degree). [Java Wikidata-Toolkit Repo](https://github.com/Wikidata/Wikidata-Toolkit) 
+
+### Module 4 (Start: April 24, 2024) - Wikidata Toolkit
