@@ -24,9 +24,9 @@
 
 <div align=center>
   <a href=https://www.wikidata.org/wiki/Wikidata:Main_Page>
-    <img src=docs/../images/Wikidata-logo-en.svg width=175>
+    <img src=docs/images/Wikidata-logo-en.svg width=175>
   </a><a href=https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data>
-    <img src=docs/../images/Kensho-data-en.svg width=175>
+    <img src=docs/images/Kensho-data-en.svg width=175>
   </a>
 <h2>The Data</h2>
 <br>
@@ -38,7 +38,7 @@ Initially this project used a dataset from Kaggle, which was a smaller subset of
 
 <h3> Kensho Dataset Table Diagram </h3>
 
-![Kensho Dataset Table Diagram](docs/../images/KenshoDatasetChart_v2.0.drawio.svg)
+![Kensho Dataset Table Diagram](docs/images/KenshoDatasetChart_v2.0.drawio.svg)
 
 
 <h3>Understanding the Dataset and Importing It</h3>
@@ -67,7 +67,7 @@ The `PreparedStatement` class is a subclass of `Statement` that allows for preco
 The below data outlines two sets of tests run inserting the dataset utilizing variable batch sizes, timing the performance, and reporting it in a log file. Initial batches are run with sizes of: 100, 1000. 2500, 500, 10000, 25000, 50000, and 100000 objects per commit, but the subsequent tests and charts will picture runs with batch sizes of: 100000, 250000, 500000, 1000000, and 10000000 objects per commit (The inital runs were recorded and iterated on, suffering at large from the same costly time per `INSERT` statement).
 
 <div align=center>
-  <img src=docs/images/../../images/PreparedStatementsChart_v1.1.1.png>
+  <img src=docs/images/PreparedStatementsChart_v1.1.1.png>
 </div>
 <p>This data was limited to inserting 10 million records from the `item.csv` set, but outlines a really interesting stepping trend emerging as the batch size reaches 250,000 objects. With each batch being run at least 3 times, then averages calculated (and displyed above) 10m & 100k batch sizes emerged as plausible, later on machine limitations would choose the 100k batch size for the final import process. A better understanding of the `PreparedStatement` class may have an explanation for the stepping trend but that lies outside the scope of this project, and will have to remain a mystery for now.</p>
 <hr>
@@ -76,7 +76,7 @@ The below data outlines two sets of tests run inserting the dataset utilizing va
 
 The last formal optimization in the import step was leveraging multiple threads to run the insert process asyhronously. This was done by creating a `ThreadPoolCache` and then running the import process for each file at the same time. With the batch size at 100k, this allowed paralell processing of the `Statements` and `Hyperlinks` tables. This final optimization has a **tremendous** impact, cutting the time to import in half. Mechanically this is equivalent to writing 250 million rows (all of english Wikipedia circa 2019) representing the relationships between all pages and their listed statements from an average time of *30* minutes to *15 under minutes*.
 <div align=center>
-  <img src="docs/../images/LeveraginMultipleThreadsAvgs.png">
+  <img src="docs/images/LeveraginMultipleThreadsAvgs.png">
 </div>
 <hr>
   
@@ -89,7 +89,7 @@ Being a novice and finding resources for solving the big idea in your head often
 Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Wikipedia Page" in 3D space, and that the relationship between pages could be represented by the distance between them. In practice this is a pretty simple concept, so thats where I started, a pretty basic idea, averages. This led to building a tool and doing some reasearch for existing solutions for building graphs, and you can find more detail on that in this repository: [Finding Centroids](https://github.com/horaciovelvetine/finding-centroids)
 
 <a href=https://github.com/horaciovelvetine/finding-centroids>
-  <img src=docs/../images/wmeans_3_vertices_2d_with_strength_radius.png>
+  <img src=docs/images/wmeans_3_vertices_2d_with_strength_radius.png>
 </a>
 
 <h4>Force Directed Graphs</h4>
@@ -149,7 +149,7 @@ spring.datasource.continue-on-error=true
 - [JUNG2 2.0 API Documentation](https://jung.sourceforge.net/doc/api/index.html)
 - [FADE: Graph Drawing, Clustering, and Visual Abstraction by Aaron Quigley and Peter Eades (from the University of Newcastle, Callaghan NSW)](https://arxiv.org/pdf/1201.3011.pdf;)
 - [JSON Lines Viewer Extension](https://marketplace.visualstudio.com/items?itemName=lehoanganh298.json-lines-viewer)
-<div align=center>
+
   <h4>System Specs:</h4>
   <p>2021 16" MacBook Pro</p>
   <p>Apple M1 Max</p>
@@ -157,4 +157,3 @@ spring.datasource.continue-on-error=true
   <p>Ventura 13.0</p>
   <p>Postgres v2.7.1</p>
   <p>Spring 3.2.2</p>
-</div>
