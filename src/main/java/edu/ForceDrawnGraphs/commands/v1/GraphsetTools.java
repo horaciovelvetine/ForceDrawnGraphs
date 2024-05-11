@@ -38,6 +38,7 @@ public class GraphsetTools implements GetPreparedStmt, ReadSQLFileAsString {
     // The vertex only requires knowledge of the page to be created (item whic may be null)
     Page page = getRandomPage();
     Item item = getItemByPage(page);
+    @SuppressWarnings("unused")
     Vertex genesisVertex = createAndAddVertexToGraphset(page, item); // use return value as 'srcVertexID'
     // instantiate HashSets to keep track of related info...
     Set<Hyperlink> relatedHyperlinks = new HashSet<Hyperlink>();
