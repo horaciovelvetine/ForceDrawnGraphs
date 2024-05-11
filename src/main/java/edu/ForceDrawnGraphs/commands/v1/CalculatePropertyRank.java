@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.commands;
+package edu.ForceDrawnGraphs.commands.v1;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.commands;
+package edu.ForceDrawnGraphs.commands.v1;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,11 +21,11 @@ import edu.ForceDrawnGraphs.models.v1.Statement;
 import edu.ForceDrawnGraphs.models.v1.Vertex;
 
 @ShellComponent
-public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {
+public class GraphsetTools implements GetPreparedStmt, ReadSQLFileAsString {
   private JdbcTemplate jdbcTemplate;
   private Graphset graphset;
 
-  public GraphsetCommands(DataSource datasource) {
+  public GraphsetTools(DataSource datasource) {
     this.jdbcTemplate = new JdbcTemplate(datasource);
     this.graphset = new Graphset();
   }

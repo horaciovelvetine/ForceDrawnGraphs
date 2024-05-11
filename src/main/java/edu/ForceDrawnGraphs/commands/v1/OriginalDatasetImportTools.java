@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.commands;
+package edu.ForceDrawnGraphs.commands.v1;
 
 import java.io.BufferedReader;
 import java.sql.PreparedStatement;
