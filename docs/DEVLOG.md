@@ -208,5 +208,3 @@ Wikidata has a publically maintained tool for JAVA which can be used to acces th
 ### Module 4 (Start: April 24, 2024) - Wikidata Toolkit
 
 - [Wikidata_Toolkit_Java_Homepage!](https://www.mediawiki.org/wiki/Wikidata_Toolkit)
-
-I will be starting by testing the provided examples on a local fork (Wed, April 24, 2024).

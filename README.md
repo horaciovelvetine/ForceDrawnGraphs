@@ -149,6 +149,8 @@ spring.datasource.continue-on-error=true
 - [JUNG2 2.0 API Documentation](https://jung.sourceforge.net/doc/api/index.html)
 - [FADE: Graph Drawing, Clustering, and Visual Abstraction by Aaron Quigley and Peter Eades (from the University of Newcastle, Callaghan NSW)](https://arxiv.org/pdf/1201.3011.pdf;)
 - [JSON Lines Viewer Extension](https://marketplace.visualstudio.com/items?itemName=lehoanganh298.json-lines-viewer)
+- [Wikibase/Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
+- [Java: Wikidata Toolkit API Docs (JavaDoc)](https://wikidata.github.io/Wikidata-Toolkit/)
 
   <h4>System Specs:</h4>
   <p>2021 16" MacBook Pro</p>
