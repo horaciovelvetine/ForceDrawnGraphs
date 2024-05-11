@@ -23,7 +23,7 @@ public interface GetPreparedStmt extends Reportable {
     try {
       return dataSource.getConnection().prepareStatement(sql);
     } catch (Exception e) {
-      report("@line 25 of GetPreparedStmt().java:", e);
+      report("Error GetPreparedStmt().java:", e);
     }
     return null;
   }

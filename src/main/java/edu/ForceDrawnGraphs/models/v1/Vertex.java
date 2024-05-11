@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.v1;
 
 /**
  * Base class for a Vertex object (also known as a Node).

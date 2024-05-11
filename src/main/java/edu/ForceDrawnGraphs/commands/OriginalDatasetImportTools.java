@@ -22,10 +22,10 @@ import edu.ForceDrawnGraphs.functions.ExecuteSQLResourceFile;
 import edu.ForceDrawnGraphs.functions.GetBufferedReaderForResource;
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
-import edu.ForceDrawnGraphs.models.Hyperlink;
-import edu.ForceDrawnGraphs.models.LinkAnnotatedTextRecord;
-import edu.ForceDrawnGraphs.models.OriginalDatasetImportInfoStruction;
-import edu.ForceDrawnGraphs.models.SectionRecord;
+import edu.ForceDrawnGraphs.models.v1.Hyperlink;
+import edu.ForceDrawnGraphs.models.v1.LinkAnnotatedTextRecord;
+import edu.ForceDrawnGraphs.models.v1.OriginalDatasetImportInfoStruction;
+import edu.ForceDrawnGraphs.models.v1.SectionRecord;
 
 @ShellComponent
 public class OriginalDatasetImportTools

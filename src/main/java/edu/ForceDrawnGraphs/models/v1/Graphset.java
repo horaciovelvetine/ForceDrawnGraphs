@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.v1;
 
 import java.util.HashSet;
 import java.util.Set;

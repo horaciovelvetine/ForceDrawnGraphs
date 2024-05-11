@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.v1;
 
 public class Property extends BaseDatasetRecord {
   private String propertyID;

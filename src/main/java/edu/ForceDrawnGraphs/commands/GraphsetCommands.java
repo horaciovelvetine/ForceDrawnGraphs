@@ -13,12 +13,12 @@ import org.springframework.shell.standard.ShellMethod;
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
 import edu.ForceDrawnGraphs.functions.ReadSQLFileAsString;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
-import edu.ForceDrawnGraphs.models.Item;
-import edu.ForceDrawnGraphs.models.Graphset;
-import edu.ForceDrawnGraphs.models.Hyperlink;
-import edu.ForceDrawnGraphs.models.Page;
-import edu.ForceDrawnGraphs.models.Statement;
-import edu.ForceDrawnGraphs.models.Vertex;
+import edu.ForceDrawnGraphs.models.v1.Graphset;
+import edu.ForceDrawnGraphs.models.v1.Hyperlink;
+import edu.ForceDrawnGraphs.models.v1.Item;
+import edu.ForceDrawnGraphs.models.v1.Page;
+import edu.ForceDrawnGraphs.models.v1.Statement;
+import edu.ForceDrawnGraphs.models.v1.Vertex;
 
 @ShellComponent
 public class GraphsetCommands implements GetPreparedStmt, ReadSQLFileAsString {

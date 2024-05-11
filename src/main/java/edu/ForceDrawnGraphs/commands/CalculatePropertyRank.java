@@ -16,7 +16,7 @@ import edu.ForceDrawnGraphs.functions.AddBatchToStmt;
 import edu.ForceDrawnGraphs.functions.GetPreparedStmt;
 import edu.ForceDrawnGraphs.functions.ReadSQLFileAsString;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
-import edu.ForceDrawnGraphs.models.Property;
+import edu.ForceDrawnGraphs.models.v1.Property;
 
 @ShellComponent
 public class CalculatePropertyRank implements ReadSQLFileAsString, GetPreparedStmt, AddBatchToStmt {
