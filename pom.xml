@@ -17,7 +17,6 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-shell.version>3.2.0</spring-shell.version>
-		<jackson.version>2.16.0</jackson.version>
 		<wikidataToolkitVersion>0.14.7</wikidataToolkitVersion>
 	</properties>
 	<dependencies>
@@ -28,11 +27,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
