@@ -41,3 +41,4 @@ data/property.csv
 data/statements.csv
 target
 
+src/main/resources/logs/*
