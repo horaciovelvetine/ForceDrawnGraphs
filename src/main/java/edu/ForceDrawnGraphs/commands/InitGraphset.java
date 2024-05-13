@@ -22,5 +22,7 @@ public class InitGraphset implements FindWMEntDocumentFromTitleQuery {
     ProcessTimer timer = new ProcessTimer("initGraphset(" + target + ") in InitGraphset.java");
     EntityDocument doc = findWMEntDocumentFromQuery(target, wbdf);
     docProc.ingestEntityDocument(doc);
+
+    timer.end();
   }
 }
