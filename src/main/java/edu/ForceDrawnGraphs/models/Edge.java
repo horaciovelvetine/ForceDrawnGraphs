@@ -6,11 +6,17 @@ public class Edge {
   private String srcVertexQID;
   private String tgtVertexQID;
   private double weight;
+  private WikiDocStmtDetails stmtDetails;
 
-  public Edge(String srcVertexQID, String tgtVertexQID, double weight) {
+  public Edge(String srcVertexQID, String tgtVertexQID, WikiDocStmtDetails stmtDetails) {
     this.srcVertexQID = srcVertexQID;
     this.tgtVertexQID = tgtVertexQID;
-    this.weight = weight;
+    this.stmtDetails = stmtDetails;
+
+  }
+
+  public WikiDocStmtDetails details() {
+    return stmtDetails;
   }
 
   @Override

@@ -37,11 +37,12 @@ public class WikiDocAPIBroker implements Reportable {
     }
 
     if (docResult != null) { // If a result is found, notify the processor and ingest the document
-      docProc.ingestEntityDocument(docResult, true);
+      docProc.ingestEntityDocument(docResult);
     } else { // If no result is found, log it
       log("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
     }
     timer.end();
+    //TODO: Add a catch for when no result is found
   }
 
   //------------------------------------------------------------------------------------------------------------

@@ -1,56 +1,31 @@
 package edu.ForceDrawnGraphs.models;
 
-import java.util.Objects;
-
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
-public class WikiDocItemDetails {
-  private String label;
-  private String description;
-  private String QID;
+/**
+ * Represents the details of a WikiDoc item, including its label, description, and QID.
+ */
+public record WikiDocItemDetails(String label, String description, String QID) {
+  /**
+   * Constructs a new WikiDocItemDetails object with the specified label, description, and QID.
+   *
+   * @param label       the label of the WikiDoc item
+   * @param description the description of the WikiDoc item
+   * @param QID         the QID of the WikiDoc item
+   * @throws IllegalArgumentException if any of the fields are null
+   */
+  public WikiDocItemDetails {
+    if (label == null || description == null || QID == null) {
+      throw new IllegalArgumentException("All fields must be non-null");
+    }
+  }
 
+  /**
+   * Constructs a new WikiDocItemDetails object based on the provided ItemDocument.
+   *
+   * @param document the ItemDocument to extract the details from
+   */
   public WikiDocItemDetails(ItemDocument document) {
-    this.label = document.findLabel("en");
-    this.description = document.findDescription("en");
-    this.QID = document.getEntityId().getId();
+    this(document.findLabel("en"), document.findDescription("en"), document.getEntityId().getId());
   }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getQID() {
-    return QID;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (o == null || getClass() != o.getClass())
-      return false;
-    WikiDocItemDetails wdItemDocInfo = (WikiDocItemDetails) o;
-    return Objects.equals(label, wdItemDocInfo.label) &&
-        Objects.equals(description, wdItemDocInfo.description) &&
-        Objects.equals(QID, wdItemDocInfo.QID);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(label, description, QID);
-  }
-
-  @Override
-  public String toString() {
-    return "WikiDocItemDetails{" +
-        "label='" + label + '\'' +
-        ", description='" + description + '\'' +
-        ", QID='" + QID + '\'' +
-        '}';
-  }
-
 }
