@@ -36,6 +36,16 @@ public interface Reportable {
   }
 
   /**
+   * Timestamps & prints exception and a specified header message to the default log file.
+   * 
+   * @param headerMsg the header message to be logged before the exception message
+   * @param e         the exception to be logged
+   */
+  public default void log(String headerMsg, Exception e) {
+    log(headerMsg + "\n" + e.getMessage());
+  }
+
+  /**
    * Timestamps & prints exception to the default log file.
    *
    * @param message the message to be logged
@@ -49,6 +59,8 @@ public interface Reportable {
    *
    * @param message     the message to be logged
    * @param logFileName the name of the log file
+   * 
+   * @implNote logFileName should be a string with the file extension, e.g. "debug.log"
    */
   public default void log(String message, String logFileName) {
     print("Logged@ " + LOG_FILE_PATH + logFileName);
@@ -78,7 +90,7 @@ public interface Reportable {
   }
 
   /**
-   * Reports message by printing it to the console and logging it.
+   * Reports message by printing it to the console and printing it to the specified logfile.
    *
    * @param msg the message to be reported
    */
@@ -88,7 +100,7 @@ public interface Reportable {
   }
 
   /**
-   * Reports exception by printing it to the console and logging it.
+   * Reports exception by printing it to the console and printing it to the specified logfile.
    *
    * @param e the exception to be reported
    */
@@ -98,7 +110,7 @@ public interface Reportable {
   }
 
   /**
-   * Reports message by printing it to the console and logging it to the specified log file.
+   * Reports message by printing it to the console and printing it to the specified logfile.
    *
    * @param msg         the message to be reported
    * @param logFileName the name of the log file
