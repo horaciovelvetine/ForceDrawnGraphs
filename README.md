@@ -93,8 +93,7 @@ Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Wik
 </a>
 
 <h4>Force Directed Graphs</h4>
-*IN PROGRESS TBD*
-
+In Progress TBD...
 <hr>
 
 <div align=center>
@@ -151,6 +150,9 @@ spring.datasource.continue-on-error=true
 - [JSON Lines Viewer Extension](https://marketplace.visualstudio.com/items?itemName=lehoanganh298.json-lines-viewer)
 - [Wikibase/Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
 - [Java: Wikidata Toolkit API Docs (JavaDoc)](https://wikidata.github.io/Wikidata-Toolkit/)
+- [Graphs Explained (by the Guava Team)](https://github.com/google/guava/wiki/GraphsExplained#choosing-the-right-graph-type)
+- [Graph Drawing, Clustering, and Visual Abstraction (by Aaron Quigley and Peter Eades)](https://aaronquigley.org/wp-content/uploads/2019/03/Fade-2000-aquigley.pdf)
+- [Force-Directed Graph Drawing Using Social Gravity and Scaling (Michael J. Bannister, David Eppstein, Michael T. Goodrich, Lowell Trott)](https://arxiv.org/abs/1209.0748)
 
   <h4>System Specs:</h4>
   <p>2021 16" MacBook Pro</p>
