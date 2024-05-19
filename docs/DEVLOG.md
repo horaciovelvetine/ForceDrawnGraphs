@@ -17,15 +17,14 @@
 
 - It would be tremendously cool to have the final web app be tremendously bulletproof, I want to make error handling and testing a priority. (Writing my famous last words here) 
 
-# Thursday May 16, 2024
+# Thursday May 16 - Sundayy May 19, 2024
 
 - [X] Opting not to use records for some of the DTO models recieving data from the API, there is likely a good way to rewrite these 'details' records as Records, but I'll leave that for a refactor, and take not of it here.
-- [ ] Storing properties?
+- [ ] Initially the details of the properties are intended to be stored on the `WikiDocStmtDetails` model - but I'm not sold this is the best way to do this (it potentially adds an additional ent fetch into the cycle, and even 2 async-requests will mean the minimum time for response will be >1s no matter how fast the math is done). While the goal here is to keep the app stateless, either a SQLite cache of the properties, a local memory cache, or even just a small stupid CSV cache stored in the resources folder might be a better way to do this, where as they are fetched their details are stored in a cache, and then the cache is used to get the details of the properties, and fetch the ones we dont already know. 
 
-Initially the details of the properties are intended to be stored on the WikiDocStmtDetails model - but I'm not sold this is the best way to do this (it potentially adds an additional ent fetch into the cycle, and even 2 async-requests will mean the minimum time for response will be >1s no matter how fast the math is done). While the goal here is to keep the app stateless, either a SQLite cache of the properties, a local memory cache, or even just a small stupid CSV cache stored in the resources folder might be a better way to do this, where as they are fetched their details are stored in a cache, and then the cache is used to get the details of the properties, and fetch the ones we dont already know. 
+- [ ] `ingestEntValueSnakAsEdge()` method sets the `srcStmtValue` using a raw `toString()` call, this is likely going to end up with some funky results for the values of the edges for which it used in creating. May need a helper to really narrow down the type of Value being returned here and handle it accordingly. **UPDATE: Commonly a double quoted value is returned e.g. ""foo"" - often a string and can be handled witha  simple `replace("\"", "")` call.**
 
-- [ ] `ingestEntValueSnakAsEdge()` method sets the `srcStmtValue` using a raw `toString()` call, this is likely going to end up with some funky results for the values of the edges for which it used in creating. May need a helper to really narrow down the type of Value being returned here and handle it accordingly.
-- [ ] Handling some edge cases as I'm running the edge creation the first time: 
+## Real Statement Cases to Analyze:
 
 ```log
 2024-05-13 21:41:40
@@ -37,9 +36,19 @@ Qualifiers: [      http://www.wikidata.org/entity/P2699 :: "https://www.obalkykn
 References: []
 ```
 
-In this case, the mainSnak has the target which is an EntValueID, because it uses the Qualifier to store the value of the edge (which is a URL) - this should be potentially handled by retrieving the value of the Qualifier (my concern is this will be a lot of weird external URLs to which I have no affiliation or knowledge/control) or by simply omitting it and using the label exclusively.
+- DEFINES: (P1343) described by source (Q67311526) obalkyknih.cz
+- NOTES: Qualifier contains the (P2699) URL of the source - this could be easily ignored, but should be left open for additional statements with this pattern to determine a trend for properties with qualifiers. In this case the original QID is the target, which will link to the parent site, and render the URL redundant information. The property value of the qualifier will likely be the last line of defense determining wether the qualifier matters.
+- BREAKDOWN: 
+    - Check for refs
+    - Check for qualifiers
+    - Check for URL in qualifiers
+    - Check for QID in qualifiers
+    - Debug stopper at this pattern end to assess, and determing a method for going forward.
+- FINAL NOTE: Assuming the URL is ignroed this statement could be handled the same as the below statement.
+    - Check no refs or qualifiers: source of propTypeQID/Label/Value are from P6886, Q1860 is the tgtEntID stored on the edge
 
-The qualifier has an additional property QID which would have to be accomodated for as well.
+
+*The qualifier has an additional property QID which would have to be accomodated for as well.*
 
 ```log
 2024-05-13 21:41:40
@@ -50,7 +59,10 @@ Qualifiers: []
 References: []
 ```
 
-Possibly by solving the first this one will be solved - this has Kevin Bacon writes in English - w/o the label this will be mostly gibberish, and the value of the edge would be the label of the Q1860 entity.
+- DEFINES: (P6886) writing language (Q1860) English
+- NOTES: Needs no additional context data
+- BREAKDOWN:
+      - Check no refs or qualifiers: source of propTypeQID/Label/Value are from P6886, Q1860 is the tgtEntID stored on the edge
 
 ```log
 2024-05-13 21:41:40
@@ -63,7 +75,11 @@ References: [  Reference:
 ]
 ```
 
-Reference value is a date, which may not be worth keeping as a value of the edge, but could be used to weight the edge.
+- DEFINES: `P2031` work period (start) date for the value *1978*, imported from (P143) the Russian Wikipedia (Q206855)
+- NOTES: In this case the ref is to the Russian Wiki, which is unimportant as the source in this case could have been anywhere. However the value of the `mainSnak` is a date 1978 which has an associated QID (Q1860) `ItemDocument` - this would provide a direct "timeline" weighting to the graph which would is important.
+- BREAKDOWN:
+    - Check for mainSnak value type (after has been cast to `ValueSnak`), if it is a `TimeValue` cast to a helper to determine the QID of the date, and store that as the tgtEntID on the edge.
+    - Similarly the `stmtDetails` would be as the QID/Label/Value for (P2031)
 
 ```log
 2024-05-13 21:41:40
@@ -81,21 +97,15 @@ References: [  Reference:
 ]
 ```
 
-Multiple references which have items, TBD on best way to handle this.
+- DEFINES: `P7859` WorldCat Identities ID (superseded) `lccn-n88034930` - first reference is `P214` a VIAF ID (virtual international authority ID) "39570812" - second reference is `P887` based on heuristic `Q1266546` record linkage `P248` (essentially this is to the word to) stated in `Q14005` MusicBrainz (an online music metadata DB), where the `P434` MusicBrainz artist ID is "cc0dbdfc-9b2c-4e31-8448-808412388406" and the `P813` date of the reference was last pulled is 2021-10-04.
+- NOTES: This one is a bit of a chore
+    - The VIAF is a authority file host/aggregator meant to help better Identify: Names, Locations, Works, and Expressions across different languages and Data sources. 
+    - MusicBrainz is a random open music metadata DB that is mostly irrelevant.
+    - Last is the WorldCat Identities ID which is a unique identifier for a person in the WorldCat database. (the P7859) this is the only one that *could* have had some links - but I think if I am omitting random DB linkages (i.e. MusicBrainz) consistency dictates that I should omit this as well (similar to the above Russian wiki ref which is also essentially ignored for the more pertinent info - in this case there is none).
+    - *WHAT IF* there was a way to look at the `.value()` for the SNAKs and determine if these external IDs have any sort of elicit typing which could be used to reject processing these statements as edges.
+- BREAKDOWN:
+  - Ignore this son of a gun.       
 
-```log
-2024-05-13 21:41:40
-Main Snak: http://www.wikidata.org/entity/P2021 has no value
-Statement Rank: NORMAL
-Statement ID: Q3454165$20c6e8de-4aef-7752-0281-b8a896866b68
-Qualifiers: [      http://www.wikidata.org/entity/P585 :: 2016-00-00 (Prec.: year [-0 .. +0], PCal: Gregorian)
-]
-References: [  Reference:
-      http://www.wikidata.org/entity/P3417 :: "What-is-the-Erdos-Bacon-number-of-Erdos-or-Bacon"
-]
-```
-
-Not even sure 
 
 ```log
 2024-05-13 21:41:40
@@ -109,7 +119,12 @@ References: [  Reference:
       http://www.wikidata.org/entity/P143 :: http://www.wikidata.org/entity/Q206855 (item)
 ]
 ```
+- DEFINES: `P166` award received `Q251542` the Golden Globe Award for Best Actor - Miniseries or Television Film, the first qualifier is `P585` point in time `2009` and the second qualifier is `P1686` for the work `Q935173` Taking Chance (movie). The reference is (again for some reason) the Russsian Wiki where this info was sourced. 
+- NOTES: This is a good example of a Qualifier Groups - where the important info here is at the end of the chain `Q935173` the movie Taking Chance. This is a clear example of an edge between KB and a the movie. BUT the qualifier `P585` is a date which (similar to the above) may be an edge worth creating on the graph targeted at the year 2009 (Q1996 - oh the irony). The reference can be ignored (although it would be fun to see how much data is just sourced from Russian Wiki for whatever reason). 
+- BREAKDOWN:
+  - mainSnak has an edge connecting KB and a specific Golden Globe
+  - the qualifiers contain two edges one to the year 2009 and one to the movie Taking Chance
+  - the reference can be ignored
 
-The whole enchilada. 
 
-Should walk through each of those and sort of see how they are responded to and handled. 
+**The good news is we got a second Bacon out of this, Hungarian Mathematician Paul Erdos has a similar numbering system, and could be used as a second origin to build this off of.**
