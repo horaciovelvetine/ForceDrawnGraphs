@@ -6,16 +6,16 @@ public class Edge {
   private String srcVertexQID;
   private String tgtVertexQID;
   private double weight;
-  private WikiDocStmtDetails stmtDetails;
+  private WikiDocStmtPropertyDetails stmtDetails;
 
-  public Edge(String srcVertexQID, String tgtVertexQID, WikiDocStmtDetails stmtDetails) {
+  public Edge(String srcVertexQID, String tgtVertexQID, WikiDocStmtPropertyDetails stmtDetails) {
     this.srcVertexQID = srcVertexQID;
     this.tgtVertexQID = tgtVertexQID;
     this.stmtDetails = stmtDetails;
 
   }
 
-  public WikiDocStmtDetails details() {
+  public WikiDocStmtPropertyDetails details() {
     return stmtDetails;
   }
 

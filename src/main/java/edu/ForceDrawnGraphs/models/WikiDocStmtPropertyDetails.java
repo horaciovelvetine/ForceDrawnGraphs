@@ -1,10 +1,10 @@
 package edu.ForceDrawnGraphs.models;
 
 /**
- * Represents details of a statement from a Wiki Item Document.
+ * Represents the details of a Statements properties in an ItemDocument.
  *  This class is created only knowing the QID for its property type, the value of the property, and the source type of the snak. The property labels are looked up later by the Queue.
  */
-public class WikiDocStmtDetails {
+public class WikiDocStmtPropertyDetails {
   private String propTypeQID; // can be used to look up the prop label (tbd)
   private String propLabel; // will be null until looked up
   private String propValue; // will always be passed in - but relevant for only certain types
@@ -24,7 +24,7 @@ public class WikiDocStmtDetails {
    * @param propValue     the value of the property
    * @param snakSrcType   the source type of the snak
    */
-  public WikiDocStmtDetails(String propTypeQID, String propValue, SnakSrcType snakSrcType) {
+  public WikiDocStmtPropertyDetails(String propTypeQID, String propValue, SnakSrcType snakSrcType) {
     this.propTypeQID = propTypeQID;
     this.propValue = propValue;
     this.snakSrcType = snakSrcType;

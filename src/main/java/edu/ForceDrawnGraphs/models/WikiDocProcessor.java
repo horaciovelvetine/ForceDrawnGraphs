@@ -7,16 +7,18 @@ import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.NoValueSnak;
+import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.Reference;
 import org.wikidata.wdtk.datamodel.interfaces.Snak;
 import org.wikidata.wdtk.datamodel.interfaces.SnakGroup;
 import org.wikidata.wdtk.datamodel.interfaces.SomeValueSnak;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
+import org.wikidata.wdtk.datamodel.interfaces.TimeValue;
 import org.wikidata.wdtk.datamodel.interfaces.ValueSnak;
 
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.models.WikiDocStmtDetails.SnakSrcType;
+import edu.ForceDrawnGraphs.models.WikiDocStmtPropertyDetails.SnakSrcType;
 
 /**
  * A class to process the entity documents returned from the MediaWiki API and interact with the main Graphset.
@@ -154,6 +156,12 @@ public class WikiDocProcessor implements Reportable {
       Statement statement) {
     if (snak.getValue() instanceof EntityIdValue) {
       ingestEntValueSnakAsEdge(snak, srcVertexQID, stmtSrcTypeEnum, statement);
+    } else if (snak.getValue() instanceof PropertyIdValue) {
+      // This should not happen, tell us if it does...
+      print("PropertyQID found in ValueSnak. @ toString(): " + snak.getValue());
+    } else if (snak.getValue() instanceof TimeValue) {
+      // TODO: Time Values entry point - using title (the year?) search for the ItemDocument representing that year
+      print("TimeValue found in ValueSnak. @ toString(): " + snak.getValue());
     } else {
       report("Ignored value type: " + snak.getValue().getClass().getName() + ". @ toString(): "
           + snak.getValue());
@@ -163,16 +171,19 @@ public class WikiDocProcessor implements Reportable {
   private void ingestEntValueSnakAsEdge(ValueSnak entValueSnak, String srcVertexQID,
       SnakSrcType stmtSrcTypeEnum,
       Statement statement) {
-    WikiDocStmtDetails stmtDetails = createStmtDetails(entValueSnak, statement, stmtSrcTypeEnum);
+    WikiDocStmtPropertyDetails stmtDetails = createStmtDetails(entValueSnak, statement, stmtSrcTypeEnum);
     String tgtVertexQID = ((EntityIdValue) entValueSnak.getValue()).getId();
 
     Edge edge = new Edge(srcVertexQID, tgtVertexQID, stmtDetails);
     print("stop here");
   }
 
-  private WikiDocStmtDetails createStmtDetails(ValueSnak entValueSnak, Statement srcStmt, SnakSrcType snakSrcType) {
-    String propTypeQID = entValueSnak.getPropertyId().getId(); // for WikiDocStmtDetails
-    String propValue = (((ValueSnak) srcStmt.getMainSnak()).getValue()).toString();
-    return new WikiDocStmtDetails(propTypeQID, propValue, snakSrcType);
+  private WikiDocStmtPropertyDetails createStmtDetails(ValueSnak entValueSnak, Statement srcStmt,
+      SnakSrcType snakSrcType) {
+    String propTypeQID = entValueSnak.getPropertyId().getId();
+
+    // TODO: Source of double quotation issues and raw toString() call
+    String propValue = (((ValueSnak) srcStmt.getMainSnak()).getValue()).toString(); 
+    return new WikiDocStmtPropertyDetails(propTypeQID, propValue, snakSrcType);
   }
 }
