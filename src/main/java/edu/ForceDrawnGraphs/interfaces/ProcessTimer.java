@@ -22,7 +22,7 @@ public class ProcessTimer implements Reportable {
   public ProcessTimer(String processName) {
     this.startTime = System.currentTimeMillis();
     this.processName = processName;
-    publishProcessTimerStart();
+    // publishProcessTimerStart();
   }
 
   /**

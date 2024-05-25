@@ -7,14 +7,14 @@ import org.springframework.shell.standard.ShellOption;
 import edu.ForceDrawnGraphs.functions.FindWMEntDocumentFromTitleQuery;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.models.Graphset;
-import edu.ForceDrawnGraphs.models.WikiDocAPIBroker;
-import edu.ForceDrawnGraphs.models.WikiDocProcessor;
+import edu.ForceDrawnGraphs.models.wikidata.services.APIBroker;
+import edu.ForceDrawnGraphs.models.wikidata.services.EntDocProc;
 
 @ShellComponent
 public class InitGraphset implements FindWMEntDocumentFromTitleQuery {
   private static Graphset graphset = new Graphset();
-  private static WikiDocProcessor docProc = new WikiDocProcessor(graphset);
-  private static WikiDocAPIBroker brokerService = new WikiDocAPIBroker(docProc);
+  private static EntDocProc docProc = new EntDocProc(graphset);
+  private static APIBroker brokerService = new APIBroker(docProc);
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {

@@ -1,11 +1,12 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.wikidata.records;
 
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
 /**
  * Represents the details of a WikiDoc item, including its label, description, and QID.
+ * All fields are validated to be non-null on construction.
  */
-public record WikiDocItemDetails(String label, String description, String QID) {
+public record ItemDocumentRec(String label, String description, String QID) {
   /**
    * Constructs a new WikiDocItemDetails object with the specified label, description, and QID.
    *
@@ -14,7 +15,7 @@ public record WikiDocItemDetails(String label, String description, String QID) {
    * @param QID         the QID of the WikiDoc item
    * @throws IllegalArgumentException if any of the fields are null
    */
-  public WikiDocItemDetails {
+  public ItemDocumentRec {
     if (label == null || description == null || QID == null) {
       throw new IllegalArgumentException("All fields must be non-null");
     }
@@ -25,7 +26,7 @@ public record WikiDocItemDetails(String label, String description, String QID) {
    *
    * @param document the ItemDocument to extract the details from
    */
-  public WikiDocItemDetails(ItemDocument document) {
+  public ItemDocumentRec(ItemDocument document) {
     this(document.findLabel("en"), document.findDescription("en"), document.getEntityId().getId());
   }
 }

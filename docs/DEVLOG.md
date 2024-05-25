@@ -128,3 +128,14 @@ References: [  Reference:
 
 
 **The good news is we got a second Bacon out of this, Hungarian Mathematician Paul Erdos has a similar numbering system, and could be used as a second origin to build this off of.**
+
+- [ ] The java ver target was changed from 17 to 21 to provide access to a more reader freindly convention for switch statements. These statements require ints, strings, or Enums - but theres refactor to be had here 
+- [X] Since on a statement they carry the QID through the getSubject() method, in theory the procDoc can ignore passing this QID value all the way down the chain... `statement.getSubject().getId()`
+- [ ] The intended design pattern - after some reasearch and reading - is to use a Visitor pattern to pull the data from WikiData ents, this should help with the immense type casting mess that is currently the `WikiDocProcessor` class.
+
+# Thursday May 23, 2024
+
+ Having worked through the process and rebuilding the Statement processing for the 3rd time - this new approach creates a service class to have the logic live in one container for each statment as it gets processed. This abstracts the (even though it is now using a visitor pattern) still huge mess of logic needed to begin this process in the `EntDocProc` class. In that process a few, similar to the above, specific statements require specific handling, and below I'm going to list out a few of the specific cases encountered, and how they were handled in the new service class.
+
+- [ ] The datatype "external-id" existing on the mainSnak is always an immediate disqualifier.
+- [ ] The `P1343` property is a URL to the source of the statement - this is always (in theory) external, as internal wikidata will use a property defined to be an internal wikidata item.

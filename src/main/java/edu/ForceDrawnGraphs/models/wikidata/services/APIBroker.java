@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.wikidata.services;
 
 import java.util.List;
 import java.util.Map;
@@ -11,11 +11,11 @@ import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
-public class WikiDocAPIBroker implements Reportable {
+public class APIBroker implements Reportable {
   private WikibaseDataFetcher wbdf = WikibaseDataFetcher.getWikidataDataFetcher();
-  private WikiDocProcessor docProc; // The processor to notify when a document is found
+  private EntDocProc docProc; // The processor to notify when a document is found
 
-  public WikiDocAPIBroker(WikiDocProcessor docProc) {
+  public APIBroker(EntDocProc docProc) {
     this.docProc = docProc;
   }
 
@@ -37,12 +37,25 @@ public class WikiDocAPIBroker implements Reportable {
     }
 
     if (docResult != null) { // If a result is found, notify the processor and ingest the document
-      docProc.ingestEntityDocument(docResult);
+      docProc.processEntDocument(docResult);
     } else { // If no result is found, log it
+      //TODO: Add a catch for when no result is found
       log("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
     }
     timer.end();
-    //TODO: Add a catch for when no result is found
+  }
+
+  public void fetchEntityDocumentsByQIDs(List<String> qids) {
+    ProcessTimer timer = new ProcessTimer(
+        "fetchEntityDocumentsByQIDs(" + qids.size() + " total fetched) in EntityDocFetchBroker.java");
+
+    Map<String, EntityDocument> docs = fetchEntitiesByQIDs(qids);
+    if (docs != null) {
+      for (EntityDocument doc : docs.values()) {
+        docProc.processEntDocument(doc);
+      }
+    }
+    timer.end();
   }
 
   //------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models;
+package edu.ForceDrawnGraphs.models.wikidata.services;
 
 import java.util.ArrayList;
 
@@ -6,15 +6,13 @@ import java.util.ArrayList;
  * Line at the DMV but for QID strings retrieved during the ItemDocument ingest process. Provides helpers for managing the queue, and verifying the graphset data.
  */
 
-public class WikiDocFetchQueue {
-  // Number of QIDs to fetch 
-  private int queueFetchThreshold = 10;
+public class FetchQueue {
   // QIDs which have been referenced from another Vertex object but not yet fetched
   private ArrayList<QueueItem> unfetchedEnts;
   // QIDs which have been fetched, to avoid fetching them again/verify they have correctly made their way into the graphset
   private ArrayList<QueueItem> fetchedEnts;
 
-  public WikiDocFetchQueue() {
+  public FetchQueue() {
     this.unfetchedEnts = new ArrayList<QueueItem>();
     this.fetchedEnts = new ArrayList<QueueItem>();
   }
@@ -27,6 +25,10 @@ public class WikiDocFetchQueue {
     this.unfetchedEnts.add(new QueueItem(srcEntQID, queryQID));
   }
 
+  public void clearFetchedEnts() {
+    this.fetchedEnts.clear();
+  }
+  
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -38,6 +40,7 @@ public class WikiDocFetchQueue {
   /**
    * Stores QID info immutably for later fetching.
    */
+
   private record QueueItem(String srcEntQID, String queryQID) {
   }
 }

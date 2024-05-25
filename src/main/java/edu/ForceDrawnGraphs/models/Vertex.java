@@ -2,22 +2,24 @@ package edu.ForceDrawnGraphs.models;
 
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
+import edu.ForceDrawnGraphs.models.wikidata.records.ItemDocumentRec;
+
 /**
  * Class which functions as the vertex (node) of a given Graphset.
  * Additionally contains the WikiDocItemDetails (label, desc, QID) from the Wikimedia API. 
  * 
  */
 public class Vertex {
-  private WikiDocItemDetails itemDetails;
-  private double x = 0.0;
-  private double y = 0.0;
-  private double z = 0.0;
+  private ItemDocumentRec itemDetails;
+  // private double x = 0.0;
+  // private double y = 0.0;
+  // private double z = 0.0;
 
   public Vertex(ItemDocument document) {
-    this.itemDetails = new WikiDocItemDetails(document);
+    this.itemDetails = new ItemDocumentRec(document);
   }
 
-  public WikiDocItemDetails details() {
+  public ItemDocumentRec details() {
     return itemDetails;
   }
 
