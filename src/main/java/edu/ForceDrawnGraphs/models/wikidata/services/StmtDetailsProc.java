@@ -10,6 +10,8 @@ import org.wikidata.wdtk.datamodel.interfaces.Snak;
 import org.wikidata.wdtk.datamodel.interfaces.SnakGroup;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
+import edu.ForceDrawnGraphs.models.Edge;
+import edu.ForceDrawnGraphs.models.Vertex;
 import edu.ForceDrawnGraphs.models.wikidata.records.VSnakVisitor;
 import edu.ForceDrawnGraphs.models.wikidata.records.ValueSnakRec;
 
@@ -31,17 +33,22 @@ class StmtDetailsProcessor {
   }
 
   /**
-   * Returns true if the mainSnak of the statement defines some sort of information sourced externally from Wikidata using one of the following criteria:
+   * Returns true if the Statement defines some sort of information sourced externally from Wikidata using one of the following criteria:
    * <ul>
-     * <li> If the mainSnak is null</li>
-     * <li> If the mainSnak's datatype is "external-id"</li>
-     * <li>If the property on the main Snak is part of an internal black list</li>
+     * <li> mainSnak is null</li>
+     * <li> mainSnak's datatype is "external-id"</li>
+     * <li> mainSnak's datatype is "monolingualtext"</li>
+     * <li> mainSnak property is part of an internal exclusion list</li>
+     * <li> qualifier properties are part of an internal exclusion list</li>
    * </ul>
+   * 
+   * @see (docs/PROPERTY_EXCLUSION_LIST.md) for a list of excluded properties
    */
-  public boolean mainSnakDefinesExternalSource() {
+  public boolean definesIrrelevantOrExternalInfo() {
     if (mainSnak == null)
       return true;
     if (mainSnak.datatype().equals("external-id"))
+      // external-id defines a subject - irrelevant
       return true;
     if (mainSnak.datatype().equals("monolingualtext"))
       // text defines how to sepll a subject - irrelevant
@@ -49,12 +56,17 @@ class StmtDetailsProcessor {
     if (externallySourcedProperty(mainSnak))
       // known list of irrelevant properties
       return true;
-    if (externallySourcedProperty(qualifiers)) {
-      // checks quantity snaks for trick external sources found in qualifiers
-      System.out.println("External Source Found in Qualifiers");
+    if (externallySourcedProperty(qualifiers))
+      // qualifiers are irrelevant properties
       return true;
-    } else
+    else
       return false;
+  }
+
+  public List<Edge> createEdgesFromDetails(Vertex srcVertex) {
+    // first check mainSnak for a valid target
+    // then (possibly if theres a valid target only) check qualifiers for additional valid target
+    return null;
   }
 
   //------------------------------------------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
+import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Vertex;
 
@@ -66,7 +67,7 @@ public class EntDocProc implements Reportable {
     Vertex vertex = new Vertex(itemDoc);
     // graphset.addVertex(vertex);
 
-    processItemStatementsForEdges(itemDoc);
+    processItemStatementsForEdges(itemDoc, vertex);
 
     print("Backstop: Ends here.");
   }
@@ -78,7 +79,28 @@ public class EntDocProc implements Reportable {
    * 
    * @param itemDoc the ItemDocument to be processed
    */
-  private void processItemStatementsForEdges(ItemDocument itemDoc) {
+  private void processItemStatementsForEdges(ItemDocument itemDoc, Vertex srcVertex) {
+    List<StmtDetailsProcessor> filteredStmts = filterAllStatmentsForRelevantInfo(itemDoc);
+    List<Edge> allNewEdges = new ArrayList<>();
+
+    for (StmtDetailsProcessor stmt : filteredStmts) {
+      List<Edge> newEdges = stmt.createEdgesFromDetails(srcVertex);
+      allNewEdges.addAll(newEdges);
+    }
+
+    //TD: Implement Edge creation and Queueing for target ItemQIDs
+    //TD: Snaks w/ Date Values
+    //TD: Stmts which have qualifiers which are relevant edges
+
+    print("Items Statements stop.");
+  }
+
+  /**
+   * Filters all statements in the ItemDocument for relevant information to create edges.
+   * 
+   * @param itemDoc the ItemDocument to be processed
+   */
+  private List<StmtDetailsProcessor> filterAllStatmentsForRelevantInfo(ItemDocument itemDoc) {
     Iterator<Statement> statements = itemDoc.getAllStatements();
     List<StmtDetailsProcessor> filteredStmts = new ArrayList<>();
 
@@ -86,22 +108,15 @@ public class EntDocProc implements Reportable {
       Statement statement = statements.next();
       StmtDetailsProcessor stmt = new StmtDetailsProcessor(statement);
 
-      if (stmt.mainSnakDefinesExternalSource()) {
+      if (stmt.definesIrrelevantOrExternalInfo()) {
         // external source, skip irrelevant values
         continue;
-      } else {
-        // possible edge, add to filteredStmts
-        filteredStmts.add(stmt);
       }
-
-      //TODO: Watch for Snaks w/ Date Values
-      //TODO: Catch stmts which have qualifiers which are relevant edges
-      //TODO: Implement Edge creation and Queueing for target ItemQIDs
-
+      // possible edge, add to filteredStmts
+      filteredStmts.add(stmt);
     }
 
-    // end of itemDoc statements
-    print("Items Statements stop.");
+    return filteredStmts;
   }
 
 }

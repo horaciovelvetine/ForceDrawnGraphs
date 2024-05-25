@@ -6,7 +6,7 @@ import edu.ForceDrawnGraphs.models.wikidata.records.ItemDocumentRec;
 
 /**
  * Class which functions as the vertex (node) of a given Graphset.
- * Additionally contains the WikiDocItemDetails (label, desc, QID) from the Wikimedia API. 
+ * Contains the WikiDocItemDetails (label, desc, QID) from the Wikimedia API. 
  * 
  */
 public class Vertex {
