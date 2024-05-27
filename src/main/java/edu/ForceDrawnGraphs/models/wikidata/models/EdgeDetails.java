@@ -4,7 +4,6 @@ import edu.ForceDrawnGraphs.models.Property;
 
 public class EdgeDetails {
   private String propQID; // ent from the mw api
-  private String propUrl; //TODO: is needed? - url for the property... but if querying by QID
   private String valueTgt; // for non-ent values
   private SourceType source; // determines what kind of data this edge is based on
   private Property property; // used to persist info from the mw api
@@ -19,7 +18,6 @@ public class EdgeDetails {
 
   public EdgeDetails(ValueDetails propDetails, SourceType source) {
     this.propQID = propDetails.QID();
-    this.propUrl = propDetails.url();
     this.source = source;
     this.valueTgt = null; // not relevant for this type of edge
     this.property = null; // fetched later
@@ -34,5 +32,25 @@ public class EdgeDetails {
     // set for qualifier and reference edges to associate them with their mainSnak
     // and allow for understanding of what the edge means in the larger context
     this.contextEdge = contextEdge;
+  }
+
+  public String propQID() {
+    return propQID;
+  }
+
+  public String valueTgt() {
+    return valueTgt;
+  }
+
+  public SourceType source() {
+    return source;
+  }
+
+  public Property property() {
+    return property;
+  }
+
+  public EdgeDetails contextEdge() {
+    return contextEdge;
   }
 }

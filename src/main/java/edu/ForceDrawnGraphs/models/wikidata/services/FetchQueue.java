@@ -1,34 +1,40 @@
 package edu.ForceDrawnGraphs.models.wikidata.services;
 
+import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Line at the DMV but for QID strings retrieved during the ItemDocument ingest process. Provides helpers for managing the queue, and verifying the graphset data.
+ * Line at the DMV but for QID strings retrieved during the ingest process.
  */
 
 public class FetchQueue {
-  // QIDs which have been referenced from another Vertex object but not yet fetched
-  private ArrayList<QueueItem> unfetchedEnts;
-  // QIDs which have been fetched, to avoid fetching them again/verify they have correctly made their way into the graphset
-  private ArrayList<QueueItem> fetchedEnts;
+  // <K=TYPE (QID/QUERY), V=QUERY_TEXT>
+  private List<QueueItem> queryQueue;
 
   public FetchQueue() {
-    this.unfetchedEnts = new ArrayList<QueueItem>();
-    this.fetchedEnts = new ArrayList<QueueItem>();
+    queryQueue = new ArrayList<>();
   }
 
-  public boolean isEmpty() {
-    return this.unfetchedEnts.isEmpty();
+  public void addEntityQIDToQueue(String query) {
+    queryQueue.add(new QueueItem(query));
   }
 
-  public void addItem(String srcEntQID, String queryQID) {
-    this.unfetchedEnts.add(new QueueItem(srcEntQID, queryQID));
+  public boolean hasItems() {
+    return !queryQueue.isEmpty();
   }
 
-  public void clearFetchedEnts() {
-    this.fetchedEnts.clear();
+  public QueueItem nextItem() {
+    return queryQueue.remove(0);
   }
-  
+
+  public String totalItemsInQueue() {
+    return String.valueOf(queryQueue.size());
+  }
+
+  public boolean queueContainsQuery(String query) {
+    return queryQueue.stream().anyMatch(item -> item.query.equals(query));
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -37,10 +43,6 @@ public class FetchQueue {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  /**
-   * Stores QID info immutably for later fetching.
-   */
-
-  private record QueueItem(String srcEntQID, String queryQID) {
+  private record QueueItem(String query) {
   }
 }

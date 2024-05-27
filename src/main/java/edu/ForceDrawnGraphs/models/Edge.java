@@ -21,6 +21,14 @@ public class Edge {
     return details;
   }
 
+  public String srcVertexQID() {
+    return srcVertexQID;
+  }
+
+  public String tgtVertexQID() {
+    return tgtVertexQID;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)

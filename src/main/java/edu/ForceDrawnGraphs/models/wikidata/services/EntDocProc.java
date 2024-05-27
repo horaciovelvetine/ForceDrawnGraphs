@@ -45,8 +45,15 @@ public class EntDocProc implements Reportable {
       report("Encountered new DocType: " + docType);
       throw new IllegalArgumentException("Unhandled Document type: " + docType);
     }
-
   }
+
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //
+  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
+  //
+  //
+  //------------------------------------------------------------------------------------------------------------
 
   /**
    * Creates a new Vertex from the ItemDocument and adds it to the Graphset. 
@@ -77,11 +84,13 @@ public class EntDocProc implements Reportable {
 
     for (StmtDetailsProcessor stmt : filteredStmts) {
       List<Edge> newEdges = stmt.createEdgesFromDetails(srcVertex);
-      allNewEdges.addAll(newEdges);
+      if (newEdges != null)
+        allNewEdges.addAll(newEdges);
     }
 
-    //TODO: back here, add edges to the graphset, and any new EntQIDs to the WikiDocFetchQueue
-    print("Items Statements stop.");
+    for (Edge edge : allNewEdges) {
+      graphset.addEdge(edge);
+    }
   }
 
   /**

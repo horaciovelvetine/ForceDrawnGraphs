@@ -59,7 +59,6 @@ public class UnknownValueVisitor implements ValueVisitor<ValueDetails>, Reportab
 
   @Override
   public ValueDetails visit(UnsupportedValue value) {
-    print("Unsupported Value, just in case...");
     return null;
   }
 

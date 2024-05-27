@@ -153,6 +153,7 @@ spring.datasource.continue-on-error=true
 - [Graphs Explained (by the Guava Team)](https://github.com/google/guava/wiki/GraphsExplained#choosing-the-right-graph-type)
 - [Graph Drawing, Clustering, and Visual Abstraction (by Aaron Quigley and Peter Eades)](https://aaronquigley.org/wp-content/uploads/2019/03/Fade-2000-aquigley.pdf)
 - [Force-Directed Graph Drawing Using Social Gravity and Scaling (Michael J. Bannister, David Eppstein, Michael T. Goodrich, Lowell Trott)](https://arxiv.org/abs/1209.0748)
+- [Fuzzy Search Algorighm for Approximate String Matching (by Baeldung)](https://www.baeldung.com/cs/fuzzy-search-algorithm)
 
   <h4>System Specs:</h4>
   <p>2021 16" MacBook Pro</p>
