@@ -5,12 +5,12 @@
 - [ ] Given the limited number of properties, it may make sense to keep these in local memory (not delegate this to wikimedia), or delegate it, but fetch this on startup (once per period of time, on command, etc) then keep a copy in memory to remove this query and speed up response time.
 
 # Sunday May 12, 2024
-- [ ] The StatementGroupImpl class has a getBestStatements() method which mentions the StatementRank.ENUM --> given this exists might be something to leveraging in weighting the edges of the graph.
-- [ ] The entry is a search by title which is extremely ridgid and will likely need to be replaced with something flexible in case the search by title fails to find a suitable starting place
+- [X] The StatementGroupImpl class has a getBestStatements() method which mentions the StatementRank.ENUM --> given this exists might be something to leveraging in weighting the edges of the graph.
+- [X] The entry is a search by title which is extremely ridgid and will likely need to be replaced with something flexible in case the search by title fails to find a suitable starting place - fuzzy added - still has a TODO around the possibly null return.
 
 # Monday May 13, 2024
-- [ ] https://www.mediawiki.org/wiki/API:Links -> for getting some links
-- [ ] Some of the statements (when initially fetched) come with an attribute of time (which is a date) - where older statements could (slightly) be weighted less than newer ones.
+- https://www.mediawiki.org/wiki/API:Links -> for getting some links
+- [X] Some of the statements (when initially fetched) come with an attribute of time (which is a date) - where older statements could (slightly) be weighted less than newer ones.
 - [ ] https://vscode.dev/github/horaciovelvetine/ForceDrawnGraphs/blob/wikidata-toolkit-examples-starttk.wikibaseapi/WikibaseDataFetcher.class#L63 --> theres a set 50 limit on the number of statements fetched, which may be a good starting point for the number of edges to fetch at a time.
 
 # Tuesday May 14, 2024
@@ -20,9 +20,9 @@
 # Thursday May 16 - Sundayy May 19, 2024
 
 - [X] Opting not to use records for some of the DTO models recieving data from the API, there is likely a good way to rewrite these 'details' records as Records, but I'll leave that for a refactor, and take not of it here.
-- [ ] Initially the details of the properties are intended to be stored on the `WikiDocStmtDetails` model - but I'm not sold this is the best way to do this (it potentially adds an additional ent fetch into the cycle, and even 2 async-requests will mean the minimum time for response will be >1s no matter how fast the math is done). While the goal here is to keep the app stateless, either a SQLite cache of the properties, a local memory cache, or even just a small stupid CSV cache stored in the resources folder might be a better way to do this, where as they are fetched their details are stored in a cache, and then the cache is used to get the details of the properties, and fetch the ones we dont already know. 
+- [X] Initially the details of the properties are intended to be stored on the `WikiDocStmtDetails` model - but I'm not sold this is the best way to do this (it potentially adds an additional ent fetch into the cycle, and even 2 async-requests will mean the minimum time for response will be >1s no matter how fast the math is done). While the goal here is to keep the app stateless, either a SQLite cache of the properties, a local memory cache, or even just a small stupid CSV cache stored in the resources folder might be a better way to do this, where as they are fetched their details are stored in a cache, and then the cache is used to get the details of the properties, and fetch the ones we dont already know. 
 
-- [ ] `ingestEntValueSnakAsEdge()` method sets the `srcStmtValue` using a raw `toString()` call, this is likely going to end up with some funky results for the values of the edges for which it used in creating. May need a helper to really narrow down the type of Value being returned here and handle it accordingly. **UPDATE: Commonly a double quoted value is returned e.g. ""foo"" - often a string and can be handled witha  simple `replace("\"", "")` call.**
+- [X] `ingestEntValueSnakAsEdge()` method sets the `srcStmtValue` using a raw `toString()` call, this is likely going to end up with some funky results for the values of the edges for which it used in creating. May need a helper to really narrow down the type of Value being returned here and handle it accordingly. **UPDATE: Commonly a double quoted value is returned e.g. ""foo"" - often a string and can be handled witha  simple `replace("\"", "")` call.**
 
 ## Real Statement Cases to Analyze:
 
@@ -129,13 +129,17 @@ References: [  Reference:
 
 **The good news is we got a second Bacon out of this, Hungarian Mathematician Paul Erdos has a similar numbering system, and could be used as a second origin to build this off of.**
 
-- [ ] The java ver target was changed from 17 to 21 to provide access to a more reader freindly convention for switch statements. These statements require ints, strings, or Enums - but theres refactor to be had here 
+- [X] The java ver target was changed from 17 to 21 to provide access to a more reader freindly convention for switch statements. These statements require ints, strings, or Enums - but theres refactor to be had here 
 - [X] Since on a statement they carry the QID through the getSubject() method, in theory the procDoc can ignore passing this QID value all the way down the chain... `statement.getSubject().getId()`
-- [ ] The intended design pattern - after some reasearch and reading - is to use a Visitor pattern to pull the data from WikiData ents, this should help with the immense type casting mess that is currently the `WikiDocProcessor` class.
+- [X] The intended design pattern - after some reasearch and reading - is to use a Visitor pattern to pull the data from WikiData ents, this should help with the immense type casting mess that is currently the `WikiDocProcessor` class.
 
 # Thursday May 23, 2024
 
  Having worked through the process and rebuilding the Statement processing for the 3rd time - this new approach creates a service class to have the logic live in one container for each statment as it gets processed. This abstracts the (even though it is now using a visitor pattern) still huge mess of logic needed to begin this process in the `EntDocProc` class. In that process a few, similar to the above, specific statements require specific handling, and below I'm going to list out a few of the specific cases encountered, and how they were handled in the new service class.
 
-- [ ] The datatype "external-id" existing on the mainSnak is always an immediate disqualifier.
-- [ ] The `P1343` property is a URL to the source of the statement - this is always (in theory) external, as internal wikidata will use a property defined to be an internal wikidata item.
+- [X] The datatype "external-id" existing on the mainSnak is always an immediate disqualifier.
+- [X] The `P1343` property is a URL to the source of the statement - this is always (in theory) external, as internal wikidata will use a property defined to be an internal wikidata item.
+
+# Friday May 24, 2024
+
+On to the lionshare of the edge creation process, something to be handled mostly by the `StmtDetailsProc` class. 

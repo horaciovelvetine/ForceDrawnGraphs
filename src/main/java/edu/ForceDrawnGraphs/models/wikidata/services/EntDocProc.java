@@ -48,14 +48,6 @@ public class EntDocProc implements Reportable {
 
   }
 
-  //------------------------------------------------------------------------------------------------------------
-  //
-  //
-  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
-  //
-  //
-  //------------------------------------------------------------------------------------------------------------
-
   /**
    * Creates a new Vertex from the ItemDocument and adds it to the Graphset. 
    * Then processes each of the ItemDocument's statements to add edges to the Graphset,
@@ -88,10 +80,7 @@ public class EntDocProc implements Reportable {
       allNewEdges.addAll(newEdges);
     }
 
-    //TD: Implement Edge creation and Queueing for target ItemQIDs
-    //TD: Snaks w/ Date Values
-    //TD: Stmts which have qualifiers which are relevant edges
-
+    //TODO: back here, add edges to the graphset, and any new EntQIDs to the WikiDocFetchQueue
     print("Items Statements stop.");
   }
 

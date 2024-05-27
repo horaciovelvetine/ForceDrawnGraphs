@@ -2,7 +2,7 @@ package edu.ForceDrawnGraphs.models;
 
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
-import edu.ForceDrawnGraphs.models.wikidata.records.ItemDocumentRec;
+import edu.ForceDrawnGraphs.models.wikidata.models.VertexDetails;
 
 /**
  * Class which functions as the vertex (node) of a given Graphset.
@@ -10,17 +10,17 @@ import edu.ForceDrawnGraphs.models.wikidata.records.ItemDocumentRec;
  * 
  */
 public class Vertex {
-  private ItemDocumentRec itemDetails;
+  private VertexDetails details;
   // private double x = 0.0;
   // private double y = 0.0;
   // private double z = 0.0;
 
   public Vertex(ItemDocument document) {
-    this.itemDetails = new ItemDocumentRec(document);
+    this.details = new VertexDetails(document);
   }
 
-  public ItemDocumentRec details() {
-    return itemDetails;
+  public VertexDetails details() {
+    return details;
   }
 
   @Override
@@ -30,12 +30,12 @@ public class Vertex {
     if (o == null || getClass() != o.getClass())
       return false;
     Vertex vertex = (Vertex) o;
-    return itemDetails.equals(vertex.itemDetails);
+    return details.equals(vertex.details);
   }
 
   @Override
   public int hashCode() {
-    return itemDetails.hashCode();
+    return details.hashCode();
   }
 
 }

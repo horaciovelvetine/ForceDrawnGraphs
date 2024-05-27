@@ -4,14 +4,13 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import edu.ForceDrawnGraphs.functions.FindWMEntDocumentFromTitleQuery;
 import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.wikidata.services.APIBroker;
 import edu.ForceDrawnGraphs.models.wikidata.services.EntDocProc;
 
 @ShellComponent
-public class InitGraphset implements FindWMEntDocumentFromTitleQuery {
+public class InitGraphset {
   private static Graphset graphset = new Graphset();
   private static EntDocProc docProc = new EntDocProc(graphset);
   private static APIBroker brokerService = new APIBroker(docProc);
