@@ -58,7 +58,7 @@ public class ProcessTimer implements Reportable {
    * Reports the end of the process timer to the console & process.log.
    */
   public void reportProcessTimerEnd() {
-    report(toString() + this.startTime + ", " + this.endTime + ", " + laps, "process.log");
+    report(toString() + this.startTime + ", " + this.endTime + ", " + laps);
   }
 
   /**
@@ -93,7 +93,7 @@ public class ProcessTimer implements Reportable {
    */
   public void lapData(String lapStringData) {
     this.laps.add(System.currentTimeMillis());
-    report(getTimeStamp() + this.processName + "lapData():" + lapStringData, "process.log");
+    report(now() + this.processName + "lapData():" + lapStringData);
   }
 
   /**
