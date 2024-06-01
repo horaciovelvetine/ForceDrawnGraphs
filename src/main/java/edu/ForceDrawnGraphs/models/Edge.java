@@ -2,24 +2,17 @@ package edu.ForceDrawnGraphs.models;
 
 import java.util.Objects;
 
-import edu.ForceDrawnGraphs.models.wikidata.models.EdgeDetails;
-
 public class Edge {
-  private EdgeDetails details;
-  // private EdgeDetailsRec details;
   private String srcVertexQID;
   private String tgtVertexQID;
   private double weight;
 
-  public Edge(String srcVertexQID, String tgtVertexQID, EdgeDetails details) {
-    this.details = details;
+  public Edge(String srcVertexQID, String tgtVertexQID) {
+    // this.details = details;
     this.srcVertexQID = srcVertexQID;
     this.tgtVertexQID = tgtVertexQID;
   }
 
-  public EdgeDetails details() {
-    return details;
-  }
 
   public String srcVertexQID() {
     return srcVertexQID;
