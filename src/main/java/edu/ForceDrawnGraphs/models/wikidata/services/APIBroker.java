@@ -8,8 +8,8 @@ import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
-import edu.ForceDrawnGraphs.interfaces.ProcessTimer;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
+import edu.ForceDrawnGraphs.util.ProcessTimer;
 
 public class APIBroker implements Reportable {
   private WikibaseDataFetcher wbdf = WikibaseDataFetcher.getWikidataDataFetcher();
@@ -27,8 +27,6 @@ public class APIBroker implements Reportable {
    * @param target the query string used to search for the entity document.
    */
   public void fuzzyFetchOriginEntityDocument(String target) {
-    ProcessTimer timer = new ProcessTimer(
-        "fuzzyFetchOriginEntityDocument(" + target + ") in EntityDocFetchBroker.java");
 
     EntityDocument docResult = fetchEntityDocByTitleQuery(target); // Try to fetch by title query
 
@@ -42,21 +40,9 @@ public class APIBroker implements Reportable {
       //TODO: Add a catch for when no result is found
       log("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
     }
-    timer.end();
   }
 
-  public void fetchEntityDocumentsByQIDs(List<String> qids) {
-    ProcessTimer timer = new ProcessTimer(
-        "fetchEntityDocumentsByQIDs(" + qids.size() + " total fetched) in EntityDocFetchBroker.java");
 
-    Map<String, EntityDocument> docs = fetchEntitiesByQIDs(qids);
-    if (docs != null) {
-      for (EntityDocument doc : docs.values()) {
-        docProc.processEntDocument(doc);
-      }
-    }
-    timer.end();
-  }
 
   //------------------------------------------------------------------------------------------------------------
   //

@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
+import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Vertex;
 
@@ -40,11 +40,12 @@ public class EntDocProc implements Reportable {
 
     if (entDocument instanceof ItemDocument) {
       processItemDocument((ItemDocument) entDocument);
+    } else if (entDocument instanceof PropertyDocument) {
+      // processPropertyDocument((PropertyDocument) entDocument);
     } else {
-      String docType = entDocument.getClass().getName();
-      report("Encountered new DocType: " + docType);
-      throw new IllegalArgumentException("Unhandled Document type: " + docType);
+      report("processEntDocument() unhandled document type:", entDocument.getClass().getName());
     }
+
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -63,33 +64,27 @@ public class EntDocProc implements Reportable {
    * @param itemDoc the ItemDocument to be processed
    */
   private void processItemDocument(ItemDocument itemDoc) {
+    // VERTEX // NODE CREATED
     Vertex vertex = new Vertex(itemDoc);
-    // graphset.addVertex(vertex);
-
-    processItemStatementsForEdges(itemDoc, vertex);
-
-    print("Backstop: Ends here.");
+    graphset.addVertex(vertex);
+    // EDGE // CONNECTIONS CREATED
+    processItemForEdges(itemDoc);
   }
 
   /**
-   * Processes each of the ItemDocument's statements to create edges in the Graphset.
-   * Statements are broken into their component snaks: mainSnak, qualifiers, and references  
-   * then checked for relevant values to create edges. Irrelevant values are ignored.
+   * Processes each of the ItemDocument's statements to create edges in the Graphset.  
    * 
    * @param itemDoc the ItemDocument to be processed
    */
-  private void processItemStatementsForEdges(ItemDocument itemDoc, Vertex srcVertex) {
-    List<StmtDetailsProcessor> filteredStmts = filterAllStatmentsForRelevantInfo(itemDoc);
-    List<Edge> allNewEdges = new ArrayList<>();
-
+  private void processItemForEdges(ItemDocument itemDoc) {
+    String srcItemQID = itemDoc.getEntityId().getId();
+    // filter out irrelevant statements
+    List<StmtDetailsProcessor> filteredStmts = filterAllStatmentsForRelevantInfo(itemDoc.getAllStatements());
+    // process filtered statements 
     for (StmtDetailsProcessor stmt : filteredStmts) {
-      List<Edge> newEdges = stmt.createEdgesFromDetails(srcVertex);
-      if (newEdges != null)
-        allNewEdges.addAll(newEdges);
-    }
-
-    for (Edge edge : allNewEdges) {
-      graphset.addEdge(edge);
+      stmt.createEdgesFromStmtDetails(srcItemQID);
+      // Edges contain unfetched Ent info, add edges to dataset, and add unfetched Ent info to FetchQueue
+      graphset.addEdgesAndUpdateFetchQueue(stmt.edges());
     }
   }
 
@@ -98,19 +93,17 @@ public class EntDocProc implements Reportable {
    * 
    * @param itemDoc the ItemDocument to be processed
    */
-  private List<StmtDetailsProcessor> filterAllStatmentsForRelevantInfo(ItemDocument itemDoc) {
-    Iterator<Statement> statements = itemDoc.getAllStatements();
+  private List<StmtDetailsProcessor> filterAllStatmentsForRelevantInfo(Iterator<Statement> statements) {
     List<StmtDetailsProcessor> filteredStmts = new ArrayList<>();
 
     while (statements.hasNext()) {
-      Statement statement = statements.next();
-      StmtDetailsProcessor stmt = new StmtDetailsProcessor(statement);
+      StmtDetailsProcessor stmt = new StmtDetailsProcessor(statements.next());
 
       if (stmt.definesIrrelevantOrExternalInfo()) {
-        // external source, skip irrelevant values
+        // external source ==> skip!
         continue;
       }
-      // possible edge, add to filteredStmts
+      // possible edge, add to return list
       filteredStmts.add(stmt);
     }
 

@@ -9,20 +9,22 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
-import edu.ForceDrawnGraphs.models.Vertex;
-import edu.ForceDrawnGraphs.models.wikidata.models.EdgeDetails;
-import edu.ForceDrawnGraphs.models.wikidata.models.EdgeDetails.SourceType;
 import edu.ForceDrawnGraphs.models.wikidata.models.UnknownSnakVisitor;
-import edu.ForceDrawnGraphs.models.wikidata.models.SnakDetails;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiMainSnakEdge;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiQualifierEdge;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecSnak;
 
 /**
  * Processes statement details to extract relevant information for graph visualization.
  */
 class StmtDetailsProcessor implements Reportable {
   private final UnknownSnakVisitor snakVisitor = new UnknownSnakVisitor();
-  private final Statement originalStmt;
-  private final SnakDetails mainSnak;
-  private final List<SnakDetails[]> qualifiers;
+  // VALUES READ FROM IMPORT PROCESS 
+  // private final Statement zsrcStmtStr;
+  private final WikiRecSnak mainSnak;
+  private final List<WikiRecSnak[]> qualifiers;
+  // VALUES SET FROM IMPORT PROCESS
+  private List<Edge> edges = new ArrayList<>(); // all edges derived from the statement 
 
   /**
    * Constructs a processor for a given Wikidata statement.
@@ -30,10 +32,20 @@ class StmtDetailsProcessor implements Reportable {
    * @param statement The Wikidata statement to process.
    */
   public StmtDetailsProcessor(Statement statement) {
-    this.originalStmt = statement;
-    this.mainSnak = extractMainSnakDetails();
-    this.qualifiers = extractQualifierDetails();
+    // this.zsrcStmtStr = statement; // for debugging
+    this.mainSnak = statement.getMainSnak().accept(snakVisitor);
+    this.qualifiers = collectSnakGroupedDetails(statement.getQualifiers());
   }
+
+  public List<Edge> edges() {
+    return edges;
+  }
+
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //* PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS
+  //
+  //------------------------------------------------------------------------------------------------------------
 
   /**
    * Determines if the processed statement contains irrelevant or external information based on predefined criteria.
@@ -46,53 +58,58 @@ class StmtDetailsProcessor implements Reportable {
   }
 
   /**
-   * Generates a list of edges based on the processed statement details.
-   *
-   * @param srcVertex The source vertex for the edges.
-   * @return A list of edges derived from the statement details, or null if no relevant edges could be generated.
+    * Creates edges from the statement details and adds them to the list of edges stored on the stmtDetailsProc itself.
    */
-  public List<Edge> createEdgesFromDetails(Vertex srcVertex) {
-    String srcVertexQID = srcVertex.details().QID();
-    Edge mainEdge = createEdgeFromSnakDetails(srcVertexQID, mainSnak, SourceType.SNAK_MAIN);
-    if (mainEdge == null) {
-      return null;
+  public void createEdgesFromStmtDetails(String srcVertexQID) {
+    //TODO - Edges Creation Refactor
+
+    WikiMainSnakEdge edge = null;
+
+    switch (mainSnak.value().type()) {
+      case ENTITY:
+        edge = new WikiMainSnakEdge(srcVertexQID, mainSnak.value().value(), mainSnak.property().value(),
+            null);
+        break;
+      case STRING:
+      case QUANT:
+      case TIME:
+        edge = new WikiMainSnakEdge(srcVertexQID, null, mainSnak.property().value(),
+            mainSnak.value().value());
+        break;
+
+      default:
+        break;
     }
 
-    List<Edge> edges = new ArrayList<>();
-    edges.add(mainEdge);
+    edges.add(edge);
 
-    if (qualifiers != null) {
-      for (SnakDetails[] group : qualifiers) {
-        for (SnakDetails snak : group) {
-          Edge qualifierEdge = createEdgeFromSnakDetails(srcVertexQID, snak, SourceType.SNAK_QUALIFIER);
-          if (qualifierEdge != null) {
-            qualifierEdge.details().setContextEdge(mainEdge.details());
-            edges.add(qualifierEdge);
-          }
+    for (WikiRecSnak[] group : qualifiers) {
+      for (WikiRecSnak snak : group) {
+        WikiQualifierEdge newEdge = null;
+
+        switch (snak.value().type()) {
+          case ENTITY:
+            newEdge = new WikiQualifierEdge(srcVertexQID, snak.value().value(), edge,
+                snak.property().value(), null);
+            break;
+          case STRING:
+          case QUANT:
+          case TIME:
+            newEdge = new WikiQualifierEdge(srcVertexQID, null, edge,
+                snak.property().value(), snak.value().value());
         }
+        edges.add(newEdge);
       }
     }
-
-    return edges.isEmpty() ? null : edges;
   }
 
-  /**
-   * Extracts the main Snak details from the original statement.
-   *
-   * @return The extracted main Snak details.
-   */
-  private SnakDetails extractMainSnakDetails() {
-    return originalStmt.getMainSnak().accept(snakVisitor);
-  }
-
-  /**
-   * Extracts the qualifier details from the original statement.
-   *
-   * @return A list of arrays representing grouped qualifier details.
-   */
-  private List<SnakDetails[]> extractQualifierDetails() {
-    return collectSnakGroupedDetails(originalStmt.getQualifiers());
-  }
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //
+  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
+  //
+  //
+  //------------------------------------------------------------------------------------------------------------
 
   /**
    * Checks if the Snak's datatype is among the excluded types.
@@ -100,7 +117,7 @@ class StmtDetailsProcessor implements Reportable {
    * @param snak The Snak to check.
    * @return True if the datatype is excluded, false otherwise.
    */
-  private boolean isExcludedDataType(SnakDetails snak) {
+  private boolean isExcludedDataType(WikiRecSnak snak) {
     return "external-id".equals(snak.datatype()) || "monolingualtext".equals(snak.datatype());
   }
 
@@ -110,9 +127,9 @@ class StmtDetailsProcessor implements Reportable {
    * @param snak The Snak to check.
    * @return True if the property is excluded, false otherwise.
    */
-  private boolean isExcludedProperty(SnakDetails snak) {
-    String[] excludedProperties = { "P1343", "P143", "P935", "P8687", "P3744", "P18", "P373" };
-    return isPropertyInList(snak.property().QID(), excludedProperties);
+  private boolean isExcludedProperty(WikiRecSnak snak) {
+    String[] excludedProperties = { "P1343", "P143", "P935", "P8687", "P3744", "P18", "P373", "P856" };
+    return isPropertyInList(snak.property().value(), excludedProperties);
   }
 
   /**
@@ -125,8 +142,8 @@ class StmtDetailsProcessor implements Reportable {
       return false;
     }
 
-    for (SnakDetails[] group : qualifiers) {
-      for (SnakDetails snak : group) {
+    for (WikiRecSnak[] group : qualifiers) {
+      for (WikiRecSnak snak : group) {
         if (isExcludedProperty(snak)) {
           return true;
         }
@@ -158,18 +175,18 @@ class StmtDetailsProcessor implements Reportable {
    * @param groups The list of SnakGroups to process.
    * @return A list of arrays containing the collected SnakDetails.
    */
-  private List<SnakDetails[]> collectSnakGroupedDetails(List<SnakGroup> groups) {
+  private List<WikiRecSnak[]> collectSnakGroupedDetails(List<SnakGroup> groups) {
     if (groups == null) {
       return null;
     }
-    List<SnakDetails[]> groupedDetails = new ArrayList<>();
+    List<WikiRecSnak[]> groupedDetails = new ArrayList<>();
 
     for (SnakGroup group : groups) {
-      SnakDetails[] groupDetails = new SnakDetails[group.size()];
+      WikiRecSnak[] groupDetails = new WikiRecSnak[group.size()];
       int index = 0;
 
       for (Snak snak : group) {
-        SnakDetails snakDetails = snak.accept(snakVisitor);
+        WikiRecSnak snakDetails = snak.accept(snakVisitor);
         if (snakDetails != null) {
           groupDetails[index++] = snakDetails;
         }
@@ -177,47 +194,6 @@ class StmtDetailsProcessor implements Reportable {
       groupedDetails.add(groupDetails);
     }
 
-    return groupedDetails.isEmpty() ? null : groupedDetails;
-  }
-
-  /**
-   * Creates an edge from the given Snak details.
-   *
-   * @param srcVertexQID The QID of the source vertex.
-   * @param snakDetails The details of the Snak to create the edge from.
-   * @param edgeSourceType The type of the edge source.
-   * @return An Edge object representing the created edge, or null if the creation was skipped.
-   */
-  private Edge createEdgeFromSnakDetails(String srcVertexQID, SnakDetails snakDetails, SourceType edgeSourceType) {
-    EdgeDetails edgeDetails = new EdgeDetails(snakDetails.property(), edgeSourceType);
-    String tgtQID = determineTargetQID(snakDetails);
-
-    if (tgtQID == null) {
-      System.out.println("StmtDetailsProcessor: Skipped " + snakDetails.value().type() + " TxtValueType: "
-          + snakDetails.value().type() + " :equals: " + snakDetails.value().text());
-      return null;
-    }
-
-    return new Edge(srcVertexQID, tgtQID, edgeDetails);
-  }
-
-  /**
-   * Determines the target QID based on the value type of the Snak details.
-   *
-   * @param snakDetails The Snak details to analyze.
-   * @return The determined target QID, or null if the value type is not supported.
-   */
-  private String determineTargetQID(SnakDetails snakDetails) {
-    switch (snakDetails.value().type()) {
-      case ENTITY:
-      case PROPERTY:
-        return snakDetails.value().QID();
-      case TIME:
-        return snakDetails.value().text();
-      case STRING:
-      case QUANT:
-      default:
-        return null;
-    }
+    return groupedDetails;
   }
 }

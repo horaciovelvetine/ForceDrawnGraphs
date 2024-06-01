@@ -13,20 +13,20 @@ import org.wikidata.wdtk.datamodel.interfaces.ValueVisitor;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 /**
- * Handles visiting unknown values, casting them to a more specific and usable type, before creating and returning an {@link RecordValue} object. Some type specific formatting may be done to prepare the value for display.
+ * Handles visiting unknown values, casting them to a more specific and usable type, before creating and returning an {@link WikiRecValue} object. Some type specific formatting may be done to prepare the value for display.
  */
-public class UnknownValueVisitor implements ValueVisitor<RecordValue>, Reportable {
+public class UnknownValueVisitor implements ValueVisitor<WikiRecValue>, Reportable {
   public UnknownValueVisitor() {
     //Default constructor...
   }
 
   @Override
-  public RecordValue visit(EntityIdValue value) {
-    return new RecordValue(value);
+  public WikiRecValue visit(EntityIdValue value) {
+    return new WikiRecValue(value);
   }
 
   @Override
-  public RecordValue visit(QuantityValue value) {
+  public WikiRecValue visit(QuantityValue value) {
     ItemIdValue unitItem = value.getUnitItemId();
     String url; // refUrl
     String text; // value
@@ -39,34 +39,34 @@ public class UnknownValueVisitor implements ValueVisitor<RecordValue>, Reportabl
     }
     text = value.toString();
 
-    return new RecordValue(RecordValue.TxtValueType.QUANT, text, url);
+    return new WikiRecValue(WikiRecValue.TXT_VAL_TYPE.QUANT, text, url);
   }
 
   @Override
-  public RecordValue visit(StringValue value) {
-    return new RecordValue(value);
+  public WikiRecValue visit(StringValue value) {
+    return new WikiRecValue(value);
   }
 
   @Override
-  public RecordValue visit(TimeValue value) {
+  public WikiRecValue visit(TimeValue value) {
     // removes any additional information in the string
     // leaving only YYYY-MM-DD([THH:MM:SSZ] => is tbd)
     String timeString = value.toString().replaceAll("\\s*\\(.*\\)", "");
-    return new RecordValue(timeString);
+    return new WikiRecValue(timeString);
   }
 
   @Override
-  public RecordValue visit(UnsupportedValue value) {
+  public WikiRecValue visit(UnsupportedValue value) {
     return null;
   }
 
   @Override
-  public RecordValue visit(GlobeCoordinatesValue value) {
+  public WikiRecValue visit(GlobeCoordinatesValue value) {
     return null;
   }
 
   @Override
-  public RecordValue visit(MonolingualTextValue value) {
+  public WikiRecValue visit(MonolingualTextValue value) {
     return null;
   }
 
