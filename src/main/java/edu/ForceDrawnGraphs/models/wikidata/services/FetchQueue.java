@@ -8,45 +8,67 @@ import java.util.ArrayList;
  */
 
 public class FetchQueue {
-  // <K=TYPE (QID/QUERY), V=QUERY_TEXT>
-  private List<QueueItem> queue;
+  private List<StringTarget> stringQueue;
+  private List<EntityTarget> entityQueue;
+  private List<PropertyTarget> propertyQueue;
 
   public FetchQueue() {
-    queue = new ArrayList<>();
-  }
+    stringQueue = new ArrayList<>();
+    entityQueue = new ArrayList<>();
+    propertyQueue = new ArrayList<>();
 
-  public void addEntityQIDToQueue(String query) {
-    queue.add(new QueueItem(query));
   }
 
   public boolean hasItems() {
-    return !queue.isEmpty();
-  }
-
-  public QueueItem nextItem() {
-    return queue.remove(0);
-  }
-
-  public String totalItemsInQueue() {
-    return String.valueOf(queue.size());
-  }
-
-  public boolean queueContainsQuery(String query) {
-    return queue.stream().anyMatch(item -> item.query.equals(query));
-  }
-
-  public List<QueueItem> queue() {
-    return queue;
+    return !stringQueue.isEmpty() && !entityQueue.isEmpty() && !propertyQueue.isEmpty();
   }
 
   //------------------------------------------------------------------------------------------------------------
   //
   //
-  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
+  //* ADD & CHECK VARIOUS TYPES OF ITEMS - ADD & CHECK VARIOUS TYPES OF ITEMS - ADD & CHECK VARIOUS TYPES OF ITEMS
   //
   //
   //------------------------------------------------------------------------------------------------------------
 
-  public record QueueItem(String query) {
+  public void addStringToQueue(String string) {
+    stringQueue.add(new StringTarget(string));
+  }
+
+  public boolean queueContainsString(String string) {
+    return stringQueue.stream().anyMatch(item -> item.string.equals(string));
+  }
+
+  public void addEntityToQueue(String QID) {
+    entityQueue.add(new EntityTarget(QID));
+  }
+
+  public boolean queueContainsEntity(String QID) {
+    return entityQueue.stream().anyMatch(item -> item.QID.equals(QID));
+  }
+
+  public void addPropertyToQueue(String QID) {
+    propertyQueue.add(new PropertyTarget(QID));
+  }
+
+  public boolean queueContainsProperty(String QID) {
+    return propertyQueue.stream().anyMatch(item -> item.QID.equals(QID));
+  }
+
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //
+  //* RECORDS FOR QUEUE ITEMS - RECORDS FOR QUEUE ITEMS - RECORDS FOR QUEUE ITEMS - RECORDS FOR QUEUE ITEMS
+  //
+  //
+  //------------------------------------------------------------------------------------------------------------
+
+  public record StringTarget(String string) {
+  }
+
+  public record EntityTarget(String QID) {
+  }
+
+  public record PropertyTarget(String QID) {
   }
 }
