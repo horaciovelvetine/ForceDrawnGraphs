@@ -6,3 +6,4 @@ These properties have been added to a blacklist to be ignored:
 - "P8687" - Social media followers - externally sourced irrelavant qualitative data
 - "P3744" - Social media followers - but used exclusively for qualifiers
 - "P18" - image - irrelevant for the purpose of this project
+- "P856" - official website - irrelevant for the purpose of this project
