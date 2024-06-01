@@ -1,17 +1,16 @@
 package edu.ForceDrawnGraphs.models;
 
 public class Property {
-  private String QID;
+  private String ID;
   private String label;
   private String description;
 
-  public Property(String QID, String label) {
-    this.QID = QID;
-    this.label = label;
+  public Property(String ID) {
+    this.ID = ID;
   }
 
-  public String QID() {
-    return QID;
+  public String ID() {
+    return ID;
   }
 
   public String label() {
@@ -20,5 +19,22 @@ public class Property {
 
   public String description() {
     return description;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  @Override
+  public String toString() {
+    return "WMPropertyEnt{" +
+        "QID='" + ID + '\'' +
+        ", label='" + label + '\'' +
+        ", description='" + description + '\'' +
+        '}';
   }
 }
