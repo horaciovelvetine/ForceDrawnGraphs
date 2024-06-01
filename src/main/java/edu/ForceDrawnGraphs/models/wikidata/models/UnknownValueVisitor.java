@@ -13,62 +13,60 @@ import org.wikidata.wdtk.datamodel.interfaces.ValueVisitor;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 /**
- * Handles visiting unknown values, casting them to a more specific and usable type, before creating and returning an {@link ValueDetails} object. Some type specific formatting may be done to prepare the value for display.
+ * Handles visiting unknown values, casting them to a more specific and usable type, before creating and returning an {@link RecordValue} object. Some type specific formatting may be done to prepare the value for display.
  */
-public class UnknownValueVisitor implements ValueVisitor<ValueDetails>, Reportable {
+public class UnknownValueVisitor implements ValueVisitor<RecordValue>, Reportable {
   public UnknownValueVisitor() {
     //Default constructor...
   }
 
   @Override
-  public ValueDetails visit(EntityIdValue value) {
-    return new ValueDetails(value);
+  public RecordValue visit(EntityIdValue value) {
+    return new RecordValue(value);
   }
 
   @Override
-  public ValueDetails visit(QuantityValue value) {
+  public RecordValue visit(QuantityValue value) {
     ItemIdValue unitItem = value.getUnitItemId();
-    String QID;
-    String url;
-    String text;
+    String url; // refUrl
+    String text; // value
 
+    // see if a unit item is available, or leave a default message in its place
     if (unitItem == null) {
-      QID = null;
-      url = "No unit item found.";
+      url = "n/a (see property definition)";
     } else {
-      QID = unitItem.getId();
       url = unitItem.getIri();
     }
     text = value.toString();
 
-    return new ValueDetails(QID, url, text, ValueDetails.TxtValueType.QUANT);
+    return new RecordValue(RecordValue.TxtValueType.QUANT, text, url);
   }
 
   @Override
-  public ValueDetails visit(StringValue value) {
-    return new ValueDetails(value);
+  public RecordValue visit(StringValue value) {
+    return new RecordValue(value);
   }
 
   @Override
-  public ValueDetails visit(TimeValue value) {
+  public RecordValue visit(TimeValue value) {
     // removes any additional information in the string
     // leaving only YYYY-MM-DD([THH:MM:SSZ] => is tbd)
     String timeString = value.toString().replaceAll("\\s*\\(.*\\)", "");
-    return new ValueDetails(timeString);
+    return new RecordValue(timeString);
   }
 
   @Override
-  public ValueDetails visit(UnsupportedValue value) {
+  public RecordValue visit(UnsupportedValue value) {
     return null;
   }
 
   @Override
-  public ValueDetails visit(GlobeCoordinatesValue value) {
+  public RecordValue visit(GlobeCoordinatesValue value) {
     return null;
   }
 
   @Override
-  public ValueDetails visit(MonolingualTextValue value) {
+  public RecordValue visit(MonolingualTextValue value) {
     return null;
   }
 

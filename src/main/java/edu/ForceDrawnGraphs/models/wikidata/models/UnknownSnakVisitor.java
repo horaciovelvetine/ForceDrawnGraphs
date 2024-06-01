@@ -8,16 +8,17 @@ import org.wikidata.wdtk.datamodel.interfaces.ValueSnak;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
-public class UnknownSnakVisitor implements SnakVisitor<SnakDetails>, Reportable {
+public class UnknownSnakVisitor implements SnakVisitor<RecordSnak>, Reportable {
+  private UnknownValueVisitor valueVisitor = new UnknownValueVisitor();
 
   public UnknownSnakVisitor() {
     //Default constructor...
   }
 
   @Override
-  public SnakDetails visit(ValueSnak snak) {
+  public RecordSnak visit(ValueSnak snak) {
     if (snak instanceof ValueSnakImpl) {
-      return new SnakDetails((ValueSnakImpl) snak);
+      return new RecordSnak((ValueSnakImpl) snak, valueVisitor);
     } else {
       report("Unhandled Snak type @ visit(): " + snak.getClass().getName());
       throw new IllegalArgumentException("Unhandled Snak type @ visit(): " + snak.getClass().getName());
@@ -28,7 +29,7 @@ public class UnknownSnakVisitor implements SnakVisitor<SnakDetails>, Reportable 
   /**
    * Returns null -- info is not relevant to the application.
    */
-  public SnakDetails visit(SomeValueSnak snak) {
+  public RecordSnak visit(SomeValueSnak snak) {
     log("Some Value Snak found, returning null...");
     return null;
   }
@@ -37,7 +38,7 @@ public class UnknownSnakVisitor implements SnakVisitor<SnakDetails>, Reportable 
    * Returns null -- info is not relevant to the application.
    */
   @Override
-  public SnakDetails visit(NoValueSnak snak) {
+  public RecordSnak visit(NoValueSnak snak) {
     log("No Value Snak found, returning null...");
     return null;
   }
