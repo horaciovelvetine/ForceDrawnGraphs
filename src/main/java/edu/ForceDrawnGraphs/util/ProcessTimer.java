@@ -1,7 +1,9 @@
-package edu.ForceDrawnGraphs.interfaces;
+package edu.ForceDrawnGraphs.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 /**
  * The ProcessTimer class represents a timer for measuring the execution time of a process.

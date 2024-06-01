@@ -36,4 +36,15 @@ public interface Reportable extends Printable, Loggable {
     report(msg);
   }
 
+  /**
+   * Reports message by printing it to the console and logging it to the default log file.
+   *
+   * @param originMsg   Message placed before the exception message to include more context
+   * @param msg         the message to be reported
+   */
+  public default void report(String originMsg, String msg) {
+    String fullMsg = originMsg + "\n" + msg;
+    report(fullMsg);
+  }
+
 }
