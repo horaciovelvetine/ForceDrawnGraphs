@@ -1,10 +1,9 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import edu.ForceDrawnGraphs.models.wikidata.services.FetchQueue;
-import edu.ForceDrawnGraphs.models.wikidata.services.FuzzyStringMatch;
+import edu.ForceDrawnGraphs.util.FuzzyStringMatch;
 
 /**
  * Central class for storing something akin to 'state' for the initial request creating a session/universe/TBD. 
@@ -55,9 +54,10 @@ public class Graphset {
 
     // New Edge found - add it to the Graphset
     // check for deliquent ent values which are not in the Graphset
-    // add them to the fetchQueue
     edges.add(edge);
-    checkForUnfetchedEntityDetails(edge);
+    //TODO - Add Edge to Queue
+    // add them to the fetchQueue
+    // checkForUnfetchedEntityDetails(edge);
 
   }
 
@@ -71,8 +71,9 @@ public class Graphset {
 
   private void checkForUnfetchedEntityDetails(Edge edge) {
     String tgtQID = edge.tgtVertexQID();
-    String propQID = edge.details().propQID();
-    String valueTgt = edge.details().valueTgt();
+    // TODO Unfetched Check Refactor
+    String propQID = "";
+    String valueTgt = "";
 
     if (tgtQID != null && tgtQIDNotInGraphset(tgtQID) && queryNotInFetchQueue(tgtQID)) {
       // Add a target entity QID to the fetchQueue

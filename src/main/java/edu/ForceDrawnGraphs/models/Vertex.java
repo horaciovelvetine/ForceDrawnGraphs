@@ -2,7 +2,7 @@ package edu.ForceDrawnGraphs.models;
 
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
-import edu.ForceDrawnGraphs.models.wikidata.models.VertexDetails;
+import edu.ForceDrawnGraphs.models.wikidata.models.RecordVertex;
 
 /**
  * Class which functions as the vertex (node) of a given Graphset.
@@ -10,16 +10,16 @@ import edu.ForceDrawnGraphs.models.wikidata.models.VertexDetails;
  * 
  */
 public class Vertex {
-  private VertexDetails details;
+  private RecordVertex details;
   // private double x = 0.0;
   // private double y = 0.0;
   // private double z = 0.0;
 
   public Vertex(ItemDocument document) {
-    this.details = new VertexDetails(document);
+    this.details = new RecordVertex(document);
   }
 
-  public VertexDetails details() {
+  public RecordVertex details() {
     return details;
   }
 
