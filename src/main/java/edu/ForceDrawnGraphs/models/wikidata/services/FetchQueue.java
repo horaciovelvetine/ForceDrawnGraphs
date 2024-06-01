@@ -9,30 +9,34 @@ import java.util.ArrayList;
 
 public class FetchQueue {
   // <K=TYPE (QID/QUERY), V=QUERY_TEXT>
-  private List<QueueItem> queryQueue;
+  private List<QueueItem> queue;
 
   public FetchQueue() {
-    queryQueue = new ArrayList<>();
+    queue = new ArrayList<>();
   }
 
   public void addEntityQIDToQueue(String query) {
-    queryQueue.add(new QueueItem(query));
+    queue.add(new QueueItem(query));
   }
 
   public boolean hasItems() {
-    return !queryQueue.isEmpty();
+    return !queue.isEmpty();
   }
 
   public QueueItem nextItem() {
-    return queryQueue.remove(0);
+    return queue.remove(0);
   }
 
   public String totalItemsInQueue() {
-    return String.valueOf(queryQueue.size());
+    return String.valueOf(queue.size());
   }
 
   public boolean queueContainsQuery(String query) {
-    return queryQueue.stream().anyMatch(item -> item.query.equals(query));
+    return queue.stream().anyMatch(item -> item.query.equals(query));
+  }
+
+  public List<QueueItem> queue() {
+    return queue;
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -43,6 +47,6 @@ public class FetchQueue {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  private record QueueItem(String query) {
+  public record QueueItem(String query) {
   }
 }
