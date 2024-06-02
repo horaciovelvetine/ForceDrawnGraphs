@@ -1,6 +1,9 @@
 package edu.ForceDrawnGraphs.models.wikidata.services;
 
 import java.util.List;
+
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
+
 import java.util.ArrayList;
 
 /**
@@ -16,42 +19,65 @@ public class FetchQueue {
     stringQueue = new ArrayList<>();
     entityQueue = new ArrayList<>();
     propertyQueue = new ArrayList<>();
-
   }
 
   public boolean hasItems() {
     return !stringQueue.isEmpty() && !entityQueue.isEmpty() && !propertyQueue.isEmpty();
   }
 
+  /**
+  * Adds the details of a WikiDataEdge to the fetchQueue for further processing.
+  * 
+  * @param edge WikiDataEdge to add details to the fetchQueue.
+  * 
+  */
+  public void addWikiDataEdgeDetailsToQueue(WikiDataEdge edge) {
+    // add propertyQID to fetchQueue if not already present
+    if (!queueContainsProperty(edge.propertyQID()))
+      addPropertyToQueue(edge.propertyQID());
+
+    if (edge.tgtVertexQID() != null) {
+      // add tgtVertexQID to fetchQueue if not already present
+      if (!queueContainsEntity(edge.tgtVertexQID()))
+        addEntityToQueue(edge.tgtVertexQID());
+    }
+
+    if (edge.value() != null) {
+      // add value to fetchQueue if not already present
+      if (!queueContainsString(edge.value()))
+        addStringToQueue(edge.value());
+    }
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
-  //* ADD & CHECK VARIOUS TYPES OF ITEMS - ADD & CHECK VARIOUS TYPES OF ITEMS - ADD & CHECK VARIOUS TYPES OF ITEMS
+  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
   //
   //
   //------------------------------------------------------------------------------------------------------------
 
-  public void addStringToQueue(String string) {
+  private void addStringToQueue(String string) {
     stringQueue.add(new StringTarget(string));
   }
 
-  public boolean queueContainsString(String string) {
+  private boolean queueContainsString(String string) {
     return stringQueue.stream().anyMatch(item -> item.string.equals(string));
   }
 
-  public void addEntityToQueue(String QID) {
+  private void addEntityToQueue(String QID) {
     entityQueue.add(new EntityTarget(QID));
   }
 
-  public boolean queueContainsEntity(String QID) {
+  private boolean queueContainsEntity(String QID) {
     return entityQueue.stream().anyMatch(item -> item.QID.equals(QID));
   }
 
-  public void addPropertyToQueue(String QID) {
+  private void addPropertyToQueue(String QID) {
     propertyQueue.add(new PropertyTarget(QID));
   }
 
-  public boolean queueContainsProperty(String QID) {
+  private boolean queueContainsProperty(String QID) {
     return propertyQueue.stream().anyMatch(item -> item.QID.equals(QID));
   }
 

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiMainSnakEdge;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiQualifierEdge;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.models.wikidata.services.FetchQueue;
 
 /**
@@ -16,13 +15,13 @@ public class Graphset implements Reportable {
   // private ArrayList<Property> properties; // LocalStore for any properties that are fetched from the API
   private ArrayList<Edge> edges; // In theory these may become a network as the Guava library is integrated
   private ArrayList<Vertex> vertices; // ditto
-  private FetchQueue fetchQueue;
+  private FetchQueue wikiDataFetchQueue; // Queue of ent details to fetch from the Wikidata API
 
   public Graphset() {
     this.vertices = new ArrayList<>();
     this.edges = new ArrayList<>();
     // this.properties = new ArrayList<>();
-    this.fetchQueue = new FetchQueue();
+    this.wikiDataFetchQueue = new FetchQueue();
   }
 
   public void setOriginQuery(String originQuery) {
@@ -41,8 +40,8 @@ public class Graphset implements Reportable {
     return edges;
   }
 
-  public FetchQueue fetchQueue() {
-    return fetchQueue;
+  public FetchQueue wikiDataFetchQueue() {
+    return wikiDataFetchQueue;
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -52,54 +51,31 @@ public class Graphset implements Reportable {
   //
   //
   //------------------------------------------------------------------------------------------------------------
-
+  /**
+   * Adds a vertex to the Graphset storage.
+   * 
+   * @param vertex Vertex to add to the Graphset storage.
+   * 
+   */
   public void addVertex(Vertex vertex) {
     if (!vertices.contains(vertex))
       vertices.add(vertex);
   }
 
-  public void addEdgesAndUpdateFetchQueue(List<Edge> newEdges) {
+  /**
+   * Adds a list of edges to the Graphset storage and updates the appropriate fetchQueue with details from the edges.
+   * 
+   * @param newEdges List of edges to add to the Graphset storage.
+   * 
+   */
+  public void addEdgesAndUpdateQueues(List<Edge> newEdges) {
     for (Edge edge : newEdges) {
-      // add edge to dataset
+      // add edge to Graphset storage
       edges.add(edge);
-      
-      if (edge instanceof WikiMainSnakEdge) {
-        WikiMainSnakEdge mainSnakEdge = (WikiMainSnakEdge) edge;
-
-        String propertyQIDToCheck = mainSnakEdge.propertyQID();
-        if (!fetchQueue.queueContainsString(propertyQIDToCheck))
-          fetchQueue.addStringToQueue(propertyQIDToCheck);
-
-        String tgtVertexQID = mainSnakEdge.tgtVertexQID();
-        if (tgtVertexQID != null && !fetchQueue.queueContainsString(tgtVertexQID))
-          fetchQueue.addStringToQueue(tgtVertexQID);
-
-        String valueTarget = mainSnakEdge.value();
-        if (valueTarget != null && !fetchQueue.queueContainsString(valueTarget))
-          fetchQueue.addStringToQueue(valueTarget);
-
-      } else if (edge instanceof WikiQualifierEdge) {
-        WikiQualifierEdge qualifierEdge = (WikiQualifierEdge) edge;
-
-        String propertyQIDToCheck = qualifierEdge.propertyQID();
-        if (!fetchQueue.queueContainsString(propertyQIDToCheck))
-          fetchQueue.addStringToQueue(propertyQIDToCheck);
-
-        String tgtVertexQID = qualifierEdge.tgtVertexQID();
-        if (tgtVertexQID != null && !fetchQueue.queueContainsString(tgtVertexQID))
-          fetchQueue.addStringToQueue(tgtVertexQID);
-
-        String valueTarget = qualifierEdge.value();
-        if (valueTarget != null && !fetchQueue.queueContainsString(valueTarget))
-          fetchQueue.addStringToQueue(valueTarget);
-
+      // add edge details to appropriate fetchQueue for further processing
+      if (edge instanceof WikiDataEdge) {
+        wikiDataFetchQueue.addWikiDataEdgeDetailsToQueue((WikiDataEdge) edge);
       }
-      // TODO WILL STOP HERE (START HERE NEXT TIME)
-      // check edge for propertyQID value and add to fetchQueue if not already present
-      // check edge for tgtVertexQID value and add to fetchQueue if not already present
-      // refactor the WikiEdges to WikiDataEdge, and add another source Enum (to prevent the above)
-      // refactor to send appropariate ents to the appropriate queues (entity, property, string)
-      print("Adding edge to dataset: " + edge.srcVertexQID() + " -> " + edge.tgtVertexQID());
     }
   }
 

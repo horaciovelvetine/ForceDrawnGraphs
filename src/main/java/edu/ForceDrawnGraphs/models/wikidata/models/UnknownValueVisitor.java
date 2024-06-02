@@ -13,48 +13,71 @@ import org.wikidata.wdtk.datamodel.interfaces.ValueVisitor;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 /**
- * Handles visiting unknown values, casting them to a more specific and usable type, before creating and returning an {@link WikiRecValue} object. Some type specific formatting may be done to prepare the value for display.
+ * Handles visiting unknown values, casting them to a more specific and usable type,
+ * before creating and returning a {@link WikiRecValue} object.
+ * Some type-specific formatting may be done to prepare the value for display.
  */
 public class UnknownValueVisitor implements ValueVisitor<WikiRecValue>, Reportable {
+
+  /**
+   * Default constructor.
+   */
   public UnknownValueVisitor() {
-    //Default constructor...
+    // Default constructor
   }
 
+  /**
+   * Visits an EntityIdValue and returns a WikiRecValue.
+   *
+   * @param value the EntityIdValue to visit.
+   * @return a WikiRecValue representing the EntityIdValue.
+   */
   @Override
   public WikiRecValue visit(EntityIdValue value) {
     return new WikiRecValue(value);
   }
 
+  /**
+   * Visits a QuantityValue and returns a WikiRecValue.
+   *
+   * @param value the QuantityValue to visit.
+   * @return a WikiRecValue representing the QuantityValue.
+   */
   @Override
   public WikiRecValue visit(QuantityValue value) {
     ItemIdValue unitItem = value.getUnitItemId();
-    String url; // refUrl
-    String text; // value
-
-    // see if a unit item is available, or leave a default message in its place
-    if (unitItem == null) {
-      url = "n/a (see property definition)";
-    } else {
-      url = unitItem.getIri();
-    }
-    text = value.toString();
+    String url = (unitItem == null) ? "n/a (see property definition)" : unitItem.getIri();
+    String text = value.toString();
 
     return new WikiRecValue(WikiRecValue.TXT_VAL_TYPE.QUANT, text, url);
   }
 
+  /**
+   * Visits a StringValue and returns a WikiRecValue.
+   *
+   * @param value the StringValue to visit.
+   * @return a WikiRecValue representing the StringValue.
+   */
   @Override
   public WikiRecValue visit(StringValue value) {
     return new WikiRecValue(value);
   }
 
+  /**
+   * Visits a TimeValue and returns a WikiRecValue.
+   *
+   * @param value the TimeValue to visit.
+   * @return a WikiRecValue representing the TimeValue.
+   */
   @Override
   public WikiRecValue visit(TimeValue value) {
-    // removes any additional information in the string
-    // leaving only YYYY-MM-DD([THH:MM:SSZ] => is tbd)
     String timeString = value.toString().replaceAll("\\s*\\(.*\\)", "");
     return new WikiRecValue(timeString);
   }
 
+  /**
+   * These value types are not relevant to the application, and will simply be ignored.
+   */
   @Override
   public WikiRecValue visit(UnsupportedValue value) {
     return null;
@@ -69,5 +92,4 @@ public class UnknownValueVisitor implements ValueVisitor<WikiRecValue>, Reportab
   public WikiRecValue visit(MonolingualTextValue value) {
     return null;
   }
-
 }

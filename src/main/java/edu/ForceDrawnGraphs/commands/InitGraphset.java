@@ -21,7 +21,7 @@ public class InitGraphset implements Reportable {
     graphset.setOriginQuery(target); // set the origin query for the graphset
     brokerService.fuzzyFetchOriginEntityDocument(target); // fetch origin entity document, and init graphset data management
 
-    while (graphset.fetchQueue().hasItems() && fetchDepth-- > 0) {
+    while (fetchDepth-- > 0 && graphset.wikiDataFetchQueue().hasItems()) {
       // TODO iterate over the fetchQueue, fetching until nothing remains
       // brokerService.fetchItemsInQueue(graphset);
     }

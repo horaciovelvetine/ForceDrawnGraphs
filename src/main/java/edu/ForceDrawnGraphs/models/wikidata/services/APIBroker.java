@@ -42,8 +42,6 @@ public class APIBroker implements Reportable {
     }
   }
 
-
-
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -60,16 +58,12 @@ public class APIBroker implements Reportable {
    * @return The found EntityDocument, or null if not found or an error occurred.
    */
   private EntityDocument fetchEntityDocByTitleQuery(String query) {
-    ProcessTimer timer = new ProcessTimer("fetchEntityDocByTitleQuery(" + query + ") in EntityDocFetchBroker.java");
-
     try {
       return wbdf.getEntityDocumentByTitle("enwiki", query);
     } catch (MediaWikiApiErrorException e) {
       log("fetchEntityDocByTitleQuery() unable to access the Media Wiki API:", e);
     } catch (Exception e) {
       log("fetchEntityDocByTitleQuery() error:", e);
-    } finally {
-      timer.end();
     }
     return null;
   }
@@ -82,8 +76,6 @@ public class APIBroker implements Reportable {
    * @return The found EntityDocument, or null if not found or an error occurred.
    */
   private EntityDocument fetchEntityDocBySiteQuery(String query) {
-    ProcessTimer timer = new ProcessTimer("fetchEntityDocBySiteQuery(" + query + ") in EntityDocFetchBroker.java");
-
     try {
       List<WbSearchEntitiesResult> searchResults = wbdf.searchEntities(query, "en");
       if (searchResults.size() > 0) { // results are sorted by relevance, so we take the first one
@@ -93,8 +85,6 @@ public class APIBroker implements Reportable {
       log("fetchEntityDocBySiteQuery() unable to access the Media Wiki API:", e);
     } catch (Exception e) {
       log("fetchEntityDocBySiteQuery() error:", e);
-    } finally {
-      timer.end();
     }
     return null;
   }
@@ -107,17 +97,12 @@ public class APIBroker implements Reportable {
    * @return A map of QIDs to EntityDocuments, or null if an error occurred.
    */
   private Map<String, EntityDocument> fetchEntitiesByQIDs(List<String> qids) {
-    ProcessTimer timer = new ProcessTimer(
-        "fetchEntitiesByQIDs(" + qids.size() + " total fetched) in EntityDocFetchBroker.java");
-
     try {
       return wbdf.getEntityDocuments(qids);
     } catch (MediaWikiApiErrorException e) {
       log("fetchEntitiesByQIDs() unable to access the Media Wiki API:", e);
     } catch (Exception e) {
       log("fetchEntitiesByQIDs() error:", e);
-    } finally {
-      timer.end();
     }
     return null;
   }

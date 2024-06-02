@@ -30,16 +30,11 @@ public class UnknownSnakVisitor implements SnakVisitor<WikiRecSnak>, Reportable 
    * Returns null -- info is not relevant to the application.
    */
   public WikiRecSnak visit(SomeValueSnak snak) {
-    log("Some Value Snak found, returning null...");
     return null;
   }
 
-  /**
-   * Returns null -- info is not relevant to the application.
-   */
   @Override
   public WikiRecSnak visit(NoValueSnak snak) {
-    log("No Value Snak found, returning null...");
     return null;
   }
 

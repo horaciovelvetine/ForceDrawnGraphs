@@ -10,21 +10,18 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.wikidata.models.UnknownSnakVisitor;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiMainSnakEdge;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiQualifierEdge;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecSnak;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge.EDGE_SRC;
 
 /**
  * Processes statement details to extract relevant information for graph visualization.
  */
 class StmtDetailsProcessor implements Reportable {
   private final UnknownSnakVisitor snakVisitor = new UnknownSnakVisitor();
-  // VALUES READ FROM IMPORT PROCESS 
-  // private final Statement zsrcStmtStr;
   private final WikiRecSnak mainSnak;
   private final List<WikiRecSnak[]> qualifiers;
-  // VALUES SET FROM IMPORT PROCESS
-  private List<Edge> edges = new ArrayList<>(); // all edges derived from the statement 
+  private final List<Edge> edges = new ArrayList<>(); // all edges derived from the statement 
 
   /**
    * Constructs a processor for a given Wikidata statement.
@@ -32,20 +29,18 @@ class StmtDetailsProcessor implements Reportable {
    * @param statement The Wikidata statement to process.
    */
   public StmtDetailsProcessor(Statement statement) {
-    // this.zsrcStmtStr = statement; // for debugging
     this.mainSnak = statement.getMainSnak().accept(snakVisitor);
     this.qualifiers = collectSnakGroupedDetails(statement.getQualifiers());
   }
 
+  /**
+   * Returns the list of edges derived from the statement.
+   *
+   * @return List of edges.
+   */
   public List<Edge> edges() {
     return edges;
   }
-
-  //------------------------------------------------------------------------------------------------------------
-  //
-  //* PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS
-  //
-  //------------------------------------------------------------------------------------------------------------
 
   /**
    * Determines if the processed statement contains irrelevant or external information based on predefined criteria.
@@ -58,58 +53,60 @@ class StmtDetailsProcessor implements Reportable {
   }
 
   /**
-    * Creates edges from the statement details and adds them to the list of edges stored on the stmtDetailsProc itself.
+   * Creates edges from the statement details and adds them to the list of edges stored on the stmtDetailsProc itself.
+   *
+   * @param srcVertexQID The QID of the source vertex for the edges.
    */
   public void createEdgesFromStmtDetails(String srcVertexQID) {
-    //TODO - Edges Creation Refactor
+    WikiDataEdge mainEdgeContext = createEdgeFromSnak(mainSnak, srcVertexQID, null, EDGE_SRC.MAIN_SNAK);
 
-    WikiMainSnakEdge edge = null;
-
-    switch (mainSnak.value().type()) {
-      case ENTITY:
-        edge = new WikiMainSnakEdge(srcVertexQID, mainSnak.value().value(), mainSnak.property().value(),
-            null);
-        break;
-      case STRING:
-      case QUANT:
-      case TIME:
-        edge = new WikiMainSnakEdge(srcVertexQID, null, mainSnak.property().value(),
-            mainSnak.value().value());
-        break;
-
-      default:
-        break;
-    }
-
-    edges.add(edge);
-
-    for (WikiRecSnak[] group : qualifiers) {
-      for (WikiRecSnak snak : group) {
-        WikiQualifierEdge newEdge = null;
-
-        switch (snak.value().type()) {
-          case ENTITY:
-            newEdge = new WikiQualifierEdge(srcVertexQID, snak.value().value(), edge,
-                snak.property().value(), null);
-            break;
-          case STRING:
-          case QUANT:
-          case TIME:
-            newEdge = new WikiQualifierEdge(srcVertexQID, null, edge,
-                snak.property().value(), snak.value().value());
+    if (qualifiers != null) {
+      for (WikiRecSnak[] group : qualifiers) {
+        for (WikiRecSnak snak : group) {
+          createEdgeFromSnak(snak, srcVertexQID, mainEdgeContext, EDGE_SRC.QUALIFIER);
         }
-        edges.add(newEdge);
       }
     }
   }
 
-  //------------------------------------------------------------------------------------------------------------
-  //
-  //
-  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
-  //
-  //
-  //------------------------------------------------------------------------------------------------------------
+  /**
+   * Creates an edge from a given Snak and adds it to the list of edges.
+   *
+   * @param snak The Snak to create an edge from.
+   * @param srcVertexQID The source vertex QID.
+   * @param contextEdge The context edge, if any.
+   * @param edgeSource The source of the edge.
+   * @return The created WikiDataEdge.
+   */
+  private WikiDataEdge createEdgeFromSnak(WikiRecSnak snak, String srcVertexQID, WikiDataEdge contextEdge,
+      EDGE_SRC edgeSource) {
+    WikiDataEdge edge = null;
+
+    String contextQID = contextEdge != null ? contextEdge.propertyQID() : null;
+    String contextValue = contextEdge != null ? contextEdge.tgtVertexQID() : null;
+    if (contextEdge != null && contextValue == null) {
+      contextValue = contextEdge.value();
+    }
+
+    switch (snak.value().type()) {
+      case ENTITY:
+        edge = new WikiDataEdge(srcVertexQID, snak.value().value(), snak.property().value(), null,
+            contextQID, contextValue, edgeSource);
+        break;
+      case STRING:
+      case QUANT:
+      case TIME:
+        edge = new WikiDataEdge(srcVertexQID, null, snak.property().value(), snak.value().value(),
+            contextQID, contextValue, edgeSource);
+        break;
+    }
+
+    if (edge != null) {
+      edges.add(edge);
+    }
+
+    return edge;
+  }
 
   /**
    * Checks if the Snak's datatype is among the excluded types.
