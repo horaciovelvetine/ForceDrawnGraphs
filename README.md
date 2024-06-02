@@ -38,7 +38,7 @@ Initially this project used a dataset from Kaggle, which was a smaller subset of
 
 <h3> Kensho Dataset Table Diagram </h3>
 
-![Kensho Dataset Table Diagram](docs/images/KenshoDatasetChart_v2.0.drawio.svg)
+<img src="docs/images/KenshoDatasetChart_v2.0.drawio.svg"/>
 
 
 <h3>Understanding the Dataset and Importing It</h3>
@@ -67,7 +67,7 @@ The `PreparedStatement` class is a subclass of `Statement` that allows for preco
 The below data outlines two sets of tests run inserting the dataset utilizing variable batch sizes, timing the performance, and reporting it in a log file. Initial batches are run with sizes of: 100, 1000. 2500, 500, 10000, 25000, 50000, and 100000 objects per commit, but the subsequent tests and charts will picture runs with batch sizes of: 100000, 250000, 500000, 1000000, and 10000000 objects per commit (The inital runs were recorded and iterated on, suffering at large from the same costly time per `INSERT` statement).
 
 <div align=center>
-  <img src=docs/images/PreparedStatementsChart_v1.1.1.png>
+  <img src="docs/images/PreparedStatementsChart_v1.1.1.png">
 </div>
 <p>This data was limited to inserting 10 million records from the `item.csv` set, but outlines a really interesting stepping trend emerging as the batch size reaches 250,000 objects. With each batch being run at least 3 times, then averages calculated (and displyed above) 10m & 100k batch sizes emerged as plausible, later on machine limitations would choose the 100k batch size for the final import process. A better understanding of the `PreparedStatement` class may have an explanation for the stepping trend but that lies outside the scope of this project, and will have to remain a mystery for now.</p>
 <hr>
@@ -89,7 +89,7 @@ Being a novice and finding resources for solving the big idea in your head often
 Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Wikipedia Page" in 3D space, and that the relationship between pages could be represented by the distance between them. In practice this is a pretty simple concept, so thats where I started, a pretty basic idea, averages. This led to building a tool and doing some reasearch for existing solutions for building graphs, and you can find more detail on that in this repository: [Finding Centroids](https://github.com/horaciovelvetine/finding-centroids)
 
 <a href=https://github.com/horaciovelvetine/finding-centroids>
-  <img src=docs/images/wmeans_3_vertices_2d_with_strength_radius.png>
+  <img src="docs/images/wmeans_3_vertices_2d_with_strength_radius.png"/>
 </a>
 
 <h4>Force Directed Graphs</h4>
