@@ -5,15 +5,12 @@ import edu.ForceDrawnGraphs.models.Edge;
 public class WikiDataEdge extends Edge {
   private String propertyQID; // QID of the Property
   private String value; // either QID/or String: (date, quantity, actual string, url... etc)
-  private EDGE_SRC srcType; // the WikiEnt from which the edge was constructed
-  // only used when srcType is QUALIFIER
+  private SNAK_SRC snakType; // the WikiEnt from which the edge was constructed
+  private String datatype; // the string value for .datatype() from the original snak
+
+  // below values are only used when snakType is QUALIFIER
   private String contextPropertyQID; // QID of the a property to give context to this edge
   private String contextValue;
-
-  private WikiDataEdge(String srcVertexQID, String tgtVertexQID) {
-    // called by ea. of the public constructors to handle the Edge construction
-    super(srcVertexQID, tgtVertexQID);
-  }
 
   /**
    * Constructor for a QUALIFIER sourced edge, with a property and value
@@ -24,18 +21,22 @@ public class WikiDataEdge extends Edge {
    * @param value
    * @param contextPropertyQID
    * @param contextValue
+   * @param snakType
+   * @param datatype
+   * 
    */
   public WikiDataEdge(String srcVertexQID, String tgtVertexQID, String propertyQID, String value,
-      String contextPropertyQID, String contextValue, EDGE_SRC srcType) {
-    this(srcVertexQID, tgtVertexQID);
+      String contextPropertyQID, String contextValue, SNAK_SRC snakType, String datatype) {
+    super(srcVertexQID, tgtVertexQID);
     this.propertyQID = propertyQID;
     this.value = value;
     this.contextPropertyQID = contextPropertyQID;
     this.contextValue = contextValue;
-    this.srcType = srcType;
+    this.snakType = snakType;
+    this.datatype = datatype;
   }
 
-  public enum EDGE_SRC {
+  public enum SNAK_SRC {
     MAIN_SNAK,
     QUALIFIER
   }
@@ -48,8 +49,8 @@ public class WikiDataEdge extends Edge {
     return value;
   }
 
-  public EDGE_SRC srcType() {
-    return srcType;
+  public SNAK_SRC snakType() {
+    return snakType;
   }
 
   public String contextPropertyQID() {
@@ -60,4 +61,7 @@ public class WikiDataEdge extends Edge {
     return contextValue;
   }
 
+  public String datatype() {
+    return datatype;
+  }
 }
