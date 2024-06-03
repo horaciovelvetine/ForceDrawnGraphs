@@ -11,7 +11,8 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
-import edu.ForceDrawnGraphs.models.Vertex;
+import edu.ForceDrawnGraphs.models.Property;
+import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataVertex;
 
 /**
  * A class to process the entity documents returned from the MediaWiki API and interact with the main Graphset.
@@ -38,7 +39,7 @@ public class EntDocProc implements Reportable {
     if (entDocument instanceof ItemDocument) {
       processItemDocument((ItemDocument) entDocument);
     } else if (entDocument instanceof PropertyDocument) {
-      // processPropertyDocument((PropertyDocument) entDocument);
+      processPropDocument((PropertyDocument) entDocument);
     } else {
       report("processEntDocument() unhandled document type:", entDocument.getClass().getName());
     }
@@ -60,8 +61,10 @@ public class EntDocProc implements Reportable {
    * @param itemDoc the ItemDocument to be processed.
    */
   private void processItemDocument(ItemDocument itemDoc) {
-    Vertex vertex = new Vertex(itemDoc);
-    graphset.addVertex(vertex);
+    
+    WikiDataVertex vertex = new WikiDataVertex(itemDoc);
+    graphset.addVertexToLookup(vertex);
+    // STMTS PROCESSING
     processItemForEdges(itemDoc);
   }
 
@@ -73,9 +76,10 @@ public class EntDocProc implements Reportable {
   private void processItemForEdges(ItemDocument itemDoc) {
     String srcItemQID = itemDoc.getEntityId().getId();
     List<StmtDetailsProcessor> filteredStmts = filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
+
     for (StmtDetailsProcessor stmt : filteredStmts) {
       stmt.createEdgesFromStmtDetails(srcItemQID);
-      graphset.addEdgesAndUpdateQueues(stmt.edges());
+      graphset.addEdgesToLookupAndUpdateQueues(stmt.edges());
     }
   }
 
@@ -87,6 +91,7 @@ public class EntDocProc implements Reportable {
    */
   private List<StmtDetailsProcessor> filterAllStatementsForRelevantInfo(Iterator<Statement> statements) {
     List<StmtDetailsProcessor> filteredStmts = new ArrayList<>();
+
     while (statements.hasNext()) {
       StmtDetailsProcessor stmt = new StmtDetailsProcessor(statements.next());
       if (!stmt.definesIrrelevantOrExternalInfo()) {
@@ -94,5 +99,15 @@ public class EntDocProc implements Reportable {
       }
     }
     return filteredStmts;
+  }
+
+  /**
+   * Processes a PropertyDocument by creating a new Property and adding it to the Graphset.
+   *
+   * @param propertyDocument the PropertyDocument to be processed.
+   */
+  public void processPropDocument(PropertyDocument propertyDocument) {
+    Property p = new Property(propertyDocument);
+    graphset.addPropToLookup(p);
   }
 }
