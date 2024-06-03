@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.models.wikidata.services;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,14 +10,16 @@ import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.util.ProcessTimer;
+import edu.ForceDrawnGraphs.models.Graphset;
 
 public class APIBroker implements Reportable {
   private WikibaseDataFetcher wbdf = WikibaseDataFetcher.getWikidataDataFetcher();
   private EntDocProc docProc; // The processor to notify when a document is found
+  private Graphset graphset; // The graphset to update with the found document
 
-  public APIBroker(EntDocProc docProc) {
+  public APIBroker(EntDocProc docProc, Graphset graphset) {
     this.docProc = docProc;
+    this.graphset = graphset;
   }
 
   /**
@@ -36,9 +39,26 @@ public class APIBroker implements Reportable {
 
     if (docResult != null) { // If a result is found, notify the processor and ingest the document
       docProc.processEntDocument(docResult);
+      graphset.wikiDataFetchQueue().entFetchSuccessful(docResult.getEntityId().getId());
     } else { // If no result is found, log it
-      //TODO: Add a catch for when no result is found
-      log("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
+      report("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
+    }
+  }
+
+  /**
+   * Fetches the details of all queued values in the Graphset's WikiDataFetchQueue. (from the most recently imported batch of processed statements)
+   * This method fetches all queued strings and QIDs, and processes the resultant Entities (Items, Properties, Strings, Dates, and Quantities).
+   *
+   * @param graphset The Graphset containing the WikiDataFetchQueue.
+   */
+  public void fetchQueuedValuesDetails() {
+    //TODO STRING VALUE PROCESSING - see StmtDetailsProc for first steps
+    // List<String> valuesImIgnoring = graphset.wikiDataFetchQueue().getStringQueue();
+    Map<String, EntityDocument> entDocs = fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getQIDQueue());
+
+    for (EntityDocument entDoc : entDocs.values()) {
+      docProc.processEntDocument(entDoc);
+      graphset.wikiDataFetchQueue().entFetchSuccessful(entDoc.getEntityId().getId());
     }
   }
 
@@ -90,21 +110,29 @@ public class APIBroker implements Reportable {
   }
 
   /**
-   * Fetches a list of Entity documents by their QIDs.
+   * Fetches a list of Entity documents by their QIDs, batches any request with more than batchSize QIDs.
    * 
    * @param qids The list of QIDs to fetch.
    * 
    * @return A map of QIDs to EntityDocuments, or null if an error occurred.
+   * @throws Exception 
    */
   private Map<String, EntityDocument> fetchEntitiesByQIDs(List<String> qids) {
-    try {
-      return wbdf.getEntityDocuments(qids);
-    } catch (MediaWikiApiErrorException e) {
-      log("fetchEntitiesByQIDs() unable to access the Media Wiki API:", e);
-    } catch (Exception e) {
-      log("fetchEntitiesByQIDs() error:", e);
+    Map<String, EntityDocument> result = new HashMap<>();
+    int batchSize = 50;
+
+    for (int i = 0; i < qids.size(); i += batchSize) {
+      int end = Math.min(i + batchSize, qids.size());
+      List<String> batch = qids.subList(i, end);
+
+      try {
+        result.putAll(wbdf.getEntityDocuments(batch));
+      } catch (Exception e) {
+        log("fetchEntitiesByQIDs() error:", e);
+      }
     }
-    return null;
+
+    return result;
   }
 
 }
