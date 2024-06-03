@@ -1,7 +1,8 @@
 package edu.ForceDrawnGraphs.models;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
@@ -12,15 +13,15 @@ import edu.ForceDrawnGraphs.models.wikidata.services.FetchQueue;
  */
 public class Graphset implements Reportable {
   private String originQuery; // can be used to find the origin a little bit later...
-  // private ArrayList<Property> properties; // LocalStore for any properties that are fetched from the API
-  private ArrayList<Edge> edges; // In theory these may become a network as the Guava library is integrated
-  private ArrayList<Vertex> vertices; // ditto
+  private Set<Property> properties; // LocalStore for any properties that are fetched from the API
+  private Set<Edge> edges; // In theory these may become a network as the Guava library is integrated
+  private Set<Vertex> vertices; // ditto
   private FetchQueue wikiDataFetchQueue; // Queue of ent details to fetch from the Wikidata API
 
   public Graphset() {
-    this.vertices = new ArrayList<>();
-    this.edges = new ArrayList<>();
-    // this.properties = new ArrayList<>();
+    this.vertices = new HashSet<>();
+    this.edges = new HashSet<>();
+    this.properties = new HashSet<>();
     this.wikiDataFetchQueue = new FetchQueue();
   }
 
@@ -32,11 +33,11 @@ public class Graphset implements Reportable {
     return originQuery;
   }
 
-  public ArrayList<Vertex> vertices() {
+  public Set<Vertex> vertices() {
     return vertices;
   }
 
-  public ArrayList<Edge> edges() {
+  public Set<Edge> edges() {
     return edges;
   }
 
@@ -47,7 +48,7 @@ public class Graphset implements Reportable {
   //------------------------------------------------------------------------------------------------------------
   //
   //
-  //* ADD METHODS - ADD METHODS - ADD METHODS - ADD METHODS - ADD METHODS - ADD METHODS - ADD METHODS - ADD METHODS
+  //* PUBLIC ADD METHODS - PUBLIC ADD METHODS - PUBLIC ADD METHODS - PUBLIC ADD METHODS - PUBLIC ADD METHODS
   //
   //
   //------------------------------------------------------------------------------------------------------------
@@ -57,9 +58,24 @@ public class Graphset implements Reportable {
    * @param vertex Vertex to add to the Graphset storage.
    * 
    */
-  public void addVertex(Vertex vertex) {
-    if (!vertices.contains(vertex))
-      vertices.add(vertex);
+  public void addVertexToLookup(Vertex vertex) {
+    if (vertexDetailsAlreadyPresent(vertex))
+      return;
+
+    vertices.add(vertex);
+  }
+
+  /**
+   * Adds a property to the Graphset storage.
+   * 
+   * @param property Property to add to the Graphset storage.
+   * 
+   */
+  public void addPropToLookup(Property property) {
+    if (propertyDetailsAlreadyPresent(property))
+      return;
+
+    properties.add(property);
   }
 
   /**
@@ -68,23 +84,51 @@ public class Graphset implements Reportable {
    * @param newEdges List of edges to add to the Graphset storage.
    * 
    */
-  public void addEdgesAndUpdateQueues(List<Edge> newEdges) {
+  public void addEdgesToLookupAndUpdateQueues(List<Edge> newEdges) {
     for (Edge edge : newEdges) {
-      // add edge to Graphset storage
       edges.add(edge);
       // add edge details to appropriate fetchQueue for further processing
+      // fetchQueue ignores duplicates
       if (edge instanceof WikiDataEdge) {
-        wikiDataFetchQueue.addWikiDataEdgeDetailsToQueue((WikiDataEdge) edge);
+        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) edge);
       }
     }
   }
 
   //------------------------------------------------------------------------------------------------------------
   //
-  //
-  //! PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS // PRIVATE METHODS
-  //
+  //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
   //
   //------------------------------------------------------------------------------------------------------------
 
+  /**
+   * 
+   * The unique aspects of a Vertex will be its ID and Label. Prevents adding already existing vertices to the Graphset. 
+   */
+  private boolean vertexDetailsAlreadyPresent(Vertex newVertex) {
+    // alias for passing in the ID
+    return vertexDetailsAlreadyPresent(newVertex.ID());
+  }
+
+  private boolean vertexDetailsAlreadyPresent(String newVertexID) {
+    for (Vertex vertex : vertices) {
+      if (vertex.ID().equals(newVertexID)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * The unique aspects of a Property will be its ID. Prevents adding already existing properties to the Graphset. 
+   */
+  private boolean propertyDetailsAlreadyPresent(Property newProperty) {
+    for (Property property : properties) {
+      if (property.ID().equals(newProperty.ID())) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
