@@ -11,7 +11,7 @@ public class FuzzyStringMatch {
   public static List<Vertex> fuzzyMatch(String target, List<Vertex> vertices) {
     List<VertexDistance> distances = new ArrayList<>();
     for (Vertex vertex : vertices) {
-      int distance = LevenshteinStringMatch.computeLevenshteinDistance(target, vertex.details().label());
+      int distance = LevenshteinStringMatch.computeLevenshteinDistance(target, vertex.label());
       distances.add(new VertexDistance(vertex, distance));
     }
 
