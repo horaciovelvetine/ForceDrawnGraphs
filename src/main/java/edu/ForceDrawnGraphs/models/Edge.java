@@ -3,23 +3,22 @@ package edu.ForceDrawnGraphs.models;
 import java.util.Objects;
 
 public class Edge {
-  private String srcVertexQID;
-  private String tgtVertexQID;
+  private String srcVertexID;
+  private String tgtVertexID;
   private double weight;
 
   public Edge(String srcVertexQID, String tgtVertexQID) {
     // this.details = details;
-    this.srcVertexQID = srcVertexQID;
-    this.tgtVertexQID = tgtVertexQID;
+    this.srcVertexID = srcVertexQID;
+    this.tgtVertexID = tgtVertexQID;
   }
 
-
   public String srcVertexQID() {
-    return srcVertexQID;
+    return srcVertexID;
   }
 
   public String tgtVertexQID() {
-    return tgtVertexQID;
+    return tgtVertexID;
   }
 
   @Override
@@ -30,12 +29,12 @@ public class Edge {
       return false;
     Edge edge = (Edge) o;
     return Double.compare(edge.weight, weight) == 0 &&
-        Objects.equals(srcVertexQID, edge.srcVertexQID) &&
-        Objects.equals(tgtVertexQID, edge.tgtVertexQID);
+        Objects.equals(srcVertexID, edge.srcVertexID) &&
+        Objects.equals(tgtVertexID, edge.tgtVertexID);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(srcVertexQID, tgtVertexQID, weight);
+    return Objects.hash(srcVertexID, tgtVertexID, weight);
   }
 }
