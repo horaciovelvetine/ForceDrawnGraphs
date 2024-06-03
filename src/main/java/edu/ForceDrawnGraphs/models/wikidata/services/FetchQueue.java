@@ -1,29 +1,65 @@
 package edu.ForceDrawnGraphs.models.wikidata.services;
 
 import java.util.List;
+import java.util.Set;
 
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Line at the DMV but for QID strings retrieved during the ingest process.
  */
 
 public class FetchQueue {
-  private List<StringTarget> stringQueue;
-  private List<EntityTarget> entityQueue;
-  private List<PropertyTarget> propertyQueue;
+  private Set<StringTarget> stringQueue;
+  private Set<EntityTarget> entityQueue;
+  private Set<PropertyTarget> propertyQueue;
+  private Set<ValueTarget> fetchedValues;
 
   public FetchQueue() {
-    stringQueue = new ArrayList<>();
-    entityQueue = new ArrayList<>();
-    propertyQueue = new ArrayList<>();
+    stringQueue = new HashSet<>();
+    entityQueue = new HashSet<>();
+    propertyQueue = new HashSet<>();
+    fetchedValues = new HashSet<>();
   }
+
+  //UTIL--------------------------------------------------------------------------------------------------------
 
   public boolean hasItems() {
     return !stringQueue.isEmpty() && !entityQueue.isEmpty() && !propertyQueue.isEmpty();
   }
+
+  public List<String> getStringQueue() {
+    return stringQueue.stream().map(item -> item.string).toList();
+  }
+
+  public List<String> getEntQueue() {
+    return entityQueue.stream().map(item -> item.QID).toList();
+  }
+
+  public List<String> getPropQueue() {
+    return propertyQueue.stream().map(item -> item.QID).toList();
+  }
+
+  /**
+   * @returns a list of both entity and property QID values.
+   */
+  public List<String> getQIDQueue() {
+    List<String> qids = new ArrayList<>();
+    qids.addAll(getPropQueue());
+    qids.addAll(getEntQueue());
+    return qids;
+  }
+
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //
+  //* PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS // PUBLIC METHODS
+  //
+  //
+  //------------------------------------------------------------------------------------------------------------
 
   /**
   * Adds the details of a WikiDataEdge to the fetchQueue for further processing.
@@ -31,22 +67,32 @@ public class FetchQueue {
   * @param edge WikiDataEdge to add details to the fetchQueue.
   * 
   */
-  public void addWikiDataEdgeDetailsToQueue(WikiDataEdge edge) {
-    // add propertyQID to fetchQueue if not already present
-    if (!queueContainsProperty(edge.propertyQID()))
+  public void addWikiDataEdgeDetails(WikiDataEdge edge) {
+
+    String propQID = edge.propertyQID();
+    String tgtVertQID = edge.tgtVertexQID();
+    String value = edge.value();
+
+    if (valueFetched(propQID) || !queueContainsProperty(propQID))
       addPropertyToQueue(edge.propertyQID());
 
     if (edge.tgtVertexQID() != null) {
-      // add tgtVertexQID to fetchQueue if not already present
-      if (!queueContainsEntity(edge.tgtVertexQID()))
+      if (valueFetched(tgtVertQID) || !queueContainsEntity(tgtVertQID))
         addEntityToQueue(edge.tgtVertexQID());
     }
 
     if (edge.value() != null) {
-      // add value to fetchQueue if not already present
-      if (!queueContainsString(edge.value()))
-        addStringToQueue(edge.value());
+      if (valueFetched(value) || !queueContainsString(value))
+        addStringToQueue(value);
     }
+  }
+
+  public void entFetchSuccessful(String fetchedEntQID) {
+    entityQueue.removeIf(item -> item.QID.equals(fetchedEntQID));
+    propertyQueue.removeIf(item -> item.QID.equals(fetchedEntQID));
+    stringQueue.removeIf(item -> item.string.equals(fetchedEntQID));
+
+    fetchedValues.add(new ValueTarget(fetchedEntQID));
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -81,6 +127,10 @@ public class FetchQueue {
     return propertyQueue.stream().anyMatch(item -> item.QID.equals(QID));
   }
 
+  private boolean valueFetched(String value) {
+    return fetchedValues.stream().anyMatch(item -> item.value.equals(value));
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -89,12 +139,15 @@ public class FetchQueue {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  public record StringTarget(String string) {
+  private record StringTarget(String string) {
   }
 
-  public record EntityTarget(String QID) {
+  private record EntityTarget(String QID) {
   }
 
-  public record PropertyTarget(String QID) {
+  private record PropertyTarget(String QID) {
+  }
+
+  private record ValueTarget(String value) {
   }
 }
