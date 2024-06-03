@@ -1,41 +1,57 @@
 package edu.ForceDrawnGraphs.models;
 
-import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
-
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecItem;
-
-/**
- * Class which functions as the vertex (node) of a given Graphset.
- * Contains the WikiDocItemDetails (label, desc, QID) from the Wikimedia API. 
- * 
- */
 public class Vertex {
-  private WikiRecItem details;
-  // private double x = 0.0;
-  // private double y = 0.0;
-  // private double z = 0.0;
+  private String ID;
+  private String label;
+  private double x = 0.0;
+  private double y = 0.0;
+  private double z = 0.0;
 
-  public Vertex(ItemDocument document) {
-    this.details = new WikiRecItem(document);
+  public Vertex(String ID, String label) {
+    this.ID = ID;
+    this.label = label;
   }
 
-  public WikiRecItem details() {
-    return details;
+  public String ID() {
+    return ID;
+  }
+
+  public void setID(String ID) {
+    this.ID = ID;
+  }
+
+  public String label() {
+    return label;
+  }
+
+  public void setLabel(String label) {
+    this.label = label;
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o)
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
-    Vertex vertex = (Vertex) o;
-    return details.equals(vertex.details);
+    }
+    Vertex other = (Vertex) obj;
+    return ID == other.ID && Double.compare(x, other.x) == 0 && Double.compare(y, other.y) == 0
+        && Double.compare(z, other.z) == 0;
   }
 
   @Override
   public int hashCode() {
-    return details.hashCode();
+    int result = 17;
+    long xBits = Double.doubleToLongBits(x);
+    long yBits = Double.doubleToLongBits(y);
+    long zBits = Double.doubleToLongBits(z);
+    result = 31 * result;
+    result = 31 * result + (int) (xBits ^ (xBits >>> 32));
+    result = 31 * result + (int) (yBits ^ (yBits >>> 32));
+    result = 31 * result + (int) (zBits ^ (zBits >>> 32));
+    return result;
   }
 
 }
