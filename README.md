@@ -24,9 +24,7 @@
 
 <div align=center>
   <a href=https://www.wikidata.org/wiki/Wikidata:Main_Page>
-    <img src=docs/images/Wikidata-logo-en.svg width=175>
-  </a><a href=https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data>
-    <img src=docs/images/Kensho-data-en.svg width=175>
+    <img src="docs/images/Wikidata-logo-en.svg" width=225>
   </a>
 <h2>The Data</h2>
 <br>
