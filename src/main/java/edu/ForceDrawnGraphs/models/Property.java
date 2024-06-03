@@ -1,38 +1,28 @@
 package edu.ForceDrawnGraphs.models;
 
-public class Property {
-  private String ID;
-  private String label;
-  private String description;
+import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 
-  public Property(String ID) {
-    this.ID = ID;
+/**
+ * Class which is functionally connected to many edges in the graphset, containing details about the nature of an Edge.
+ */
+public record Property(String ID, String label, String description) {
+
+  public Property {
+    if (ID == null) {
+      throw new IllegalArgumentException("ID cannot be null");
+    }
   }
 
-  public String ID() {
-    return ID;
-  }
-
-  public String label() {
-    return label;
-  }
-
-  public String description() {
-    return description;
-  }
-
-  public void setLabel(String label) {
-    this.label = label;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
+  public Property(PropertyDocument propertyDocument) {
+    this(propertyDocument.getEntityId().getId(),
+        propertyDocument.findLabel("en"),
+        propertyDocument.findDescription("en"));
   }
 
   @Override
   public String toString() {
-    return "WMPropertyEnt{" +
-        "QID='" + ID + '\'' +
+    return "Property{" +
+        "ID='" + ID + '\'' +
         ", label='" + label + '\'' +
         ", description='" + description + '\'' +
         '}';
