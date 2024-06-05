@@ -3,16 +3,16 @@ package edu.ForceDrawnGraphs.models.wikidata.services;
 import java.util.List;
 import java.util.Set;
 
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
  * Line at the DMV but for QID strings retrieved during the ingest process.
  */
 
-public class FetchQueue {
+public class FetchQueue implements Reportable {
   private Set<StringTarget> stringQueue;
   private Set<EntityTarget> entityQueue;
   private Set<PropertyTarget> propertyQueue;
@@ -43,16 +43,6 @@ public class FetchQueue {
     return propertyQueue.stream().map(item -> item.QID).toList();
   }
 
-  /**
-   * @returns a list of both entity and property QID values.
-   */
-  public List<String> getQIDQueue() {
-    List<String> qids = new ArrayList<>();
-    qids.addAll(getPropQueue());
-    qids.addAll(getEntQueue());
-    return qids;
-  }
-
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -73,6 +63,9 @@ public class FetchQueue {
     String tgtVertQID = edge.tgtVertexQID();
     String value = edge.value();
 
+    //600 string value targets can't come from the first round,
+    // they have to be being added here w/o any qualification
+
     if (valueFetched(propQID) || !queueContainsProperty(propQID))
       addPropertyToQueue(edge.propertyQID());
 
@@ -87,7 +80,7 @@ public class FetchQueue {
     }
   }
 
-  public void entFetchSuccessful(String fetchedEntQID) {
+  public void fetchSuccessful(String fetchedEntQID) {
     entityQueue.removeIf(item -> item.QID.equals(fetchedEntQID));
     propertyQueue.removeIf(item -> item.QID.equals(fetchedEntQID));
     stringQueue.removeIf(item -> item.string.equals(fetchedEntQID));
