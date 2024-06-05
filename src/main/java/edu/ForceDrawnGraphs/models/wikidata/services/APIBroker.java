@@ -3,7 +3,9 @@ package edu.ForceDrawnGraphs.models.wikidata.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
@@ -39,7 +41,7 @@ public class APIBroker implements Reportable {
 
     if (docResult != null) { // If a result is found, notify the processor and ingest the document
       docProc.processEntDocument(docResult);
-      graphset.wikiDataFetchQueue().entFetchSuccessful(docResult.getEntityId().getId());
+      graphset.wikiDataFetchQueue().fetchSuccessful(docResult.getEntityId().getId());
     } else { // If no result is found, log it
       report("fuzzyFetchOriginEntityDocument() no result found for target: " + target);
     }
@@ -54,12 +56,14 @@ public class APIBroker implements Reportable {
   public void fetchQueuedValuesDetails() {
     //TODO STRING VALUE PROCESSING - see StmtDetailsProc for first steps
     // List<String> valuesImIgnoring = graphset.wikiDataFetchQueue().getStringQueue();
-    Map<String, EntityDocument> entDocs = fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getQIDQueue());
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    CompletableFuture<Void> entFuture =
+        CompletableFuture.runAsync(() -> fetchAndProcessEntDocs(), executor);
+    CompletableFuture<Void> propFuture =
+        CompletableFuture.runAsync(() -> fetchAndProcessPropDocs(), executor);
 
-    for (EntityDocument entDoc : entDocs.values()) {
-      docProc.processEntDocument(entDoc);
-      graphset.wikiDataFetchQueue().entFetchSuccessful(entDoc.getEntityId().getId());
-    }
+    CompletableFuture.allOf(entFuture, propFuture).join();
+    executor.shutdown();
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -69,6 +73,24 @@ public class APIBroker implements Reportable {
   //
   //
   //------------------------------------------------------------------------------------------------------------
+
+  private void fetchAndProcessPropDocs() {
+    Map<String, EntityDocument> docs =
+        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getPropQueue());
+    for (EntityDocument propDoc : docs.values()) {
+      graphset.wikiDataFetchQueue().fetchSuccessful(propDoc.getEntityId().getId());
+      docProc.processEntDocument(propDoc);
+    }
+  }
+
+  private void fetchAndProcessEntDocs() {
+    Map<String, EntityDocument> docs =
+        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getEntQueue());
+    for (EntityDocument entDoc : docs.values()) {
+      graphset.wikiDataFetchQueue().fetchSuccessful(entDoc.getEntityId().getId());
+      docProc.processEntDocument(entDoc);
+    }
+  }
 
   /**
    * Fetch an EntityDocument by querying Entitiy labels for the provided (default: "enwiki") wiki.
