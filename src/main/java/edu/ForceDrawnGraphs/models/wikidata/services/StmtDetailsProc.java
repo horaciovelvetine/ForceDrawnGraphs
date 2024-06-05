@@ -10,43 +10,27 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
-import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.wikidata.models.UnknownSnakVisitor;
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecSnak;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge.SNAK_SRC;;
 
 /**
- * Processes statement details to extract relevant information for graph visualization.
+ * Represents a single Wikidata Statement sourced from an EntDocument, and processes the details to create Edges. 
  */
 class StmtDetailsProcessor implements Reportable {
   private final UnknownSnakVisitor snakVisitor = new UnknownSnakVisitor();
+  private final Statement srcStmt;
+  // STATEMENT DETAILS COPIED DIRECTLY
   private final WikiRecSnak mainSnak;
   private final List<WikiRecSnak[]> qualifiers;
-  private final List<Edge> edges = new ArrayList<>(); // all edges derived from the statement details
-  private static final Set<String> EXCLUDED_DATA_TYPES = Set.of(
-      "external-id",
-      "monolingualtext",
-      "commonsMedia",
-      "url",
-      "globe-coordinate",
-      "geo-shape");
-  private static final Set<String> KNOWN_INCLUDED_DATA_TYPES = Set.of(
-      "wikibase-item",
-      "wikibase-property",
-      "wikibase-lexeme", //TODO: These edges are "experimental" and likely to be removed
-      "string",
-      "quantity",
-      "time");
-  private static final Set<String> EXCLUDED_PROPERTIES = Set.of(
-      "P1343",
-      "P143",
-      "P935",
-      "P8687",
-      "P3744",
-      "P18",
-      "P373",
-      "P856");
+  // DATA DERIVED FROM STATEMENT DETAILS
+  private final List<Edge> edges = new ArrayList<>();
+
+  // EXCLUSION//INCLUSION//TESTING CRITERIA
+  private static final Set<String> EXCLUDED_DATA_TYPES = Set.of("external-id", "monolingualtext",
+      "commonsMedia", "url", "globe-coordinate", "geo-shape", "wikibase-lexeme");
+  private static final Set<String> EXCLUDED_PROPERTIES = Set.of("P1343", "P143", "P935", "P8687",
+      "P3744", "P18", "P373", "P856", "P1748", "P21", "P11889", "P1424", "P11527", "P1545");
 
   /**
    * Constructs a processor for a given Wikidata statement.
@@ -54,6 +38,7 @@ class StmtDetailsProcessor implements Reportable {
    * @param statement The Wikidata statement to process.
    */
   public StmtDetailsProcessor(Statement statement) {
+    this.srcStmt = statement;
     this.mainSnak = statement.getMainSnak().accept(snakVisitor);
     this.qualifiers = collectSnakGroupedDetails(statement.getQualifiers());
   }
@@ -68,12 +53,12 @@ class StmtDetailsProcessor implements Reportable {
   }
 
   /**
-   * Determines if the processed statement contains irrelevant or external information based on predefined criteria.
+   * Determines if the mainSnak contains irrelevant or external information based on predefined criteria.
    *
    * @return True if the statement is considered irrelevant or external, false otherwise.
    */
   public boolean definesIrrelevantOrExternalInfo() {
-    return mainSnak == null || isExcludedDataType(mainSnak) || isExcludedProperty(mainSnak);
+    return isExcludedDataType(mainSnak) || isExcludedProperty(mainSnak);
   }
 
   /**
@@ -82,20 +67,30 @@ class StmtDetailsProcessor implements Reportable {
    * @param srcVertexQID The QID of the source vertex for the edges.
    */
   public void createEdgesFromStmtDetails(String srcVertexQID) {
-    WikiDataEdge mainEdgeContext = createEdgeFromSnak(mainSnak, srcVertexQID, null, SNAK_SRC.MAIN_SNAK);
+
+    WikiDataEdge mainEdgeContext = new WikiDataEdge(mainSnak, srcVertexQID);
+    edges.add(mainEdgeContext);
+
 
     if (qualifiers != null) {
       for (WikiRecSnak[] group : qualifiers) {
+        int groupID = 1;
+
         for (WikiRecSnak snak : group) {
           // Skip excluded qualifier snaks on same critieria as main snak...
           if (isExcludedDataType(snak) || isExcludedProperty(snak)) {
             continue;
           }
-          createEdgeFromSnak(snak, srcVertexQID, mainEdgeContext, SNAK_SRC.QUALIFIER);
+          WikiDataEdge qualifierEdge = new WikiDataEdge(snak, mainEdgeContext, groupID);
+          if (qualifierEdge != null) {
+            edges.add(qualifierEdge);
+          }
         }
+        groupID++;
       }
     }
   }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -105,66 +100,13 @@ class StmtDetailsProcessor implements Reportable {
   //------------------------------------------------------------------------------------------------------------
 
   /**
-   * Creates an edge from a given Snak and adds it to the list of edges.
-   *
-   * @param snak The Snak to create an edge from.
-   * @param srcVertexQID The source vertex QID.
-   * @param contextEdge The context edge, if any.
-   * @param edgeSource The source of the edge.
-   * @return The created WikiDataEdge.
-   */
-  private WikiDataEdge createEdgeFromSnak(WikiRecSnak snak, String srcVertexQID, WikiDataEdge contextEdge,
-      SNAK_SRC edgeSource) {
-    WikiDataEdge edge = null;
-
-    String contextQID = contextEdge != null ? contextEdge.propertyQID() : null;
-    String contextValue = contextEdge != null ? contextEdge.tgtVertexQID() : null;
-
-    if (contextEdge != null && contextValue == null) {
-      contextValue = contextEdge.value();
-    }
-
-    switch (snak.value().type()) {
-      case ENTITY:
-        edge = new WikiDataEdge(srcVertexQID, snak.value().value(), snak.property().value(), null,
-            contextQID, contextValue, edgeSource, snak.datatype());
-        break;
-      //TODO STRING VALUE PROCESSING
-      case STRING:
-      case QUANT:
-      case TIME:
-        edge = new WikiDataEdge(srcVertexQID, null, snak.property().value(), snak.value().value(),
-            contextQID, contextValue, edgeSource, snak.datatype());
-        break;
-    }
-
-    if (edge != null) {
-      edges.add(edge);
-    }
-    return edge;
-  }
-
-  //------------------------------------------------------------------------------------------------------------
-  //
-  //
-  //* ENT VALIDATION METHODS - ENT VALIDATION METHODS - ENT VALIDATION METHODS - ENT VALIDATION METHODS  
-  //
-  //
-  //------------------------------------------------------------------------------------------------------------
-
-  /**
-   * Checks if the Snak's datatype is among the excluded types.
+   * Checks if the Snak's missing values or the datatype is among the pre-excluded.
    *
    * @param snak The Snak to check.
    * @return True if the datatype is excluded, false otherwise.
    */
   private boolean isExcludedDataType(WikiRecSnak snak) {
-    if (snak == null) {
-      return true;
-    }
-    //TODO REMOVE AS TESTING CONSISTENTLY SHOWS NO MISSED DATA TYPES
-    if (!KNOWN_INCLUDED_DATA_TYPES.contains(snak.datatype()) && !EXCLUDED_DATA_TYPES.contains(snak.datatype())) {
-      report("Unknown datatype found:", snak.datatype());
+    if (snak == null || snak.value() == null || snak.property() == null) {
       return true;
     }
     return EXCLUDED_DATA_TYPES.contains(snak.datatype());
@@ -177,7 +119,7 @@ class StmtDetailsProcessor implements Reportable {
    * @return True if the property is excluded, false otherwise.
    */
   private boolean isExcludedProperty(WikiRecSnak snak) {
-    return isPropertyInList(snak.property().value());
+    return isPropertyInExcludeList(snak.property().value());
   }
 
   /**
@@ -186,7 +128,7 @@ class StmtDetailsProcessor implements Reportable {
    * @param propertyId The property ID to check.
    * @return True if the property ID is found in the list, false otherwise.
    */
-  private boolean isPropertyInList(String propertyId) {
+  private boolean isPropertyInExcludeList(String propertyId) {
     for (String id : EXCLUDED_PROPERTIES) {
       if (propertyId.equals(id)) {
         return true;
