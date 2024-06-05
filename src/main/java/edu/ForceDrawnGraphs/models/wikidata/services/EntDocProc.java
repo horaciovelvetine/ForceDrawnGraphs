@@ -61,7 +61,7 @@ public class EntDocProc implements Reportable {
    * @param itemDoc the ItemDocument to be processed.
    */
   private void processItemDocument(ItemDocument itemDoc) {
-    
+
     WikiDataVertex vertex = new WikiDataVertex(itemDoc);
     graphset.addVertexToLookup(vertex);
     // STMTS PROCESSING
@@ -75,7 +75,8 @@ public class EntDocProc implements Reportable {
    */
   private void processItemForEdges(ItemDocument itemDoc) {
     String srcItemQID = itemDoc.getEntityId().getId();
-    List<StmtDetailsProcessor> filteredStmts = filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
+    List<StmtDetailsProcessor> filteredStmts =
+        filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
 
     for (StmtDetailsProcessor stmt : filteredStmts) {
       stmt.createEdgesFromStmtDetails(srcItemQID);
@@ -89,7 +90,8 @@ public class EntDocProc implements Reportable {
    * @param statements the iterator of statements to be processed.
    * @return A list of StmtDetailsProcessor containing relevant statements.
    */
-  private List<StmtDetailsProcessor> filterAllStatementsForRelevantInfo(Iterator<Statement> statements) {
+  private List<StmtDetailsProcessor> filterAllStatementsForRelevantInfo(
+      Iterator<Statement> statements) {
     List<StmtDetailsProcessor> filteredStmts = new ArrayList<>();
 
     while (statements.hasNext()) {
