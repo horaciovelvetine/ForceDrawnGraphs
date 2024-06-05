@@ -24,4 +24,13 @@ public record WikiRecValue(TXT_VAL_TYPE type, String value, String refUrl) {
     // value input is DateFormatted String (YYYY-MM-DD)
     this(TXT_VAL_TYPE.TIME, value, null);
   }
+
+  /**
+   * @return type (TXT VALUE), value, refUrl as strings
+   */
+  @Override
+  public String toString() {
+    return "WikiRecValue{" + "type=" + type + ", value='" + value + '\'' + ", refUrl='" + refUrl
+        + '\'' + '}';
+  }
 }
