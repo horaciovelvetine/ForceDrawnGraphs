@@ -14,17 +14,13 @@ public record Property(String ID, String label, String description) {
   }
 
   public Property(PropertyDocument propertyDocument) {
-    this(propertyDocument.getEntityId().getId(),
-        propertyDocument.findLabel("en"),
+    this(propertyDocument.getEntityId().getId(), propertyDocument.findLabel("en"),
         propertyDocument.findDescription("en"));
   }
 
   @Override
   public String toString() {
-    return "Property{" +
-        "ID='" + ID + '\'' +
-        ", label='" + label + '\'' +
-        ", description='" + description + '\'' +
-        '}';
+    return "Property{" + "ID='" + ID + '\'' + ", label='" + label + '\'' + ", description='"
+        + description + '\'' + '}';
   }
 }
