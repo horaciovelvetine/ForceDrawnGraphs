@@ -28,9 +28,8 @@ public class Edge {
     if (o == null || getClass() != o.getClass())
       return false;
     Edge edge = (Edge) o;
-    return Double.compare(edge.weight, weight) == 0 &&
-        Objects.equals(srcVertexID, edge.srcVertexID) &&
-        Objects.equals(tgtVertexID, edge.tgtVertexID);
+    return Double.compare(edge.weight, weight) == 0 && Objects.equals(srcVertexID, edge.srcVertexID)
+        && Objects.equals(tgtVertexID, edge.tgtVertexID);
   }
 
   @Override
