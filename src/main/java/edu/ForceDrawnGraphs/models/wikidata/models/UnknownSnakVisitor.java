@@ -21,7 +21,8 @@ public class UnknownSnakVisitor implements SnakVisitor<WikiRecSnak>, Reportable 
       return new WikiRecSnak((ValueSnakImpl) snak, valueVisitor);
     } else {
       report("Unhandled Snak type @ visit(): " + snak.getClass().getName());
-      throw new IllegalArgumentException("Unhandled Snak type @ visit(): " + snak.getClass().getName());
+      throw new IllegalArgumentException(
+          "Unhandled Snak type @ visit(): " + snak.getClass().getName());
     }
   }
 
