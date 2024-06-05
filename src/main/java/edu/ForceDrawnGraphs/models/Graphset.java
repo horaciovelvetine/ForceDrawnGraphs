@@ -85,12 +85,10 @@ public class Graphset implements Reportable {
    * 
    */
   public void addEdgesToLookupAndUpdateQueues(List<Edge> newEdges) {
-    for (Edge edge : newEdges) {
-      edges.add(edge);
-      // add edge details to appropriate fetchQueue for further processing
-      // fetchQueue ignores duplicates
-      if (edge instanceof WikiDataEdge) {
-        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) edge);
+    for (Edge newEdge : newEdges) {
+      if (newEdge instanceof WikiDataEdge) {
+        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) newEdge);
+        edges.add(newEdge);
       }
     }
   }
@@ -103,7 +101,7 @@ public class Graphset implements Reportable {
 
   /**
    * 
-   * The unique aspects of a Vertex will be its ID and Label. Prevents adding already existing vertices to the Graphset. 
+   * The unique aspects of a Vertex will be its ID. Prevents adding already existing vertices to the Graphset. 
    */
   private boolean vertexDetailsAlreadyPresent(Vertex newVertex) {
     // alias for passing in the ID
