@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models.wikidata.services;
+package edu.ForceDrawnGraphs.wikidata.services;
 
 import java.util.HashMap;
 import java.util.List;
@@ -53,16 +53,17 @@ public class APIBroker implements Reportable {
    *
    * @param graphset The Graphset containing the WikiDataFetchQueue.
    */
-  public void fetchQueuedValuesDetails() {
-    //TODO STRING VALUE PROCESSING - see StmtDetailsProc for first steps
-    // List<String> valuesImIgnoring = graphset.wikiDataFetchQueue().getStringQueue();
+  public void fetchQueuedValuesDetails(Integer depth) {
+    //TODO STRING VALUE PROCESSING
     ExecutorService executor = Executors.newFixedThreadPool(2);
+
     CompletableFuture<Void> entFuture =
-        CompletableFuture.runAsync(() -> fetchAndProcessEntDocs(), executor);
+        CompletableFuture.runAsync(() -> fetchAndProcessEntDocs(depth), executor);
     CompletableFuture<Void> propFuture =
-        CompletableFuture.runAsync(() -> fetchAndProcessPropDocs(), executor);
+        CompletableFuture.runAsync(() -> fetchAndProcessPropDocs(depth), executor);
 
     CompletableFuture.allOf(entFuture, propFuture).join();
+    print("Depth fetch complete " + depth);
     executor.shutdown();
   }
 
@@ -74,18 +75,18 @@ public class APIBroker implements Reportable {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  private void fetchAndProcessPropDocs() {
+  private void fetchAndProcessPropDocs(Integer depth) {
     Map<String, EntityDocument> docs =
-        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getPropQueue());
+        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getPropertyQueue(depth));
     for (EntityDocument propDoc : docs.values()) {
       graphset.wikiDataFetchQueue().fetchSuccessful(propDoc.getEntityId().getId());
       docProc.processEntDocument(propDoc);
     }
   }
 
-  private void fetchAndProcessEntDocs() {
+  private void fetchAndProcessEntDocs(Integer depth) {
     Map<String, EntityDocument> docs =
-        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getEntQueue());
+        fetchEntitiesByQIDs(graphset.wikiDataFetchQueue().getEntityQueue(depth));
     for (EntityDocument entDoc : docs.values()) {
       graphset.wikiDataFetchQueue().fetchSuccessful(entDoc.getEntityId().getId());
       docProc.processEntDocument(entDoc);
@@ -151,6 +152,7 @@ public class APIBroker implements Reportable {
         result.putAll(wbdf.getEntityDocuments(batch));
       } catch (Exception e) {
         log("fetchEntitiesByQIDs() error:", e);
+        // establish some sort of dead node, or type of vertex that leads to incomplete or errored data
       }
     }
 

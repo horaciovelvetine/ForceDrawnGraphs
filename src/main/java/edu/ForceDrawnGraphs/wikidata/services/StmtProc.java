@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models.wikidata.services;
+package edu.ForceDrawnGraphs.wikidata.services;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +10,14 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
-import edu.ForceDrawnGraphs.models.wikidata.models.UnknownSnakVisitor;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecSnak;
+import edu.ForceDrawnGraphs.wikidata.models.UnknownSnakVisitor;
+import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
+import edu.ForceDrawnGraphs.wikidata.models.WikiRecSnak;
 
 /**
  * Represents a single Wikidata Statement sourced from an EntDocument, and processes the details to create Edges. 
  */
-class StmtDetailsProcessor implements Reportable {
+public class StmtProc implements Reportable {
   private final UnknownSnakVisitor snakVisitor = new UnknownSnakVisitor();
   private final Statement srcStmt;
   // STATEMENT DETAILS COPIED DIRECTLY
@@ -37,7 +37,7 @@ class StmtDetailsProcessor implements Reportable {
    *
    * @param statement The Wikidata statement to process.
    */
-  public StmtDetailsProcessor(Statement statement) {
+  public StmtProc(Statement statement) {
     this.srcStmt = statement;
     this.mainSnak = statement.getMainSnak().accept(snakVisitor);
     this.qualifiers = collectSnakGroupedDetails(statement.getQualifiers());

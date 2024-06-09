@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models.wikidata.models;
+package edu.ForceDrawnGraphs.wikidata.models;
 
 import org.wikidata.wdtk.datamodel.interfaces.EntityIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.GlobeCoordinatesValue;

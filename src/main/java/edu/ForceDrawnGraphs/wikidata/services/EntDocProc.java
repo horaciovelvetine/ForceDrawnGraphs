@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models.wikidata.services;
+package edu.ForceDrawnGraphs.wikidata.services;
 
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +12,7 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Property;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataVertex;
+import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
 
 /**
  * A class to process the entity documents returned from the MediaWiki API and interact with the main Graphset.
@@ -61,7 +61,6 @@ public class EntDocProc implements Reportable {
    * @param itemDoc the ItemDocument to be processed.
    */
   private void processItemDocument(ItemDocument itemDoc) {
-
     WikiDataVertex vertex = new WikiDataVertex(itemDoc);
     graphset.addVertexToLookup(vertex);
     // STMTS PROCESSING
@@ -75,12 +74,11 @@ public class EntDocProc implements Reportable {
    */
   private void processItemForEdges(ItemDocument itemDoc) {
     String srcItemQID = itemDoc.getEntityId().getId();
-    List<StmtDetailsProcessor> filteredStmts =
-        filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
-
-    for (StmtDetailsProcessor stmt : filteredStmts) {
+    List<StmtProc> filteredStmts = filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
+    
+    for (StmtProc stmt : filteredStmts) {
       stmt.createEdgesFromStmtDetails(srcItemQID);
-      graphset.addEdgesToLookupAndUpdateQueues(stmt.edges());
+      graphset.addEdgesToLookupAndQueue(stmt);
     }
   }
 
@@ -88,14 +86,13 @@ public class EntDocProc implements Reportable {
    * Filters all statements in the ItemDocument for relevant information to create edges.
    *
    * @param statements the iterator of statements to be processed.
-   * @return A list of StmtDetailsProcessor containing relevant statements.
+   * @return A list of StmtProc containing relevant statements.
    */
-  private List<StmtDetailsProcessor> filterAllStatementsForRelevantInfo(
-      Iterator<Statement> statements) {
-    List<StmtDetailsProcessor> filteredStmts = new ArrayList<>();
+  private List<StmtProc> filterAllStatementsForRelevantInfo(Iterator<Statement> statements) {
+    List<StmtProc> filteredStmts = new ArrayList<>();
 
     while (statements.hasNext()) {
-      StmtDetailsProcessor stmt = new StmtDetailsProcessor(statements.next());
+      StmtProc stmt = new StmtProc(statements.next());
       if (!stmt.definesIrrelevantOrExternalInfo()) {
         filteredStmts.add(stmt);
       }
@@ -110,6 +107,7 @@ public class EntDocProc implements Reportable {
    */
   public void processPropDocument(PropertyDocument propertyDocument) {
     Property p = new Property(propertyDocument);
-    graphset.addPropToLookup(p);
+    graphset.addPropToLookupAndQueue(p);
   }
+
 }

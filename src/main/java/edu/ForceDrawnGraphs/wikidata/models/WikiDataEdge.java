@@ -1,7 +1,7 @@
-package edu.ForceDrawnGraphs.models.wikidata.models;
+package edu.ForceDrawnGraphs.wikidata.models;
 
 import edu.ForceDrawnGraphs.models.Edge;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
+import edu.ForceDrawnGraphs.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
 
 public class WikiDataEdge extends Edge {
   private String propertyQID;

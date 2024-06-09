@@ -1,4 +1,4 @@
-package edu.ForceDrawnGraphs.models.wikidata.models;
+package edu.ForceDrawnGraphs.wikidata.models;
 
 import org.wikidata.wdtk.datamodel.implementation.ValueSnakImpl;
 import org.wikidata.wdtk.datamodel.interfaces.NoValueSnak;
