@@ -1,17 +1,20 @@
 package edu.ForceDrawnGraphs.models;
 
-import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.models.wikidata.models.WikiDataEdge;
-import edu.ForceDrawnGraphs.models.wikidata.services.FetchQueue;
+import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
+import edu.ForceDrawnGraphs.wikidata.services.FetchQueue;
+import edu.ForceDrawnGraphs.wikidata.services.StmtProc;
+
+
 
 /**
  * Central class for storing something akin to 'state' for the initial request creating a session/universe/TBD. 
  */
 public class Graphset implements Reportable {
+  private int N;
   private String originQuery; // can be used to find the origin a little bit later...
   private Set<Property> properties; // LocalStore for any properties that are fetched from the API
   private Set<Edge> edges; // In theory these may become a network as the Guava library is integrated
@@ -19,6 +22,7 @@ public class Graphset implements Reportable {
   private FetchQueue wikiDataFetchQueue; // Queue of ent details to fetch from the Wikidata API
 
   public Graphset() {
+    N = 0; // set-depth represented as distance in number of edges (increments on fetch completion)
     this.vertices = new HashSet<>();
     this.edges = new HashSet<>();
     this.properties = new HashSet<>();
@@ -45,6 +49,14 @@ public class Graphset implements Reportable {
     return wikiDataFetchQueue;
   }
 
+  public void iterateNDepth() {
+    N++;
+  }
+
+  public int depth() {
+    return N;
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -59,7 +71,7 @@ public class Graphset implements Reportable {
    * 
    */
   public void addVertexToLookup(Vertex vertex) {
-    if (vertexDetailsAlreadyPresent(vertex))
+    if (vertexDetailsAlreadyPresent(vertex.ID()))
       return;
 
     vertices.add(vertex);
@@ -71,7 +83,7 @@ public class Graphset implements Reportable {
    * @param property Property to add to the Graphset storage.
    * 
    */
-  public void addPropToLookup(Property property) {
+  public void addPropToLookupAndQueue(Property property) {
     if (propertyDetailsAlreadyPresent(property))
       return;
 
@@ -84,10 +96,11 @@ public class Graphset implements Reportable {
    * @param newEdges List of edges to add to the Graphset storage.
    * 
    */
-  public void addEdgesToLookupAndUpdateQueues(List<Edge> newEdges) {
-    for (Edge newEdge : newEdges) {
+  public void addEdgesToLookupAndQueue(StmtProc stmt) {
+    
+    for (Edge newEdge : stmt.edges()) {
       if (newEdge instanceof WikiDataEdge) {
-        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) newEdge);
+        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) newEdge, N);
         edges.add(newEdge);
       }
     }
@@ -103,11 +116,6 @@ public class Graphset implements Reportable {
    * 
    * The unique aspects of a Vertex will be its ID. Prevents adding already existing vertices to the Graphset. 
    */
-  private boolean vertexDetailsAlreadyPresent(Vertex newVertex) {
-    // alias for passing in the ID
-    return vertexDetailsAlreadyPresent(newVertex.ID());
-  }
-
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {
     for (Vertex vertex : vertices) {
       if (vertex.ID().equals(newVertexID)) {
