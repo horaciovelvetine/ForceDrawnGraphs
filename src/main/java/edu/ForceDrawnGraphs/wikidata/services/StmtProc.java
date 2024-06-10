@@ -30,7 +30,13 @@ public class StmtProc implements Reportable {
   private static final Set<String> EXCLUDED_DATA_TYPES = Set.of("external-id", "monolingualtext",
       "commonsMedia", "url", "globe-coordinate", "geo-shape", "wikibase-lexeme");
   private static final Set<String> EXCLUDED_PROPERTIES = Set.of("P1343", "P143", "P935", "P8687",
-      "P3744", "P18", "P373", "P856", "P1748", "P21", "P11889", "P1424", "P11527", "P1545");
+      "P3744", "P18", "P373", "P856", "P1748", "P21", "P11889", "P1424", "P11527", "P1545", "P5008",
+      "P1889", "P813", "P214", "P213", "P227", "P244", "P268", "P1006", "P1711", "P648", "P1315",
+      "P2163", "P3430", "P1015", "P1207", "P1225", "P4823", "P269", "P322", "P1871", "P691",
+      "P4342", "P5361", "P2600", "P535", "P8094", "P7293", "P8189", "P950", "P8318", "P1263",
+      "P2949", "P7029", "P7699", "P10227", "P409", "P8081", "P7902", "P4619", "P7369", "P3348",
+      "P1368", "P11686", "P10832", "P5034", "P1415", "P6058", "P646", "P5869", "P461", "Q109429537",
+      "P7452", "Q19478619", "P4666", "P345", "P2604", "P5007", "Q59522350", "Q32351192", "P1011", "P8402", "P2959", "P78","P5323", "P6104");
 
   /**
    * Constructs a processor for a given Wikidata statement.
@@ -71,24 +77,23 @@ public class StmtProc implements Reportable {
     WikiDataEdge mainEdgeContext = new WikiDataEdge(mainSnak, srcVertexQID);
     edges.add(mainEdgeContext);
 
+    // if (qualifiers != null) {
+    //   for (WikiRecSnak[] group : qualifiers) {
+    //     int groupID = 1;
 
-    if (qualifiers != null) {
-      for (WikiRecSnak[] group : qualifiers) {
-        int groupID = 1;
-
-        for (WikiRecSnak snak : group) {
-          // Skip excluded qualifier snaks on same critieria as main snak...
-          if (isExcludedDataType(snak) || isExcludedProperty(snak)) {
-            continue;
-          }
-          WikiDataEdge qualifierEdge = new WikiDataEdge(snak, mainEdgeContext, groupID);
-          if (qualifierEdge != null) {
-            edges.add(qualifierEdge);
-          }
-        }
-        groupID++;
-      }
-    }
+    //     for (WikiRecSnak snak : group) {
+    //       // Skip excluded qualifier snaks on same critieria as main snak...
+    //       if (isExcludedDataType(snak) || isExcludedProperty(snak)) {
+    //         continue;
+    //       }
+    //       WikiDataEdge qualifierEdge = new WikiDataEdge(snak, mainEdgeContext, groupID);
+    //       if (qualifierEdge != null) {
+    //         edges.add(qualifierEdge);
+    //       }
+    //     }
+    //     groupID++;
+    //   }
+    // }
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -119,23 +124,11 @@ public class StmtProc implements Reportable {
    * @return True if the property is excluded, false otherwise.
    */
   private boolean isExcludedProperty(WikiRecSnak snak) {
-    return isPropertyInExcludeList(snak.property().value());
+    return (EXCLUDED_PROPERTIES.contains(snak.property().value())
+        || EXCLUDED_PROPERTIES.contains(snak.value().value()));
   }
 
-  /**
-   * Helper method to check if a property ID is in a given list.
-   *
-   * @param propertyId The property ID to check.
-   * @return True if the property ID is found in the list, false otherwise.
-   */
-  private boolean isPropertyInExcludeList(String propertyId) {
-    for (String id : EXCLUDED_PROPERTIES) {
-      if (propertyId.equals(id)) {
-        return true;
-      }
-    }
-    return false;
-  }
+
 
   /**
    * Collects the details of each Snak in a SnakGroup and returns them as an array of SnakDetails,
@@ -164,5 +157,10 @@ public class StmtProc implements Reportable {
     }
 
     return groupedDetails;
+  }
+
+
+  public String srcStmtDetails() {
+    return srcStmt.toString();
   }
 }
