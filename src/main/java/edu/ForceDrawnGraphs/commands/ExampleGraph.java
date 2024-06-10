@@ -1,12 +1,10 @@
 package edu.ForceDrawnGraphs.commands;
 
-import javax.swing.JFrame;
 import java.awt.Dimension;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 @ShellComponent
 public class ExampleGraph {

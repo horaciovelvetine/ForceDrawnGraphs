@@ -97,12 +97,9 @@ public class Graphset implements Reportable {
    * 
    */
   public void addEdgesToLookupAndQueue(StmtProc stmt) {
-
-    for (Edge newEdge : stmt.edges()) {
-      if (newEdge instanceof WikiDataEdge) {
-        wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) newEdge, N);
-        edges.add(newEdge);
-      }
+    if (stmt.msEdge() instanceof WikiDataEdge) {
+      wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) stmt.msEdge(), N);
+      edges.add(stmt.msEdge());
     }
   }
 

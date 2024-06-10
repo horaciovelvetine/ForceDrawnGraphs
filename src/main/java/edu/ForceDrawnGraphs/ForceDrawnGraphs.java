@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContext;
 public class ForceDrawnGraphs implements CommandLineRunner {
 
 	public static void main(String[] args) {
+		@SuppressWarnings("unused")
 		ApplicationContext contexto = new SpringApplicationBuilder(ForceDrawnGraphs.class)
 				.web(WebApplicationType.NONE).headless(false).bannerMode(Banner.Mode.OFF).run(args);
 	}

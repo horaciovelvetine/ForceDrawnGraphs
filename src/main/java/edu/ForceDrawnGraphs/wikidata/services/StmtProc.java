@@ -1,11 +1,7 @@
 package edu.ForceDrawnGraphs.wikidata.services;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
-import org.wikidata.wdtk.datamodel.interfaces.Snak;
-import org.wikidata.wdtk.datamodel.interfaces.SnakGroup;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
@@ -22,9 +18,8 @@ public class StmtProc implements Reportable {
   private final Statement srcStmt;
   // STATEMENT DETAILS COPIED DIRECTLY
   private final WikiRecSnak mainSnak;
-  private final List<WikiRecSnak[]> qualifiers;
   // DATA DERIVED FROM STATEMENT DETAILS
-  private final List<Edge> edges = new ArrayList<>();
+  private Edge mainSnakEdge;
 
   // EXCLUSION//INCLUSION//TESTING CRITERIA
   private static final Set<String> EXCLUDED_DATA_TYPES = Set.of("external-id", "monolingualtext",
@@ -36,7 +31,8 @@ public class StmtProc implements Reportable {
       "P4342", "P5361", "P2600", "P535", "P8094", "P7293", "P8189", "P950", "P8318", "P1263",
       "P2949", "P7029", "P7699", "P10227", "P409", "P8081", "P7902", "P4619", "P7369", "P3348",
       "P1368", "P11686", "P10832", "P5034", "P1415", "P6058", "P646", "P5869", "P461", "Q109429537",
-      "P7452", "Q19478619", "P4666", "P345", "P2604", "P5007", "Q59522350", "Q32351192", "P1011", "P8402", "P2959", "P78","P5323", "P6104");
+      "P7452", "Q19478619", "P4666", "P345", "P2604", "P5007", "Q59522350", "Q32351192", "P1011",
+      "P8402", "P2959", "P78", "P5323", "P6104");
 
   /**
    * Constructs a processor for a given Wikidata statement.
@@ -46,16 +42,10 @@ public class StmtProc implements Reportable {
   public StmtProc(Statement statement) {
     this.srcStmt = statement;
     this.mainSnak = statement.getMainSnak().accept(snakVisitor);
-    this.qualifiers = collectSnakGroupedDetails(statement.getQualifiers());
   }
 
-  /**
-   * Returns the list of edges derived from the statement.
-   *
-   * @return List of edges.
-   */
-  public List<Edge> edges() {
-    return edges;
+  public Edge msEdge() {
+    return mainSnakEdge;
   }
 
   /**
@@ -73,27 +63,7 @@ public class StmtProc implements Reportable {
    * @param srcVertexQID The QID of the source vertex for the edges.
    */
   public void createEdgesFromStmtDetails(String srcVertexQID) {
-
-    WikiDataEdge mainEdgeContext = new WikiDataEdge(mainSnak, srcVertexQID);
-    edges.add(mainEdgeContext);
-
-    // if (qualifiers != null) {
-    //   for (WikiRecSnak[] group : qualifiers) {
-    //     int groupID = 1;
-
-    //     for (WikiRecSnak snak : group) {
-    //       // Skip excluded qualifier snaks on same critieria as main snak...
-    //       if (isExcludedDataType(snak) || isExcludedProperty(snak)) {
-    //         continue;
-    //       }
-    //       WikiDataEdge qualifierEdge = new WikiDataEdge(snak, mainEdgeContext, groupID);
-    //       if (qualifierEdge != null) {
-    //         edges.add(qualifierEdge);
-    //       }
-    //     }
-    //     groupID++;
-    //   }
-    // }
+    mainSnakEdge = new WikiDataEdge(mainSnak, srcVertexQID);
   }
 
   //------------------------------------------------------------------------------------------------------------
@@ -126,37 +96,6 @@ public class StmtProc implements Reportable {
   private boolean isExcludedProperty(WikiRecSnak snak) {
     return (EXCLUDED_PROPERTIES.contains(snak.property().value())
         || EXCLUDED_PROPERTIES.contains(snak.value().value()));
-  }
-
-
-
-  /**
-   * Collects the details of each Snak in a SnakGroup and returns them as an array of SnakDetails,
-   * where each array represents a distinct SnakGroup.
-   *
-   * @param groups The list of SnakGroups to process.
-   * @return A list of arrays containing the collected SnakDetails.
-   */
-  private List<WikiRecSnak[]> collectSnakGroupedDetails(List<SnakGroup> groups) {
-    if (groups == null) {
-      return null;
-    }
-    List<WikiRecSnak[]> groupedDetails = new ArrayList<>();
-
-    for (SnakGroup group : groups) {
-      WikiRecSnak[] groupDetails = new WikiRecSnak[group.size()];
-      int index = 0;
-
-      for (Snak snak : group) {
-        WikiRecSnak snakDetails = snak.accept(snakVisitor);
-        if (snakDetails != null) {
-          groupDetails[index++] = snakDetails;
-        }
-      }
-      groupedDetails.add(groupDetails);
-    }
-
-    return groupedDetails;
   }
 
 
