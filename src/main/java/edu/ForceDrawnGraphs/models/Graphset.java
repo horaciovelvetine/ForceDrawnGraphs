@@ -97,13 +97,20 @@ public class Graphset implements Reportable {
    * 
    */
   public void addEdgesToLookupAndQueue(StmtProc stmt) {
-    
+
     for (Edge newEdge : stmt.edges()) {
       if (newEdge instanceof WikiDataEdge) {
         wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) newEdge, N);
         edges.add(newEdge);
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "Graphset [N=" + N + ", originQuery=" + originQuery + ", properties=" + properties.size()
+        + ", edges=" + edges.size() + ", vertices=" + vertices.size() + ", wikiDataFetchQueue="
+        + wikiDataFetchQueue.countALLQueuedValues() + "]";
   }
 
   //------------------------------------------------------------------------------------------------------------
