@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.wikidata.models;
 
+import org.hibernate.validator.Incubating;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
 
@@ -20,6 +21,7 @@ public class WikiDataEdge extends Edge {
     this.contextSnakRec = null;
   }
 
+  @Incubating
   public WikiDataEdge(WikiRecSnak snak, WikiDataEdge mainEdgeContext, int groupID) {
     super(mainEdgeContext.tgtVertexQID(), findSnakTargetQID(snak));
     this.snakType = SNAK_SRC.QUALIFIER;
@@ -55,8 +57,19 @@ public class WikiDataEdge extends Edge {
 
   @Override
   public String toString() {
-    return "WikiDataEdge [propertyQID=" + propertyQID + ", value=" + value + ", snakType="
-        + snakType + ", datatype=" + datatype + "]";
+    return "[:propertyQID=" + urlPrefixer(propertyQID) + ", value=" + value + ", datatype="
+        + datatype + ", tgtVertexQID=" + urlPrefixer(tgtVertexQID()) + ", srcVertexQID="
+        + urlPrefixer(srcVertexQID()) + " :]";
+  }
+
+  private String urlPrefixer(String qid) {
+    if (qid == null)
+      return null;
+    if (qid.startsWith("P")) {
+      return "https://www.wikidata.org/wiki/Property:" + qid;
+    } else {
+      return "https://www.wikidata.org/wiki/" + qid;
+    }
   }
 
   /**

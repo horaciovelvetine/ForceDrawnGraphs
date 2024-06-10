@@ -95,6 +95,11 @@ public class FetchQueue implements Reportable {
         .toList();
   }
 
+  public String countALLQueuedValues() {
+    return "EntityQueue: " + entityQueue.size() + " | PropertyQueue: " + propertyQueue.size()
+        + " | StringQueue: " + stringQueue.size();
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS

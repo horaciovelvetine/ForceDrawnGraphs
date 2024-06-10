@@ -3,7 +3,6 @@ package edu.ForceDrawnGraphs.wikidata.services;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
@@ -75,7 +74,7 @@ public class EntDocProc implements Reportable {
   private void processItemForEdges(ItemDocument itemDoc) {
     String srcItemQID = itemDoc.getEntityId().getId();
     List<StmtProc> filteredStmts = filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
-    
+
     for (StmtProc stmt : filteredStmts) {
       stmt.createEdgesFromStmtDetails(srcItemQID);
       graphset.addEdgesToLookupAndQueue(stmt);
@@ -83,7 +82,7 @@ public class EntDocProc implements Reportable {
   }
 
   /**
-   * Filters all statements in the ItemDocument for relevant information to create edges.
+   * Filters all statements by checking the main snak data for known exclusionary criteria.
    *
    * @param statements the iterator of statements to be processed.
    * @return A list of StmtProc containing relevant statements.
