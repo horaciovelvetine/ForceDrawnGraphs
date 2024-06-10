@@ -14,3 +14,70 @@ These properties have been added to a blacklist to be ignored:
 - "P1424" - topic's main template 
 - "P11527" - internal wikimedia, used on qualifiers for "P5869" (model item)'s
 - "P1545" - series ordinal - pre-determined ordering irrelevant
+- "P5008" - on focus list of wikimedia project, internal
+- "P1889" - different from - opposite of what we are looking for
+- "P214" - All External ID's to next def
+- "P213" 
+- "P227"
+- "P244" 
+- "P268" 
+- "P1006" 
+- "P1711" 
+- "P648" 
+- "P1315"
+- "P2163"
+- "P3430" 
+-  "P1015" 
+-  "P1207" 
+-  "P1225" 
+-  "P4823" 
+-  "P269" 
+-  "P322" 
+-  "P1871" 
+-  "P691"
+-  "P4342" 
+-  "P5361" 
+-  "P2600" 
+-  "P535" 
+-  "P8094" 
+-  "P7293" 
+-  "P8189" 
+-  "P950" 
+-  "P8318" 
+-  "P1263"
+-  "P2949" 
+-  "P7029" 
+-  "P7699" 
+-  "P10227" 
+-  "P409" 
+-  "P8081" 
+-  "P7902" 
+-  "P4619" 
+-  "P7369" 
+-  "P3348"
+-  "P1368"
+-  "P11686" 
+-  "P10832" 
+-  "P5034" 
+-  "P1415" 
+-  "P6058" 
+-  "P646"
+-  "P5869" - noisy repition - edges will still exist between vertices
+-  "P461" - opposite of
+-  "Q109429537" - is null
+-  "P7452" - reason for preffered rank
+-  "Q19478619" - metaclass
+-  "P4666" - CineMagia person ID
+-  "P345" - IMDb ID
+-  "P2604" - Kinopoisk film ID
+-  "P5007" - ext ID
+-  "P5125" - WM Outline internal 
+-  "Q42896194" - cool, but no label - and has cousin with details "Q1186974"
+-  "Q59522350" - null
+-  "Q32351192" - null meaning
+-  "P1011" excluding... target
+-  "P8402" - external platform (usually just url)
+-  "P2959" - unremoveable duplicate of srcItem
+-  "P78" - top lvl domain - irrelevant
+-  "P5323" - external platform
+-  "P6104" - just wm platforms
