@@ -9,6 +9,7 @@ import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.wikidata.models.UnknownSnakVisitor;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.wikidata.models.WikiRecSnak;
+import edu.ForceDrawnGraphs.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
 
 /**
  * Represents a single Wikidata Statement sourced from an EntDocument, and processes the details to create Edges. 
@@ -63,6 +64,10 @@ public class StmtProc implements Reportable {
    * @param srcVertexQID The QID of the source vertex for the edges.
    */
   public void createEdgesFromStmtDetails(String srcVertexQID) {
+    if (mainSnak.value() != null && mainSnak.value().type() == TXT_VAL_TYPE.ENTITY) {
+      if (srcVertexQID == mainSnak.value().value())
+        return;
+    }
     mainSnakEdge = new WikiDataEdge(mainSnak, srcVertexQID);
   }
 
