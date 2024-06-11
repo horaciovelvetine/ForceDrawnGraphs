@@ -30,8 +30,8 @@ public class WikiDataEdge extends Edge {
   @Override
   public String toString() {
     return "[:propertyQID=" + urlPrefixer(propertyQID) + ", value=" + value + ", datatype="
-        + datatype + ", tgtVertexQID=" + urlPrefixer(tgtVertexQID()) + ", srcVertexQID="
-        + urlPrefixer(srcVertexQID()) + " :]";
+        + datatype + ", tgtVertexQID=" + urlPrefixer(tgtVertexID()) + ", srcVertexQID="
+        + urlPrefixer(srcVertexID()) + " :]";
   }
 
   //------------------------------------------------------------------------------------------------------------
