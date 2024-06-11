@@ -167,14 +167,17 @@ public class APIBroker implements Reportable {
    */
 
   private Map<String, EntityDocument> fetchEntitiesByLabels(List<String> labels) {
-    Map<String, EntityDocument> result = new HashMap<>();
-
+    Map<String, WbSearchEntitiesResult> result = new HashMap<>();
     try {
-      result.putAll(wbdf.getEntityDocumentsByTitle("en", labels));
+      for (String label : labels) {
+        result.put(label, (wbdf.searchEntities(label, "enwiki")).get(0));
+      }
     } catch (Exception e) {
       log("fetchEntitiesByLabels() error: ");
     }
-    return result;
+
+    // TODO - link ents w/ corresponding edges with values (and currently no tgtVertID())
+    return null;
   }
 
 
