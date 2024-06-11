@@ -1,15 +1,15 @@
 package edu.ForceDrawnGraphs.wikidata.services;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Set;
-
+import java.util.concurrent.ConcurrentHashMap;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 
 /**
- * Line at the DMV but for QID strings retrieved during the ingest process.
+ * The FetchQueue class represents a queue for fetching data from WikiData. It manages separate queues for different types of data, such as entities, properties, and strings. It provides methods to add data to the queues, retrieve data from the queues, mark fetched items as successful, and check the presence of items at a specific depth in the queues.
  */
 public class FetchQueue implements Reportable {
   private Set<StrTarget> stringQueue;
@@ -17,84 +17,93 @@ public class FetchQueue implements Reportable {
   private Set<PropTarget> propertyQueue;
   private Set<FetchedTarget> fetchedValues;
 
+  /**
+   * Initializes new concurrent sets for each queue to handle concurrent modifications.
+   */
   public FetchQueue() {
-    this.entityQueue = new HashSet<>();
-    this.stringQueue = new HashSet<>();
-    this.propertyQueue = new HashSet<>();
-    this.fetchedValues = new HashSet<>();
+    this.entityQueue = ConcurrentHashMap.newKeySet();
+    this.stringQueue = ConcurrentHashMap.newKeySet();
+    this.propertyQueue = ConcurrentHashMap.newKeySet();
+    this.fetchedValues = ConcurrentHashMap.newKeySet();
   }
 
-  public void addWikiDataEdgeDetails(WikiDataEdge newEdge, int n) {
-    // should check the entityQueue for each of 3 possible new targets on edge
-    // should add value to the stringQueue to handle later 
-    String newPropQID = newEdge.propertyQID();
-    String strValue = newEdge.value();
-    String newTgtQID = newEdge.tgtVertexQID();
-    List<String> allValsCurrentlyInQ = getAllValuesCurrentlyQueuedByN(n);
-    Integer nPlus = (n + 1);
-
-    if (newPropQID != null && (!allValsCurrentlyInQ.contains(newPropQID))) {
-      propertyQueue.add(new PropTarget(newPropQID, nPlus));
-    }
-
-    if (strValue != null && (!allValsCurrentlyInQ.contains(strValue))) {
-      stringQueue.add(new StrTarget(strValue, nPlus));
-    }
-
-    if (newTgtQID != null && (!allValsCurrentlyInQ.contains(newTgtQID))) {
-      entityQueue.add(new EntTarget(newTgtQID, nPlus));
-    }
-
+  /**
+   * Adds details from a WikiDataEdge to the appropriate queues if they are not already present.
+   * 
+   * @param newEdge the WikiDataEdge to be processed
+   * @param n the current depth or level of processing
+   */
+  public void addWikiDataEdgeDetails(WikiDataEdge newEdge, int currentDepth) {
+    Integer nextDepth = currentDepth + 1;
+    processPropertyQueue(newEdge.propertyQID(), getAllValuesCurrentlyQueuedByN(currentDepth),
+        nextDepth);
+    processStringQueue(newEdge.value(), getAllValuesCurrentlyQueuedByN(currentDepth), nextDepth);
+    processEntityQueue(newEdge.tgtVertexID(), getAllValuesCurrentlyQueuedByN(currentDepth),
+        nextDepth);
   }
 
+  /**
+   * Checks if there are any items at a specific depth across all queues.
+   * 
+   * @param depth the depth to check
+   * @return true if any queue contains items at the specified depth, false otherwise
+   */
   public boolean hasItems(int depth) {
-    if (entityQueue.stream().anyMatch(entQ -> entQ.depth() == depth)) {
-      return true;
-    }
-
-    if (propertyQueue.stream().anyMatch(propQ -> propQ.depth() == depth)) {
-      return true;
-    }
-    //TODO Adjust to check string values as fetch is implemented
-    // if (stringQueue.stream().anyMatch(strQ -> strQ.depth() == depth)) {
-    //   return true;
-    // }
-
-    return false;
+    return entityQueue.stream().anyMatch(entQ -> entQ.depth() == depth)
+        || propertyQueue.stream().anyMatch(propQ -> propQ.depth() == depth)
+        || stringQueue.stream().anyMatch(strQ -> strQ.depth() == depth);
   }
 
+  /**
+   * Marks an item as successfully fetched and removes it from the queues.
+   * 
+   * @param id the identifier of the fetched item
+   */
   public void fetchSuccessful(String id) {
-    if (entityQueue.stream().anyMatch(entQ -> entQ.QID().equals(id))) {
-      entityQueue.removeIf(entQ -> entQ.QID().equals(id));
-    }
-
-    if (propertyQueue.stream().anyMatch(propQ -> propQ.QID().equals(id))) {
-      propertyQueue.removeIf(propQ -> propQ.QID().equals(id));
-    }
-
-    if (stringQueue.stream().anyMatch(strQ -> strQ.value().equals(id))) {
-      stringQueue.removeIf(strQ -> strQ.value().equals(id));
-    }
-
+    entityQueue.removeIf(entQ -> entQ.QID().equals(id));
+    propertyQueue.removeIf(propQ -> propQ.QID().equals(id));
+    stringQueue.removeIf(strQ -> strQ.value().equals(id));
     fetchedValues.add(new FetchedTarget(id));
   }
 
-
+  /**
+   * Retrieves a list of property QIDs at a specified depth, limited to the first 50 entries.
+   * 
+   * @param depth the depth of the items to retrieve
+   * @return a list of property QIDs
+   */
   public List<String> getPropertyQueue(int depth) {
     return propertyQueue.stream().filter(propQ -> propQ.depth() == depth).map(PropTarget::QID)
-        .toList();
+        .limit(50).toList();
   }
 
+  /**
+   * Retrieves a list of entity QIDs at a specified depth, limited to the first 50 entries.
+   * 
+   * @param depth the depth of the items to retrieve
+   * @return a list of entity QIDs
+   */
   public List<String> getEntityQueue(int depth) {
     return entityQueue.stream().filter(enttQ -> enttQ.depth() == depth).map(EntTarget::QID)
-        .toList();
+        .limit(50).toList();
   }
 
+  /**
+   * Retrieves a list of string values at a specified depth, limited to the first 50 entries.
+   * 
+   * @param depth the depth of the items to retrieve
+   * @return a list of string values
+   */
   public List<String> getStringQueue(int depth) {
     return stringQueue.stream().filter(strQ -> strQ.depth() == depth).map(StrTarget::value)
-        .toList();
+        .limit(50).toList();
   }
 
+  /**
+   * Provides a count of all queued values across all types.
+   * 
+   * @return a formatted string representing the counts of each queue
+   */
   public String countALLQueuedValues() {
     return "EntityQueue: " + entityQueue.size() + " | PropertyQueue: " + propertyQueue.size()
         + " | StringQueue: " + stringQueue.size();
@@ -134,9 +143,27 @@ public class FetchQueue implements Reportable {
     return allValues;
   }
 
+  private void processPropertyQueue(String propQID, List<String> currentQueue, int depth) {
+    if (propQID != null && !currentQueue.contains(propQID)) {
+      propertyQueue.add(new PropTarget(propQID, depth));
+    }
+  }
+
+  private void processStringQueue(String value, List<String> currentQueue, int depth) {
+    if (value != null && !currentQueue.contains(value)) {
+      stringQueue.add(new StrTarget(value, depth));
+    }
+  }
+
+  private void processEntityQueue(String tgtQID, List<String> currentQueue, int depth) {
+    if (tgtQID != null && !currentQueue.contains(tgtQID)) {
+      entityQueue.add(new EntTarget(tgtQID, depth));
+    }
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
-  //* RECORDS //||\\ RECORDS \\||// RECORDS //||\\ RECORDS \\||// RECORDS //||\\ RECORDS \\||// RECORDS
+  //* RECORDS || RECORDS || RECORDS || RECORDS || RECORDS || RECORDS || RECORDS || RECORDS || RECORDS || RECORDS
   //
   //------------------------------------------------------------------------------------------------------------
 
