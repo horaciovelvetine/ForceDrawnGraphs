@@ -2,6 +2,7 @@ package edu.ForceDrawnGraphs.wikidata.services;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
@@ -63,7 +64,21 @@ public class EntDocProc implements Reportable {
     WikiDataVertex vertex = new WikiDataVertex(itemDoc);
     graphset.addVertexToLookup(vertex);
     // STMTS PROCESSING
-    processItemForEdges(itemDoc);
+    processItemForEdgesAsync(itemDoc);
+  }
+
+  /**
+  * Asynchronously processes each of the ItemDocument's statements to create edges in the Graphset.
+  *
+  * @param itemDoc the ItemDocument to be processed.
+  */
+  private void processItemForEdgesAsync(ItemDocument itemDoc) {
+    CompletableFuture.runAsync(() -> {
+      processItemForEdges(itemDoc);
+    }).exceptionally(ex -> {
+      System.err.println("Error processing item for edges: " + ex.getMessage());
+      return null;
+    });
   }
 
   /**
