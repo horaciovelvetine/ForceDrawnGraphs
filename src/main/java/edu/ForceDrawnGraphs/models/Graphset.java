@@ -1,31 +1,31 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.Set;
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.wikidata.services.FetchQueue;
 import edu.ForceDrawnGraphs.wikidata.services.StmtProc;
 
-
-
 /**
  * Central class for storing something akin to 'state' for the initial request creating a session/universe/TBD. 
  */
+
 public class Graphset implements Reportable {
   private int N;
-  private String originQuery; // can be used to find the origin a little bit later...
-  private Set<Property> properties; // LocalStore for any properties that are fetched from the API
-  private Set<Edge> edges; // In theory these may become a network as the Guava library is integrated
-  private Set<Vertex> vertices; // ditto
-  private FetchQueue wikiDataFetchQueue; // Queue of ent details to fetch from the Wikidata API
+  private String originQuery;
+  private FetchQueue wikiDataFetchQueue;
+  // STORE
+  private Set<Property> properties;
+  private Set<Edge> edges;
+  private Set<Vertex> vertices;
 
   public Graphset() {
-    N = 0; // set-depth represented as distance in number of edges (increments on fetch completion)
-    this.vertices = new HashSet<>();
-    this.edges = new HashSet<>();
-    this.properties = new HashSet<>();
+    N = 0; // set-depth as distance in number of edges from origin
+    this.vertices = ConcurrentHashMap.newKeySet();
+    this.edges = ConcurrentHashMap.newKeySet();
+    this.properties = ConcurrentHashMap.newKeySet();
     this.wikiDataFetchQueue = new FetchQueue();
   }
 
@@ -97,9 +97,11 @@ public class Graphset implements Reportable {
    * 
    */
   public void addEdgesToLookupAndQueue(StmtProc stmt) {
-    if (stmt.msEdge() instanceof WikiDataEdge) {
-      wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) stmt.msEdge(), N);
-      edges.add(stmt.msEdge());
+    Edge edge = stmt.msEdge();
+
+    if (edge instanceof WikiDataEdge) {
+      wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) edge, N);
+      edges.add(edge);
     }
   }
 
@@ -141,4 +143,5 @@ public class Graphset implements Reportable {
     }
     return false;
   }
+
 }
