@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import edu.ForceDrawnGraphs.interfaces.Reportable;
+import edu.ForceDrawnGraphs.util.DateConverter;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 
 /**
@@ -95,8 +97,10 @@ public class FetchQueue implements Reportable {
    * @return a list of string values
    */
   public List<String> getStringQueue(int depth) {
-    return stringQueue.stream().filter(strQ -> strQ.depth() == depth).map(StrTarget::value)
-        .limit(50).toList();
+    List<String> allValues = stringQueue.stream().filter(strQ -> strQ.depth() == depth)
+        .map(StrTarget::value).map(DateConverter::convertDate).limit(50).toList();
+
+    return allValues;
   }
 
   /**
