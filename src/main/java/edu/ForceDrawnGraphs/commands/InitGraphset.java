@@ -15,7 +15,7 @@ public class InitGraphset implements Reportable {
   private static Graphset graphset = new Graphset();
   private static EntDocProc docProc = new EntDocProc(graphset);
   private static APIBroker wikidataAPI = new APIBroker(docProc, graphset);
-  private static Integer targetDepth = 3;
+  private static Integer targetDepth = 1;
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {
@@ -26,7 +26,7 @@ public class InitGraphset implements Reportable {
 
     while (graphset.depth() <= targetDepth) {
 
-      wikidataAPI.fetchQueuedValuesDetails(graphset.depth());
+      wikidataAPI.fetchQueuedValuesDetails();
 
       if (!graphset.wikiDataFetchQueue().hasItems(graphset.depth())) {
         graphset.iterateNDepth();
@@ -35,7 +35,7 @@ public class InitGraphset implements Reportable {
       // Q/P Ents which have the same label and are meant to represent the same thing "P1963" properties for this type "when this subject is used as object of "instance of" the following props normally apply
       // rn properties in the entityQueue happen because they are the tgtValue given - this may be a handy check to add an extra search value (the label of this result) to the query queue (to find its inevitable Vertex twin)
 
-      report("\n" + "GRAPHSET//GRAPHSET//GRAPHSET//GRAPHSET//" + "\n", graphset.toString());
+      report("Graphset:: \n", graphset.toString());
       timer.lap();
     }
     // at the end here, should do a stunted version of the fetch for all the item ("Q123" elements w/o checking edges, or just putting there edges in to fetch or something to have a vertext complete graphset)
