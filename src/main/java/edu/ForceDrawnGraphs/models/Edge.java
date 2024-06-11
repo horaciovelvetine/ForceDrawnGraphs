@@ -13,11 +13,11 @@ public class Edge {
     this.tgtVertexID = tgtVertexQID;
   }
 
-  public String srcVertexQID() {
+  public String srcVertexID() {
     return srcVertexID;
   }
 
-  public String tgtVertexQID() {
+  public String tgtVertexID() {
     return tgtVertexID;
   }
 
