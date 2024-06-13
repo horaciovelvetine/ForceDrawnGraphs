@@ -1,10 +1,13 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
+import edu.ForceDrawnGraphs.util.FuzzyStringMatch;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
+import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
 import edu.ForceDrawnGraphs.wikidata.services.FetchQueue;
 import edu.ForceDrawnGraphs.wikidata.services.StmtProc;
 
@@ -78,12 +81,14 @@ public class Graphset implements Reportable {
   }
 
   /**
-   * Adds a property to the Graphset storage.
+   * Adds a property to the Graphset storage, and updates the appropriate vertex with the matching property QID.
    * 
    * @param property Property to add to the Graphset storage.
    * 
    */
-  public void addPropToLookupAndQueue(Property property) {
+  public void addPropToLookup(Property property) {
+    propertyLabelMatchesExistingVertex(property);
+
     if (propertyDetailsAlreadyPresent(property))
       return;
 
@@ -105,6 +110,20 @@ public class Graphset implements Reportable {
     }
   }
 
+  /**
+   * Checks all of the edges in the Graphset for a match with the query value, and assigns the dateVertex(QID) to the edge.
+   */
+  public void assignDateVertexToEdges(WikiDataVertex dateVertex, String queryVal) {
+    // check all edges for value match, and assign dateVertex(QID) to said edge
+    for (Edge edge : edges) {
+      if (edge instanceof WikiDataEdge) {
+        if (((WikiDataEdge) edge).value().equals(queryVal)) {
+          ((WikiDataEdge) edge).setTgtVertexID(dateVertex.QID());
+        }
+      }
+    }
+  }
+
   @Override
   public String toString() {
     return "Graphset [N=" + N + ", originQuery=" + originQuery + ", properties=" + properties.size()
@@ -118,10 +137,6 @@ public class Graphset implements Reportable {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  /**
-   * 
-   * The unique aspects of a Vertex will be its ID. Prevents adding already existing vertices to the Graphset. 
-   */
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {
     for (Vertex vertex : vertices) {
       if (vertex.ID().equals(newVertexID)) {
@@ -131,10 +146,6 @@ public class Graphset implements Reportable {
     return false;
   }
 
-  /**
-   * 
-   * The unique aspects of a Property will be its ID. Prevents adding already existing properties to the Graphset. 
-   */
   private boolean propertyDetailsAlreadyPresent(Property newProperty) {
     for (Property property : properties) {
       if (property.ID().equals(newProperty.ID())) {
@@ -142,6 +153,17 @@ public class Graphset implements Reportable {
       }
     }
     return false;
+  }
+
+  private void propertyLabelMatchesExistingVertex(Property property) {
+    List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices);
+
+    if (matchedVertices.size() == 1) {
+      WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
+      vert.setMatchingPropertyQID(property.ID());
+    } else if (matchedVertices.size() > 1) {
+      report("Multiple vertices matched for property: " + property.ID());
+    }
   }
 
 }
