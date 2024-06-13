@@ -7,11 +7,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.util.DateConverter;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 
 /**
- * The FetchQueue class represents a queue for fetching data from WikiData. It manages separate queues for different types of data, such as entities, properties, and strings. It provides methods to add data to the queues, retrieve data from the queues, mark fetched items as successful, and check the presence of items at a specific depth in the queues.
+ * Manages separate queues for different data types,entities, properties, and strings (typically dates), this includes:
+ * methods to add data to the queues, retrieve data from the queues, mark fetched items as successful, 
+ * and check the presence of items at a specific depth in the queues.
  */
 public class FetchQueue implements Reportable {
   private Set<StrTarget> stringQueue;
@@ -97,10 +98,8 @@ public class FetchQueue implements Reportable {
    * @return a list of string values
    */
   public List<String> getStringQueue(int depth) {
-    List<String> allValues = stringQueue.stream().filter(strQ -> strQ.depth() == depth)
-        .map(StrTarget::value).map(DateConverter::convertDate).limit(50).toList();
-
-    return allValues;
+    return stringQueue.stream().filter(strQ -> strQ.depth() == depth).map(StrTarget::value)
+        .limit(50).toList();
   }
 
   /**
