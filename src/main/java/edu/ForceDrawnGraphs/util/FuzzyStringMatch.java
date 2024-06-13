@@ -1,6 +1,7 @@
 package edu.ForceDrawnGraphs.util;
 
 import java.util.List;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,5 +45,9 @@ public class FuzzyStringMatch {
     public int getDistance() {
       return distance;
     }
+  }
+
+  public static List<Vertex> fuzzyMatch(String label, Set<Vertex> vertices) {
+    return fuzzyMatch(label, new ArrayList<>(vertices));
   }
 }
