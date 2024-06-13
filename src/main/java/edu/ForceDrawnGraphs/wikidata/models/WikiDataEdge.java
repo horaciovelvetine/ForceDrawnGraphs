@@ -50,19 +50,12 @@ public class WikiDataEdge extends Edge {
     }
   }
 
-  /**
-   * Determines if this is a TIME value, which will not yet have a QID (target) for the Vertex. 
-   * If this is the case, the QID returned will be null.
-   */
   private static String findSnakTargetQID(WikiRecSnak snak) {
     if (snak.value().type() != TXT_VAL_TYPE.ENTITY)
       return null;
     return snak.value().value();
   }
 
-  /**
-   * Determines if this is a TIME value, will return that value to set on qualifier Edges. 
-   */
   private static String findSnakTargetValue(WikiRecSnak snak) {
     if (snak.value().type() == TXT_VAL_TYPE.TIME)
       return snak.value().value();
