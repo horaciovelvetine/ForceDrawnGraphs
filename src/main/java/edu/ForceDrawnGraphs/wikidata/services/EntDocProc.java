@@ -8,7 +8,7 @@ import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.Statement;
-
+import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Property;
@@ -45,6 +45,18 @@ public class EntDocProc implements Reportable {
     }
   }
 
+  /**
+   * Processes the results of a date search query, logging the result.
+   *
+   * @param dateResult the result of the date search query.
+   * @param queryVal the query value used to store and query the WD API.
+   */
+  public void processDateResult(WbSearchEntitiesResult dateResult, String queryVal) {
+    WikiDataVertex dateVertex = new WikiDataVertex(dateResult);
+    graphset.addVertexToLookup(dateVertex);
+    graphset.assignDateVertexToEdges(dateVertex, queryVal);
+  }
+
   //------------------------------------------------------------------------------------------------------------
   //
   //
@@ -53,39 +65,24 @@ public class EntDocProc implements Reportable {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  /**
-   * Creates a new Vertex from the ItemDocument and adds it to the Graphset.
-   * Then processes each of the ItemDocument's statements to add edges to the Graphset,
-   * and new ItemQIDs to the WikiDocFetchQueue for lookup.
-   *
-   * @param itemDoc the ItemDocument to be processed.
-   */
+
+  private void processPropDocument(PropertyDocument propertyDocument) {
+    Property p = new Property(propertyDocument);
+    graphset.addPropToLookup(p); //==> also check for related vertex using label to associate records
+  }
+
   private void processItemDocument(ItemDocument itemDoc) {
     WikiDataVertex vertex = new WikiDataVertex(itemDoc);
     graphset.addVertexToLookup(vertex);
-    // STMTS PROCESSING
-    processItemForEdgesAsync(itemDoc);
-  }
 
-  /**
-  * Asynchronously processes each of the ItemDocument's statements to create edges in the Graphset.
-  *
-  * @param itemDoc the ItemDocument to be processed.
-  */
-  private void processItemForEdgesAsync(ItemDocument itemDoc) {
     CompletableFuture.runAsync(() -> {
       processItemForEdges(itemDoc);
     }).exceptionally(ex -> {
-      System.err.println("Error processing item for edges: " + ex.getMessage());
+      report("processItemForEdges() error: " + ex.getMessage());
       return null;
     });
   }
 
-  /**
-   * Processes each of the ItemDocument's statements to create edges in the Graphset.
-   *
-   * @param itemDoc the ItemDocument to be processed.
-   */
   private void processItemForEdges(ItemDocument itemDoc) {
     String srcItemQID = itemDoc.getEntityId().getId();
     List<StmtProc> filteredStmts = filterAllStatementsForRelevantInfo(itemDoc.getAllStatements());
@@ -96,12 +93,6 @@ public class EntDocProc implements Reportable {
     }
   }
 
-  /**
-   * Filters all statements by checking the main snak data for known exclusionary criteria.
-   *
-   * @param statements the iterator of statements to be processed.
-   * @return A list of StmtProc containing relevant statements.
-   */
   private List<StmtProc> filterAllStatementsForRelevantInfo(Iterator<Statement> statements) {
     List<StmtProc> filteredStmts = new ArrayList<>();
 
@@ -112,16 +103,6 @@ public class EntDocProc implements Reportable {
       }
     }
     return filteredStmts;
-  }
-
-  /**
-   * Processes a PropertyDocument by creating a new Property and adding it to the Graphset.
-   *
-   * @param propertyDocument the PropertyDocument to be processed.
-   */
-  public void processPropDocument(PropertyDocument propertyDocument) {
-    Property p = new Property(propertyDocument);
-    graphset.addPropToLookupAndQueue(p);
   }
 
 }
