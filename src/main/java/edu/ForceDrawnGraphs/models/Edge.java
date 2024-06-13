@@ -21,6 +21,10 @@ public class Edge {
     return tgtVertexID;
   }
 
+  public void setTgtVertexID(String tgtID) {
+    this.tgtVertexID = tgtID;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)
