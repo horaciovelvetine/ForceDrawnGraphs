@@ -9,6 +9,15 @@ import java.util.Comparator;
 import edu.ForceDrawnGraphs.models.Vertex;
 
 public class FuzzyStringMatch {
+  public static Integer MATCH_THRESHOLD = 11;
+
+  /**
+   * Fuzzy matches a target string to a list of vertices.
+   * 
+   * @param target   The target string to match.
+   * @param vertices The list of vertices to match against.
+   * @return A list of vertices that match the target string.
+   */
   public static List<Vertex> fuzzyMatch(String target, List<Vertex> vertices) {
     List<VertexDistance> distances = new ArrayList<>();
     for (Vertex vertex : vertices) {
@@ -20,9 +29,7 @@ public class FuzzyStringMatch {
 
     List<Vertex> result = new ArrayList<>();
     for (VertexDistance vertexDistance : distances) {
-      // If the distance is less than 5, add the vertex to the result list
-      // 5 is an arbitrary number, and a starting place for tuning the fuzzy matching
-      if (vertexDistance.getDistance() < 5) {
+      if (vertexDistance.getDistance() < MATCH_THRESHOLD) {
         result.add(vertexDistance.getVertex());
       }
     }
