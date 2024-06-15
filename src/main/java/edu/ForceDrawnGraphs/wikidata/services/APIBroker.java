@@ -12,6 +12,7 @@ import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
+import edu.ForceDrawnGraphs.util.DateConverter;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 
 public class APIBroker implements Reportable {
@@ -46,16 +47,20 @@ public class APIBroker implements Reportable {
 
   private CompletableFuture<Void> startFetchTasks(ExecutorService executor) {
     int depth = graphset.depth();
-    CompletableFuture<Integer> entFuture =
-        CompletableFuture.supplyAsync(() -> fetchAndProcessEntities(depth), executor);
-    CompletableFuture<Integer> propFuture =
-        CompletableFuture.supplyAsync(() -> fetchAndProcessProperties(depth), executor);
-    CompletableFuture<Integer> dateFuture =
-        CompletableFuture.supplyAsync(() -> fetchAndProcessDates(depth), executor);
+    try {
+      CompletableFuture<Integer> entFuture =
+          CompletableFuture.supplyAsync(() -> fetchAndProcessEntities(depth), executor);
+      CompletableFuture<Integer> propFuture =
+          CompletableFuture.supplyAsync(() -> fetchAndProcessProperties(depth), executor);
+      CompletableFuture<Integer> dateFuture =
+          CompletableFuture.supplyAsync(() -> fetchAndProcessDates(depth), executor);
 
-    return CompletableFuture.allOf(entFuture, propFuture, dateFuture);
+      return CompletableFuture.allOf(entFuture, propFuture, dateFuture);
+    } catch (Exception e) {
+      report("startFetchTasks() error: ", e);
+    }
+    return null;
   }
-
 
   private EntityDocument fetchEntityDocument(String query) {
     EntityDocument doc = fetchEntityDocByTitleQuery(query);
@@ -66,9 +71,9 @@ public class APIBroker implements Reportable {
     try {
       return wbdf.getEntityDocumentByTitle("enwiki", query);
     } catch (Exception e) {
-      log("fetchEntityDocByTitleQuery error: ", e);
-      return null;
+      report("fetchEntityDocByTitleQuery error: ", e);
     }
+    return null;
   }
 
   private EntityDocument fetchEntityDocBySiteQuery(String query) {
@@ -78,7 +83,7 @@ public class APIBroker implements Reportable {
         return wbdf.getEntityDocument(searchResults.get(0).getEntityId());
       }
     } catch (Exception e) {
-      log("fetchEntityDocBySiteQuery error: ", e);
+      report("fetchEntityDocBySiteQuery error: ", e);
     }
     return null;
   }
@@ -95,16 +100,15 @@ public class APIBroker implements Reportable {
 
     try {
       Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(entQIDs);
-      List<EntityDocument> docs = new ArrayList<>(docMap.values());
 
-      docs.forEach(doc -> {
+      docMap.values().forEach(doc -> {
         graphset.wikiDataFetchQueue().fetchSuccessful(doc.getEntityId().getId());
         docProc.processEntDocument(doc);
       });
 
-      return docs.size();
+      return docMap.size();
     } catch (Exception e) {
-      log("fetchAndProcessEntities() error: ", e);
+      report("fetchAndProcessEntities() error: ", e);
     }
     return 0;
   }
@@ -123,7 +127,7 @@ public class APIBroker implements Reportable {
       });
       return docs.size();
     } catch (Exception e) {
-      log("fetchAndProcessProperties() error: ", e);
+      report("fetchAndProcessProperties() error: ", e);
     }
     return 0;
   }
@@ -135,11 +139,13 @@ public class APIBroker implements Reportable {
 
     dateVals.forEach(date -> {
       try {
-        WbSearchEntitiesResult result = wbdf.searchEntities(date, "en").get(0);
+        WbSearchEntitiesResult result =
+            wbdf.searchEntities(DateConverter.convertDate(date), "en").get(0);
+
         graphset.wikiDataFetchQueue().fetchSuccessful(date);
         docProc.processDateResult(result, date);
       } catch (Exception e) {
-        log("Error processing date: " + date, e);
+        report("fetchAndProcessDates() error: " + date, e);
       }
     });
     return dateVals.size();
