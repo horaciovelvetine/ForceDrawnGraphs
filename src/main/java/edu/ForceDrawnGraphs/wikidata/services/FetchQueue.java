@@ -60,13 +60,13 @@ public class FetchQueue implements Reportable {
   /**
    * Marks an item as successfully fetched and removes it from the queues.
    * 
-   * @param id the identifier of the fetched item
+   * @param val the string used to the fetched item
    */
-  public void fetchSuccessful(String id) {
-    entityQueue.removeIf(entQ -> entQ.QID().equals(id));
-    propertyQueue.removeIf(propQ -> propQ.QID().equals(id));
-    stringQueue.removeIf(strQ -> strQ.value().equals(id));
-    fetchedValues.add(new FetchedTarget(id));
+  public void fetchSuccessful(String val) {
+    entityQueue.removeIf(entQ -> entQ.QID().equals(val));
+    propertyQueue.removeIf(propQ -> propQ.QID().equals(val));
+    stringQueue.removeIf(strQ -> strQ.value().equals(val));
+    fetchedValues.add(new FetchedTarget(val));
   }
 
   /**
