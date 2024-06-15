@@ -22,10 +22,6 @@ public class WikiDataVertex extends Vertex {
     return ID();
   }
 
-  public String label() {
-    return label();
-  }
-
   public String description() {
     return description;
   }
