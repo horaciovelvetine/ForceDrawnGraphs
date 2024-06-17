@@ -112,14 +112,14 @@ public class Graphset implements Reportable {
 
   /**
    * Checks all of the edges in the Graphset for a match with the query value, and assigns the dateVertex(QID) to the edge.
+   * 
+   * @param dateVertex The newley created dateVertex to assign to the edges.
+   * @param queryVal The query value used to store and query the WD API (will be equal to value on edge if matches).
    */
   public void assignDateVertexToEdges(WikiDataVertex dateVertex, String queryVal) {
-    // check all edges for value match, and assign dateVertex(QID) to said edge
     for (Edge edge : edges) {
-      if (edge instanceof WikiDataEdge) {
-        if (((WikiDataEdge) edge).value().equals(queryVal)) {
-          ((WikiDataEdge) edge).setTgtVertexID(dateVertex.QID());
-        }
+      if (isValidWikiDataEdge(edge, queryVal)) {
+        ((WikiDataEdge) edge).setTgtVertexID(dateVertex.QID());
       }
     }
   }
@@ -136,6 +136,14 @@ public class Graphset implements Reportable {
   //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
   //
   //------------------------------------------------------------------------------------------------------------
+
+  private boolean isValidWikiDataEdge(Edge edge, String queryVal) {
+    if (!(edge instanceof WikiDataEdge)) {
+      return false;
+    }
+    WikiDataEdge wikiEdge = (WikiDataEdge) edge;
+    return wikiEdge.value() != null && wikiEdge.value().equals(queryVal);
+  }
 
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {
     for (Vertex vertex : vertices) {
@@ -156,14 +164,16 @@ public class Graphset implements Reportable {
   }
 
   private void propertyLabelMatchesExistingVertex(Property property) {
-    List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices);
+    //TODO: Needs a stop and a way stricter match for this to be useful
+    List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices, 100);
 
-    if (matchedVertices.size() == 1) {
-      WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
-      vert.setMatchingPropertyQID(property.ID());
-    } else if (matchedVertices.size() > 1) {
-      report("Multiple vertices matched for property: " + property.ID());
-    }
+    print("Stop, this should not be so easy to match.");
+    // if (matchedVertices.size() == 1) {
+    //   WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
+    //   vert.setMatchingPropertyQID(property.ID());
+    // } else if (matchedVertices.size() > 1) {
+    //   report("Multiple vertices matched for property: " + property.ID());
+    // }
   }
 
 }
