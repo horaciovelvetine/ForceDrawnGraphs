@@ -20,17 +20,24 @@ public class FuzzyStringMatch {
    */
   public static List<Vertex> fuzzyMatch(String target, List<Vertex> vertices, Integer threshold) {
     List<VertexDistance> distances = new ArrayList<>();
+    List<Vertex> directMatches = new ArrayList<>();
     for (Vertex vertex : vertices) {
       if (vertex.label() == null || target == null) {
         continue; // ignore null labels & targets 
       }
-      int distance = LevenshteinStringMatch.computeLevenshteinDistance(target, vertex.label());
-      distances.add(new VertexDistance(vertex, distance));
+
+      if (vertex.label().contains(target)) { // substring match
+        directMatches.add(vertex);
+      } else {
+        int distance = LevenshteinStringMatch.computeLevApproxWithThreshold(target, vertex.label(),
+            (threshold * 2)); // mult by 2 to expand the threshold slightly for better results
+        distances.add(new VertexDistance(vertex, distance));
+      }
     }
 
     Collections.sort(distances, Comparator.comparingInt(VertexDistance::distance));
 
-    List<Vertex> result = new ArrayList<>();
+    List<Vertex> result = new ArrayList<>(directMatches); // substring matches first
     for (VertexDistance vertexDistance : distances) {
       if (vertexDistance.distance() < threshold) {
         result.add(vertexDistance.vertex());
