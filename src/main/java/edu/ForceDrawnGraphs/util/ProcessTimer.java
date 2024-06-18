@@ -1,7 +1,9 @@
-package edu.ForceDrawnGraphs.interfaces;
+package edu.ForceDrawnGraphs.util;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 
 /**
  * The ProcessTimer class represents a timer for measuring the execution time of a process.
@@ -22,7 +24,7 @@ public class ProcessTimer implements Reportable {
   public ProcessTimer(String processName) {
     this.startTime = System.currentTimeMillis();
     this.processName = processName;
-    publishProcessTimerStart();
+    // publishProcessTimerStart();
   }
 
   /**
@@ -58,7 +60,7 @@ public class ProcessTimer implements Reportable {
    * Reports the end of the process timer to the console & process.log.
    */
   public void reportProcessTimerEnd() {
-    report(toString() + this.startTime + ", " + this.endTime + ", " + laps, "process.log");
+    report(toString() + this.startTime + ", " + this.endTime + ", " + laps);
   }
 
   /**
@@ -93,7 +95,7 @@ public class ProcessTimer implements Reportable {
    */
   public void lapData(String lapStringData) {
     this.laps.add(System.currentTimeMillis());
-    report(getTimeStamp() + this.processName + "lapData():" + lapStringData, "process.log");
+    report(now() + this.processName + "lapData():" + lapStringData);
   }
 
   /**

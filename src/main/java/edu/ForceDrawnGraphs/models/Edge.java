@@ -1,24 +1,42 @@
 package edu.ForceDrawnGraphs.models;
 
-import java.util.Set;
+import java.util.Objects;
 
 public class Edge {
-  private int id;
-  private int srcVertexId; // actual serial ID
-  private int tgtVertextId; // actual serial ID
-  private int weight;
-  private String edgeTypeId; // The corresponding property_id;
-  private int srcStatementID;
-  private int srcHyperlinkID;
+  private String srcVertexID;
+  private String tgtVertexID;
+  private double weight;
 
-  public Edge() {
-    //Default no vars constructor
+  public Edge(String srcVertexQID, String tgtVertexQID) {
+    this.srcVertexID = srcVertexQID;
+    this.tgtVertexID = tgtVertexQID;
   }
 
-  public Edge(Vertex srcVertex, Vertex tgtVertex, Set<Hyperlink> hyperlinks, Set<Statement> statements) {
-    this.srcVertexId = srcVertex.getID();
-    this.tgtVertextId = tgtVertex.getID();
-    // this.srcHyperlinkID = hyperlink.getId();
-    // this.weight = Integer.parseInt(hyperlink.getCount());
+  public String srcVertexID() {
+    return srcVertexID;
+  }
+
+  public String tgtVertexID() {
+    return tgtVertexID;
+  }
+
+  public void setTgtVertexID(String tgtID) {
+    this.tgtVertexID = tgtID;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    Edge edge = (Edge) o;
+    return Double.compare(edge.weight, weight) == 0 && Objects.equals(srcVertexID, edge.srcVertexID)
+        && Objects.equals(tgtVertexID, edge.tgtVertexID);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(srcVertexID, tgtVertexID, weight);
   }
 }

@@ -24,21 +24,19 @@
 
 <div align=center>
   <a href=https://www.wikidata.org/wiki/Wikidata:Main_Page>
-    <img src=docs/images/Wikidata-logo-en.svg width=175>
-  </a><a href=https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data>
-    <img src=docs/images/Kensho-data-en.svg width=175>
+    <img src="docs/images/Wikidata-logo-en.svg" width=225>
   </a>
 <h2>The Data</h2>
 <br>
 </div>
 
-Wikipedia is an enormously cool resource which has an even cooler non-profit cousin called [Wikimedia](https://wikimediafoundation.org/). The Wikimedia Foundation is a non-profit organization that hosts Wikipedia and other free knowledge projects, one of these is [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page). This project is focused on providing wide access to the data behind wikipedia, and is essential in providing data to crunch for free.  *(It should be noted that featured as a background image is a Graph, ultimaltey the solution I took an enormous detour to arrive back at)*
+Wikipedia is an enormously cool resource which has an even cooler non-profit cousin called [Wikimedia](https://wikimediafoundation.org/). The Wikimedia Foundation hosts free knowledge projects, and one of these is [Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page). This project is focused on providing wide access to the data behind wikipedia, and is essential in providing data to crunch for free.  *(It should be noted that featured as a background image is a Graph, ultimaltey the solution I took an enormous detour to arrive at)*
 
 Initially this project used a dataset from Kaggle, which was a smaller subset of a larger Wikidata dump from english wikipedia in 2019 [Kensho Derived Wikimedia Dataset](https://www.kaggle.com/datasets/kenshoresearch/kensho-derived-wikimedia-data/). This dataset was used to design the initial importing and some initial processing, but after some digging has been found to have some unreliable data. Later on there will be outlines with new data & table structure, but for now the below information will reference process' and code that was used with the Kaggle dataset. The dataset is approximatley 30GB in size, and contains both CSV files and a single JSONL file with all of the data and 5 primary tables that are important for the intended purpose: Statements, Items, Pages, Hyperlinks, and Properties.
 
 <h3> Kensho Dataset Table Diagram </h3>
 
-![Kensho Dataset Table Diagram](docs/images/KenshoDatasetChart_v2.0.drawio.svg)
+<img src="docs/images/KenshoDatasetChart_v2.0.drawio.svg"/>
 
 
 <h3>Understanding the Dataset and Importing It</h3>
@@ -54,7 +52,7 @@ A seperate process was used to asses the number_of_refs for `Properties` wherein
 
 The original Kensho dataset is about 25GB of data, and being naive to any approaches to handling this amount of data, the initial import strategy was to traverse, parse, and insert each and every (line for CSV, JSON object for JSONL) record into the database. While the only data I have from this process is anecdotal, I was esimating this insert process to take longer than 2 weeks to complete. 
 
-Doing some searching you will find that there are a few ways to approach this, a common method is to use the `COPY` command in postgres to directly insert the data from the files into the database, but since the above stated goal was to interpret the data on the way in, and discard some (the text for each page...), instead another method was used. Given the simplicity of the data, and the fact that the data was already in a format that could be easily parsed, the `BufferedReader` & `PreparedStatement` classes allow processing each line for large batch inserting into the dataset.
+With some searching you will find that there are a few ways better to approach this, a common method is to use the `COPY` command in postgres to directly insert the data from the files into the database, but since the above stated goal was to interpret the data on the way in, and discard some (the text for each page...), another method was used. Given the simplicity of the data, and the fact that the data was already in a format that could be easily parsed, the `BufferedReader` & `PreparedStatement` classes allow processing each line for large batch inserting into the dataset.
 
 <h4>Module 1: Understanding & Testing Prepared Statements</h4> 
 
@@ -67,7 +65,7 @@ The `PreparedStatement` class is a subclass of `Statement` that allows for preco
 The below data outlines two sets of tests run inserting the dataset utilizing variable batch sizes, timing the performance, and reporting it in a log file. Initial batches are run with sizes of: 100, 1000. 2500, 500, 10000, 25000, 50000, and 100000 objects per commit, but the subsequent tests and charts will picture runs with batch sizes of: 100000, 250000, 500000, 1000000, and 10000000 objects per commit (The inital runs were recorded and iterated on, suffering at large from the same costly time per `INSERT` statement).
 
 <div align=center>
-  <img src=docs/images/images/PreparedStatementsChart_v1.1.1.png>
+  <img src="docs/images/PreparedStatementsChart_v1.1.1.png">
 </div>
 <p>This data was limited to inserting 10 million records from the `item.csv` set, but outlines a really interesting stepping trend emerging as the batch size reaches 250,000 objects. With each batch being run at least 3 times, then averages calculated (and displyed above) 10m & 100k batch sizes emerged as plausible, later on machine limitations would choose the 100k batch size for the final import process. A better understanding of the `PreparedStatement` class may have an explanation for the stepping trend but that lies outside the scope of this project, and will have to remain a mystery for now.</p>
 <hr>
@@ -76,6 +74,7 @@ The below data outlines two sets of tests run inserting the dataset utilizing va
 
 The last formal optimization in the import step was leveraging multiple threads to run the insert process asyhronously. This was done by creating a `ThreadPoolCache` and then running the import process for each file at the same time. With the batch size at 100k, this allowed paralell processing of the `Statements` and `Hyperlinks` tables. This final optimization has a **tremendous** impact, cutting the time to import in half. Mechanically this is equivalent to writing 250 million rows (all of english Wikipedia circa 2019) representing the relationships between all pages and their listed statements from an average time of *30* minutes to *15 under minutes*.
 <div align=center>
+  <img src="docs/images/LeveraginMultipleThreadsAvgs.png">
   <img src="docs/images/LeveraginMultipleThreadsAvgs.png">
 </div>
 <hr>
@@ -89,12 +88,11 @@ Being a novice and finding resources for solving the big idea in your head often
 Conceptually I knew that `(x,y,x)` coordinates could be used to represent a "Wikipedia Page" in 3D space, and that the relationship between pages could be represented by the distance between them. In practice this is a pretty simple concept, so thats where I started, a pretty basic idea, averages. This led to building a tool and doing some reasearch for existing solutions for building graphs, and you can find more detail on that in this repository: [Finding Centroids](https://github.com/horaciovelvetine/finding-centroids)
 
 <a href=https://github.com/horaciovelvetine/finding-centroids>
-  <img src=docs/images/wmeans_3_vertices_2d_with_strength_radius.png>
+  <img src="docs/images/wmeans_3_vertices_2d_with_strength_radius.png"/>
 </a>
 
 <h4>Force Directed Graphs</h4>
-*IN PROGRESS TBD*
-
+In Progress TBD...
 <hr>
 
 <div align=center>
@@ -146,9 +144,16 @@ spring.datasource.continue-on-error=true
 - [Force-Directed Drawing Algorithms by Stephen G. Kobourov (from Brown University CS curriculum)](https://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf)
 - [Handbook of Graph Drawing and Visualization by Roberto Tamassia (Readings Overview)](https://cs.brown.edu/people/rtamassi/gdhandbook/)
 - [Spring Embedders and Force Directed Graph Drawing Algorithms by Stephen G. Kobourov (from the University of Arizona)](https://arxiv.org/pdf/1201.3011.pdf;)
-- [JUNG2 2.0 API Documentation](https://jung.sourceforge.net/doc/api/index.html)
+- [JUNG2 2.0 API Documentation (dep)](https://jung.sourceforge.net/doc/api/index.html)
+- [JUNG2 2.1 API Documentation](https://jrtom.github.io/jung/javadoc/overview-summary.html)
 - [FADE: Graph Drawing, Clustering, and Visual Abstraction by Aaron Quigley and Peter Eades (from the University of Newcastle, Callaghan NSW)](https://arxiv.org/pdf/1201.3011.pdf;)
 - [JSON Lines Viewer Extension](https://marketplace.visualstudio.com/items?itemName=lehoanganh298.json-lines-viewer)
+- [Wikibase/Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
+- [Java: Wikidata Toolkit API Docs (JavaDoc)](https://wikidata.github.io/Wikidata-Toolkit/)
+- [Graphs Explained (by the Guava Team)](https://github.com/google/guava/wiki/GraphsExplained#choosing-the-right-graph-type)
+- [Graph Drawing, Clustering, and Visual Abstraction (by Aaron Quigley and Peter Eades)](https://aaronquigley.org/wp-content/uploads/2019/03/Fade-2000-aquigley.pdf)
+- [Force-Directed Graph Drawing Using Social Gravity and Scaling (Michael J. Bannister, David Eppstein, Michael T. Goodrich, Lowell Trott)](https://arxiv.org/abs/1209.0748)
+- [Fuzzy Search Algorighm for Approximate String Matching (by Baeldung)](https://www.baeldung.com/cs/fuzzy-search-algorithm)
 
   <h4>System Specs:</h4>
   <p>2021 16" MacBook Pro</p>
@@ -157,3 +162,4 @@ spring.datasource.continue-on-error=true
   <p>Ventura 13.0</p>
   <p>Postgres v2.7.1</p>
   <p>Spring 3.2.2</p>
+

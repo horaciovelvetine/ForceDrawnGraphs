@@ -1,183 +1,57 @@
 package edu.ForceDrawnGraphs.models;
 
-/**
- * Base class for a Vertex object (also known as a Node).
- */
 public class Vertex {
-  private int id;
-  private float x;
-  private float y;
-  private float z;
-  private String srcItemId;
-  private String srcPageId;
-  private String label; // Label is from the item parent
-  private String title; // Title is from the page parent
-  private String description; // Description is from the item parent
-  private String views; // Views is from the page parent
+  private String ID;
+  private String label;
+  private double x = 0.0;
+  private double y = 0.0;
+  private double z = 0.0;
 
-  public Vertex() {
-    //Default no vars constructor
+  public Vertex(String ID, String label) {
+    this.ID = ID;
+    this.label = label;
   }
 
-  /**
-   * Constructs a new Vertex object with the given item.
-   *
-   * @param item The item associated with the vertex.
-   * @implNote Used on initialization pre DB commit.
-   */
-  public Vertex(Item item) {
-    this.srcItemId = item.getItemID();
-    this.label = item.getEnLabel();
-    this.description = item.getEnDescription();
+  public String ID() {
+    return ID;
   }
 
-  /**
-   * Constructs a new Vertex object with the given page.
-   *
-   * @param page The page associated with the vertex.
-   * @implNote Used on initialization pre DB commit.
-   */
-  public Vertex(Page page) {
-    this.srcPageId = page.getPageID();
-    this.title = page.getTitle();
-    this.views = page.getViews();
+  public void setID(String ID) {
+    this.ID = ID;
   }
 
-  /**
-   * Constructs a new Vertex object with the given item and page.
-   *
-   * @param item The item associated with the vertex.
-   * @param page The page associated with the vertex.
-   * 
-   * @implNote Used on initialization pre DB commit.
-   */
-  public Vertex(Item item, Page page) {
-    this.srcItemId = item.getItemID();
-    this.label = item.getEnLabel();
-    this.title = page.getTitle();
-    this.description = item.getEnDescription();
-    this.srcPageId = page.getPageID();
-    this.views = page.getViews();
-  }
-
-  // Setters
-  public void setID(int id) {
-    this.id = id;
-  }
-
-  public void setX(float x) {
-    this.x = x;
-  }
-
-  public void setY(float y) {
-    this.y = y;
-  }
-
-  public void setZ(float z) {
-    this.z = z;
-  }
-
-  public void setSrcItemID(String srcItemId) {
-    this.srcItemId = srcItemId;
-  }
-
-  public void setSrcPageID(String srcPageId) {
-    this.srcPageId = srcPageId;
+  public String label() {
+    return label;
   }
 
   public void setLabel(String label) {
     this.label = label;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public void setViews(String views) {
-    this.views = views;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  // Getters
-  public int getID() {
-    return id;
-  }
-
-  public float getX() {
-    return x;
-  }
-
-  public float getY() {
-    return y;
-  }
-
-  public float getZ() {
-    return z;
-  }
-
-  public String getSrcItemID() {
-    return srcItemId;
-  }
-
-  public String getSrcPageID() {
-    return srcPageId;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public String getViews() {
-    return views;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-  //! ===========================================================================
-  //! ENDS GETTERS AND SETTER INFRASTRUCTURE
-  //! ===========================================================================
-
-  /**
-   * Creates a new Vertex object from the given item and page.
-   *
-   * @param item The item associated with the vertex.
-   * @param page The page associated with the vertex.
-   * @return A new Vertex object.
-   */
-
-  public static Vertex createNewVertexFromRecords(Item item, Page page) {
-    if (page != null) {
-      return new Vertex(item, page);
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-    return new Vertex(item);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    Vertex other = (Vertex) obj;
+    return ID == other.ID && Double.compare(x, other.x) == 0 && Double.compare(y, other.y) == 0
+        && Double.compare(z, other.z) == 0;
   }
 
-  /**
-   * Creates a new Vertex object from the given item.
-   *
-   * @param item The item associated with the vertex.
-   * @return A new Vertex object.
-   */
-  public static Vertex createNewVertexFromRecords(Page page) {
-    return new Vertex(page);
+  @Override
+  public int hashCode() {
+    int result = 17;
+    long xBits = Double.doubleToLongBits(x);
+    long yBits = Double.doubleToLongBits(y);
+    long zBits = Double.doubleToLongBits(z);
+    result = 31 * result;
+    result = 31 * result + (int) (xBits ^ (xBits >>> 32));
+    result = 31 * result + (int) (yBits ^ (yBits >>> 32));
+    result = 31 * result + (int) (zBits ^ (zBits >>> 32));
+    return result;
   }
 
-  /**
-   * Creates a new Vertex object from the given page.
-   *
-   * @param page The page associated with the vertex.
-   * @return A new Vertex object.
-   */
-
-  public static Vertex createNewVertexFromRecords(Item item) {
-    return new Vertex(item);
-  }
 }
