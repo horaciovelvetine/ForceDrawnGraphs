@@ -75,6 +75,7 @@ The below data outlines two sets of tests run inserting the dataset utilizing va
 The last formal optimization in the import step was leveraging multiple threads to run the insert process asyhronously. This was done by creating a `ThreadPoolCache` and then running the import process for each file at the same time. With the batch size at 100k, this allowed paralell processing of the `Statements` and `Hyperlinks` tables. This final optimization has a **tremendous** impact, cutting the time to import in half. Mechanically this is equivalent to writing 250 million rows (all of english Wikipedia circa 2019) representing the relationships between all pages and their listed statements from an average time of *30* minutes to *15 under minutes*.
 <div align=center>
   <img src="docs/images/LeveraginMultipleThreadsAvgs.png">
+  <img src="docs/images/LeveraginMultipleThreadsAvgs.png">
 </div>
 <hr>
   
@@ -161,3 +162,4 @@ spring.datasource.continue-on-error=true
   <p>Ventura 13.0</p>
   <p>Postgres v2.7.1</p>
   <p>Spring 3.2.2</p>
+
