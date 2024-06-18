@@ -25,20 +25,21 @@ public class InitGraphset implements Reportable {
     wikidataAPI.fuzzyFetchOriginEntityDocument(target);
 
     while (graphset.depth() <= targetDepth) {
-
       wikidataAPI.fetchQueuedValuesDetails();
 
       if (!graphset.wikiDataFetchQueue().hasItems(graphset.depth())) {
         graphset.iterateNDepth();
       }
 
-      //TODO - Properties have a label & description and are likely to have a matching Vertex which (using the label) could be preemptively added to QUEUE
-
+      //TODO - Properties have a label & description and are likely to have a matching Vertex
+      // which (using the label) could be preemptively added to QUEUE
       report(graphset.toString());
       timer.lap();
     }
     //TODO - end of the fetch (sh)could close the Vertex data (by fetching remaining ItemDocs)
     timer.end();
     print("stop");
+
+    //! - Start the graph/layout
   }
 }
