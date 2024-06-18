@@ -8,7 +8,6 @@ public class Edge {
   private double weight;
 
   public Edge(String srcVertexQID, String tgtVertexQID) {
-    // this.details = details;
     this.srcVertexID = srcVertexQID;
     this.tgtVertexID = tgtVertexQID;
   }
