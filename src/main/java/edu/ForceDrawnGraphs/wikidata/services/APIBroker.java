@@ -35,18 +35,22 @@ public class APIBroker implements Reportable {
   }
 
   public void fetchQueuedValuesDetails() {
+    ProcessTimer timer = new ProcessTimer("Total Ents Fetched:");
+
     ExecutorService executor = Executors.newFixedThreadPool(3);
+    Integer totalEntsFetched = 0;
     try {
-      CompletableFuture<Void> allFutures = startFetchTasks(executor);
-      allFutures.join();
+      totalEntsFetched = startFetchTasks(executor);
     } finally {
       executor.shutdown();
-      new ProcessTimer("Total Ents Fetched: ").end();
+      timer.end(" " + totalEntsFetched.toString() + "\n");
     }
   }
 
-  private CompletableFuture<Void> startFetchTasks(ExecutorService executor) {
+  private Integer startFetchTasks(ExecutorService executor) {
     int depth = graphset.depth();
+    Integer totalEntsFetched = 0;
+
     try {
       CompletableFuture<Integer> entFuture =
           CompletableFuture.supplyAsync(() -> fetchAndProcessEntities(depth), executor);
@@ -55,11 +59,15 @@ public class APIBroker implements Reportable {
       CompletableFuture<Integer> dateFuture =
           CompletableFuture.supplyAsync(() -> fetchAndProcessDates(depth), executor);
 
-      return CompletableFuture.allOf(entFuture, propFuture, dateFuture);
+      totalEntsFetched += entFuture.get().intValue();
+      totalEntsFetched += propFuture.get().intValue();
+      totalEntsFetched += dateFuture.get().intValue();
+
+      CompletableFuture.allOf(entFuture, propFuture, dateFuture).join();
     } catch (Exception e) {
       report("startFetchTasks() error: ", e);
     }
-    return null;
+    return totalEntsFetched;
   }
 
   private EntityDocument fetchEntityDocument(String query) {
