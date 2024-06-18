@@ -164,16 +164,14 @@ public class Graphset implements Reportable {
   }
 
   private void propertyLabelMatchesExistingVertex(Property property) {
-    //TODO: Needs a stop and a way stricter match for this to be useful
-    List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices, 100);
+    List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices, 2);
 
-    print("Stop, this should not be so easy to match.");
-    // if (matchedVertices.size() == 1) {
-    //   WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
-    //   vert.setMatchingPropertyQID(property.ID());
-    // } else if (matchedVertices.size() > 1) {
-    //   report("Multiple vertices matched for property: " + property.ID());
-    // }
+    if (matchedVertices.size() == 1) {
+      WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
+      vert.setMatchingPropertyQID(property.ID());
+    } else if (matchedVertices.size() > 1) {
+      report("Multiple vertices matched for property: " + property.ID());
+    }
   }
 
 }
