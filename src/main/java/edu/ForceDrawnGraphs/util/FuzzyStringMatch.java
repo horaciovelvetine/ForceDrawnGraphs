@@ -14,12 +14,16 @@ public class FuzzyStringMatch {
    * 
    * @param target   The target string to match.
    * @param vertices The list of vertices to match against.
-   * @param threshold An arbitrary threshold value to establish match strength.
+   * @param threshold An arbitrary threshold value to establish match strength (lower
+   * values enforce more strict match results).
    * @return A list of vertices that match the target string.
    */
   public static List<Vertex> fuzzyMatch(String target, List<Vertex> vertices, Integer threshold) {
     List<VertexDistance> distances = new ArrayList<>();
     for (Vertex vertex : vertices) {
+      if (vertex.label() == null || target == null) {
+        continue; // ignore null labels & targets 
+      }
       int distance = LevenshteinStringMatch.computeLevenshteinDistance(target, vertex.label());
       distances.add(new VertexDistance(vertex, distance));
     }
