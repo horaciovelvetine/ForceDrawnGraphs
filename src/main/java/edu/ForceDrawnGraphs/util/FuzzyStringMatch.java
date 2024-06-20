@@ -26,6 +26,10 @@ public class FuzzyStringMatch {
         continue; // ignore null labels & targets 
       }
 
+      if (vertex.label().equals(target)) {
+        return List.of(vertex); // exact match
+      }
+
       if (vertex.label().contains(target)) { // substring match
         directMatches.add(vertex);
       } else {
