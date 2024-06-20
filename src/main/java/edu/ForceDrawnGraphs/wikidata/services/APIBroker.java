@@ -66,6 +66,7 @@ public class APIBroker implements Reportable {
       CompletableFuture.allOf(entFuture, propFuture, dateFuture).join();
     } catch (Exception e) {
       report("startFetchTasks() error: ", e);
+      throw new RuntimeException(e);
     }
     return totalEntsFetched;
   }
@@ -77,9 +78,16 @@ public class APIBroker implements Reportable {
 
   private EntityDocument fetchEntityDocByTitleQuery(String query) {
     try {
-      return wbdf.getEntityDocumentByTitle("enwiki", query);
+      EntityDocument result = wbdf.getEntityDocumentByTitle("enwiki", query);
+      if (result != null) {
+        return result;
+      } else {
+        graphset.wikiDataFetchQueue().fetchUnsuccessful(query);
+        report("fetchEntityDocByTitleQuery(): No result found for query: " + query);
+      }
     } catch (Exception e) {
-      report("fetchEntityDocByTitleQuery error: ", e);
+      report("fetchEntityDocByTitleQuery() error: ", e);
+      throw new RuntimeException(e);
     }
     return null;
   }
@@ -89,9 +97,13 @@ public class APIBroker implements Reportable {
       List<WbSearchEntitiesResult> searchResults = wbdf.searchEntities(query, "en");
       if (!searchResults.isEmpty()) {
         return wbdf.getEntityDocument(searchResults.get(0).getEntityId());
+      } else {
+        graphset.wikiDataFetchQueue().fetchUnsuccessful(query);
+        report("fetchEntityDocBySiteQuery(): No result found for query: " + query);
       }
     } catch (Exception e) {
-      report("fetchEntityDocBySiteQuery error: ", e);
+      report("fetchEntityDocBySiteQuery() error: ", e);
+      throw new RuntimeException(e);
     }
     return null;
   }
@@ -117,8 +129,8 @@ public class APIBroker implements Reportable {
       return docMap.size();
     } catch (Exception e) {
       report("fetchAndProcessEntities() error: ", e);
+      throw new RuntimeException(e);
     }
-    return 0;
   }
 
   private Integer fetchAndProcessProperties(int depth) {
@@ -136,8 +148,8 @@ public class APIBroker implements Reportable {
       return docs.size();
     } catch (Exception e) {
       report("fetchAndProcessProperties() error: ", e);
+      throw new RuntimeException(e);
     }
-    return 0;
   }
 
   private Integer fetchAndProcessDates(int depth) {
@@ -147,13 +159,20 @@ public class APIBroker implements Reportable {
 
     dateVals.forEach(date -> {
       try {
-        WbSearchEntitiesResult result =
-            wbdf.searchEntities(DateConverter.convertDate(date), "en").get(0);
-
-        graphset.wikiDataFetchQueue().fetchSuccessful(date);
-        docProc.processDateResult(result, date);
+        List<WbSearchEntitiesResult> result =
+            wbdf.searchEntities(DateConverter.convertDate(date), "en");
+        if (result.isEmpty()) {
+          report("fetchAndProcessDates(): No result found for date - removed from Queue: " + date);
+          graphset.wikiDataFetchQueue().fetchUnsuccessful(date);
+          return;
+        } else {
+          WbSearchEntitiesResult res = result.get(0);
+          graphset.wikiDataFetchQueue().fetchSuccessful(date);
+          docProc.processDateResult(res, date);
+        }
       } catch (Exception e) {
         report("fetchAndProcessDates() error: " + date, e);
+        throw new RuntimeException(e);
       }
     });
     return dateVals.size();
