@@ -1,31 +1,25 @@
 package edu.ForceDrawnGraphs.models;
 
 public class Vertex {
-  private String ID;
-  private String label;
-  private double x = 0.0;
-  private double y = 0.0;
-  private double z = 0.0;
+  String id;
+  String label;
 
-  public Vertex(String ID, String label) {
-    this.ID = ID;
+  public Vertex(String id, String label) {
+    this.id = id;
     this.label = label;
   }
 
-  public String ID() {
-    return ID;
-  }
-
-  public void setID(String ID) {
-    this.ID = ID;
+  public String id() {
+    return id;
   }
 
   public String label() {
     return label;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  @Override
+  public String toString() {
+    return "Vertex{" + "id=" + id + ", label=" + label + '}';
   }
 
   @Override
@@ -37,21 +31,14 @@ public class Vertex {
       return false;
     }
     Vertex other = (Vertex) obj;
-    return ID == other.ID && Double.compare(x, other.x) == 0 && Double.compare(y, other.y) == 0
-        && Double.compare(z, other.z) == 0;
+    return id.equals(other.id) && label.equals(other.label);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
-    long xBits = Double.doubleToLongBits(x);
-    long yBits = Double.doubleToLongBits(y);
-    long zBits = Double.doubleToLongBits(z);
-    result = 31 * result;
-    result = 31 * result + (int) (xBits ^ (xBits >>> 32));
-    result = 31 * result + (int) (yBits ^ (yBits >>> 32));
-    result = 31 * result + (int) (zBits ^ (zBits >>> 32));
+    result = 31 * result + id.hashCode();
+    result = 31 * result + label.hashCode();
     return result;
   }
-
 }

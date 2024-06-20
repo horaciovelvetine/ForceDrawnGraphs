@@ -5,7 +5,8 @@ import java.util.Objects;
 public class Edge {
   private String srcVertexID;
   private String tgtVertexID;
-  private double weight;
+  double weight;
+  String label;
 
   public Edge(String srcVertexQID, String tgtVertexQID) {
     this.srcVertexID = srcVertexQID;
