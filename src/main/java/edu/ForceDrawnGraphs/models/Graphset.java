@@ -1,15 +1,17 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.stream.Collectors;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.util.FuzzyStringMatch;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
 import edu.ForceDrawnGraphs.wikidata.services.FetchQueue;
 import edu.ForceDrawnGraphs.wikidata.services.StmtProc;
+import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * Central class for storing something akin to 'state' for the initial request creating a session/universe/TBD. 
@@ -74,7 +76,7 @@ public class Graphset implements Reportable {
    * 
    */
   public void addVertexToLookup(Vertex vertex) {
-    if (vertexDetailsAlreadyPresent(vertex.ID()))
+    if (vertexDetailsAlreadyPresent(vertex.id()))
       return;
 
     vertices.add(vertex);
@@ -124,6 +126,31 @@ public class Graphset implements Reportable {
     }
   }
 
+  /**
+   * Gets all Edges of the graphset where the source & target vertices entity data has been fetched.
+   */
+  public Set<Edge> getCompleteWikidataEnts() {
+    return edges.stream().filter(edge -> edge instanceof WikiDataEdge)
+        .map(edge -> (WikiDataEdge) edge).filter(wikiEdge -> vertexExists(wikiEdge.srcVertexID())
+            && vertexExists(wikiEdge.tgtVertexID()))
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Gets the associated vertices of an edge.
+   */
+  public Optional<Pair<Vertex>> getAssociatedVertices(Edge edge) {
+    if (edge instanceof WikiDataEdge) {
+      WikiDataEdge wikiEdge = (WikiDataEdge) edge;
+      Vertex srcVertex = findVertexById(wikiEdge.srcVertexID());
+      Vertex tgtVertex = findVertexById(wikiEdge.tgtVertexID());
+      if (srcVertex != null && tgtVertex != null) {
+        return Optional.of(new Pair<>(srcVertex, tgtVertex));
+      }
+    }
+    return Optional.empty();
+  }
+
   @Override
   public String toString() {
     return "Graphset [N=" + N + ", originQuery=" + originQuery + ", properties=" + properties.size()
@@ -147,7 +174,7 @@ public class Graphset implements Reportable {
 
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {
     for (Vertex vertex : vertices) {
-      if (vertex.ID().equals(newVertexID)) {
+      if (vertex.id().equals(newVertexID)) {
         return true;
       }
     }
@@ -161,6 +188,17 @@ public class Graphset implements Reportable {
       }
     }
     return false;
+  }
+
+  private boolean vertexExists(String vertexQID) {
+    return vertices.stream().anyMatch(vertex -> vertex instanceof WikiDataVertex
+        && ((WikiDataVertex) vertex).QID().equals(vertexQID));
+  }
+
+  private Vertex findVertexById(String vertexId) {
+    return vertices.stream()
+        .filter(v -> v instanceof WikiDataVertex && ((WikiDataVertex) v).QID().equals(vertexId))
+        .findFirst().orElse(null);
   }
 
   private void propertyLabelMatchesExistingVertex(Property property) {
