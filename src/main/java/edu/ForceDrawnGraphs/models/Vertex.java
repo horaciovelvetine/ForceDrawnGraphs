@@ -1,5 +1,7 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.util.Objects;
+
 public class Vertex {
   String id;
   String label;
@@ -31,14 +33,14 @@ public class Vertex {
       return false;
     }
     Vertex other = (Vertex) obj;
-    return id.equals(other.id) && label.equals(other.label);
+    return id.equals(other.id) && Objects.equals(label, other.label);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
     result = 31 * result + id.hashCode();
-    result = 31 * result + label.hashCode();
+    result = 31 * result + Objects.hashCode(label);
     return result;
   }
 }
