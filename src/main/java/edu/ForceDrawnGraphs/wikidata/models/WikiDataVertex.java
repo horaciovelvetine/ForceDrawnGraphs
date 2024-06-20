@@ -19,7 +19,7 @@ public class WikiDataVertex extends Vertex {
   }
 
   public String QID() {
-    return ID();
+    return id();
   }
 
   public String description() {
