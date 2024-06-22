@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.commands;
 
+import java.util.concurrent.CompletableFuture;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -7,6 +8,7 @@ import org.springframework.shell.standard.ShellOption;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.jung.GraphsetDecorator;
 import edu.ForceDrawnGraphs.models.Graphset;
+import edu.ForceDrawnGraphs.util.FirstResponder;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.wikidata.services.APIBroker;
 import edu.ForceDrawnGraphs.wikidata.services.EntDocProc;
@@ -20,7 +22,7 @@ public class InitGraphset implements Reportable {
   //JUNG
   private static GraphsetDecorator graphsetDec = new GraphsetDecorator(graphset);
   // Configuration
-  private static Integer targetDepth = 3;
+  private static Integer targetDepth = 2;
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {
@@ -45,9 +47,14 @@ public class InitGraphset implements Reportable {
     }
     timer.end();
     //JUNG LAYOUTS
-    graphsetDec.initFR();
-    graphsetDec.initFR2();
-    graphsetDec.initKK();
+    CompletableFuture<Void> initFRFuture = CompletableFuture.runAsync(() -> graphsetDec.initFR());
+    CompletableFuture<Void> initFR2Future = CompletableFuture.runAsync(() -> graphsetDec.initFR2());
+
+    CompletableFuture<Void> allFutures =
+        CompletableFuture.allOf(initFRFuture, initFR2Future);
+    allFutures.join();
+
+    FirstResponder.serializeResponset(graphset);
 
     print("stop");
   }
