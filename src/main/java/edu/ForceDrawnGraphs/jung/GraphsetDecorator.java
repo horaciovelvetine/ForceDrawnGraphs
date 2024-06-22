@@ -79,28 +79,13 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     timer.end();
   }
 
-  public void initKK() {
-    ProcessTimer timer = new ProcessTimer("KKLayout()::");
-    try {
-      layout3.initialize();
-      layout3.setAdjustForGravity(true);
-      layout3.setMaxIterations(700); //def 700
-      while (!layout3.done()) {
-        layout3.step();
-      }
-    } catch (Exception e) {
-      report("initKK()::" + e.getMessage());
-    }
-    timer.end();
-  }
-
-  private HashMap<Vertex, Point2D> getLayoutCoords(Layout<Vertex, Edge> layout) {
-    HashMap<Vertex, Point2D> coords = new HashMap<>();
-    for (Vertex v : getVertices()) {
-      Point2D p = layout.apply(v);
-      coords.put(v, p);
-    }
-    return coords;
-  }
+  // private HashMap<Vertex, Point2D> getLayoutCoords(Layout<Vertex, Edge> layout) {
+  //   HashMap<Vertex, Point2D> coords = new HashMap<>();
+  //   for (Vertex v : getVertices()) {
+  //     Point2D p = layout.apply(v);
+  //     coords.put(v, p);
+  //   }
+  //   return coords;
+  // }
 
 }
