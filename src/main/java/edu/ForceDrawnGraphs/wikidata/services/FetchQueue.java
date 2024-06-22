@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 
@@ -14,6 +14,7 @@ import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
  * methods to add data to the queues, retrieve data from the queues, mark fetched items as successful, 
  * and check the presence of items at a specific depth in the queues.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FetchQueue implements Reportable {
   private Set<StrTarget> stringQueue;
   private Set<EntTarget> entityQueue;
