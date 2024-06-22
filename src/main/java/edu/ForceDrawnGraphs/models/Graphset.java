@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.util.FuzzyStringMatch;
 import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
@@ -16,7 +17,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 /**
  * Central class for storing something akin to 'state' for the initial request creating a session/universe/TBD. 
  */
-
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Graphset implements Reportable {
   private int N;
   private String originQuery;

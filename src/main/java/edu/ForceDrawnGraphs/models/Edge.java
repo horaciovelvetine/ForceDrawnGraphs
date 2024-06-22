@@ -1,7 +1,9 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Edge {
   private String srcVertexID;
   private String tgtVertexID;
