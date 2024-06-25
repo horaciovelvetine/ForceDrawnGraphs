@@ -5,8 +5,13 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Vertex {
-  String id;
-  String label;
+  private String id;
+  private String label;
+  private String description;
+
+  public Vertex() {
+    // Default requirement for Jackson
+  }
 
   public Vertex(String id, String label) {
     this.id = id;

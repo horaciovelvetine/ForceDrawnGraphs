@@ -5,10 +5,17 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Edge {
+  private String propertyQID;
   private String srcVertexID;
   private String tgtVertexID;
-  double weight;
-  String label;
+  private double weight;
+  private String label;
+  private String value;
+  private String datatype;
+
+  public Edge() {
+    //Default requirement for Jackson
+  }
 
   public Edge(String srcVertexQID, String tgtVertexQID) {
     this.srcVertexID = srcVertexQID;

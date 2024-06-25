@@ -24,8 +24,8 @@ public class Graphset implements Reportable {
   private FetchQueue wikiDataFetchQueue;
   // STORE
   private Set<Property> properties;
-  private Set<Edge> edges;
-  private Set<Vertex> vertices;
+  private Set<WikiDataEdge> edges;
+  private Set<WikiDataVertex> vertices;
 
   public Graphset() {
     N = 0; // set-depth as distance in number of edges from origin
@@ -43,11 +43,11 @@ public class Graphset implements Reportable {
     return originQuery;
   }
 
-  public Set<Vertex> vertices() {
+  public Set<WikiDataVertex> vertices() {
     return vertices;
   }
 
-  public Set<Edge> edges() {
+  public Set<WikiDataEdge> edges() {
     return edges;
   }
 
@@ -79,8 +79,8 @@ public class Graphset implements Reportable {
   public void addVertexToLookup(Vertex vertex) {
     if (vertexDetailsAlreadyPresent(vertex.id()))
       return;
-
-    vertices.add(vertex);
+    if (vertex instanceof WikiDataVertex)
+      vertices.add((WikiDataVertex) vertex);
   }
 
   /**
@@ -109,7 +109,7 @@ public class Graphset implements Reportable {
 
     if (edge instanceof WikiDataEdge) {
       wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) edge, N);
-      edges.add(edge);
+      edges.add((WikiDataEdge) edge);
     }
   }
 
@@ -204,8 +204,6 @@ public class Graphset implements Reportable {
 
   private void propertyLabelMatchesExistingVertex(Property property) {
     List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices, 2);
-    //TODO - still (especially as dataset grows) returns duplicate vertices (e.g. 'producer' ---> 'film producer' & 'Film producer')
-    // possibly adjust the substring matches to actually be rejected as these seem to be the duplicates
     if (matchedVertices.size() == 1) {
       WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
       vert.setMatchingPropertyQID(property.ID());

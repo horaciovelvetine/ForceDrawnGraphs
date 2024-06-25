@@ -8,6 +8,10 @@ public class WikiDataVertex extends Vertex {
   private String description;
   private String matchingPropertyQID;
 
+  public WikiDataVertex() {
+    // Default requirement for Jackson
+  }
+
   public WikiDataVertex(ItemDocument doc) {
     super(doc.getEntityId().getId(), doc.findLabel("en"));
     this.description = doc.findDescription("en");

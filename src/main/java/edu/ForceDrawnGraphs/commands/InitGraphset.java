@@ -26,7 +26,7 @@ public class InitGraphset implements Reportable {
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {
-    ProcessTimer timer = new ProcessTimer("InitGraphset()::");
+    ProcessTimer timer = new ProcessTimer("InitGraphset()::" + target + "::n=" + targetDepth);
 
     graphset.setOriginQuery(target);
     wikidataAPI.fuzzyFetchOriginEntityDocument(target);
@@ -47,15 +47,13 @@ public class InitGraphset implements Reportable {
     }
     timer.end();
     //JUNG LAYOUTS
-    CompletableFuture<Void> initFRFuture = CompletableFuture.runAsync(() -> graphsetDec.initFR());
-    CompletableFuture<Void> initFR2Future = CompletableFuture.runAsync(() -> graphsetDec.initFR2());
+    // CompletableFuture<Void> initFRFuture = CompletableFuture.runAsync(() -> graphsetDec.initFR());
+    // CompletableFuture<Void> initFR2Future = CompletableFuture.runAsync(() -> graphsetDec.initFR2());
 
-    CompletableFuture<Void> allFutures =
-        CompletableFuture.allOf(initFRFuture, initFR2Future);
-    allFutures.join();
+    // CompletableFuture<Void> allFutures =
+    //     CompletableFuture.allOf(initFRFuture, initFR2Future);
+    // allFutures.join();
 
-    FirstResponder.serializeResponset(graphset);
-
-    print("stop");
+    // FirstResponder.serializeResponset(graphset);
   }
 }

@@ -8,6 +8,10 @@ public class WikiDataEdge extends Edge {
   private String value; // QID/or str(date, quantity, url... etc)
   private String datatype; //==> .datatype() from the snak
 
+  public WikiDataEdge() {
+    // Default requirement for Jackson
+  }
+
   public WikiDataEdge(WikiRecSnak snak, String srcVertexQID) {
     super(srcVertexQID, findSnakTargetQID(snak));
     this.propertyQID = snak.property().value();

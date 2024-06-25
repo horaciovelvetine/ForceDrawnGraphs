@@ -12,7 +12,9 @@ public class FirstResponder {
 
   public static void serializeResponset(Graphset graphset) {
     try {
-      mapper.writeValue(new File(STORE_DIR + "graphset.json"), graphset);
+      mapper.writeValue(
+          new File(STORE_DIR + "testset-n" + graphset.depth() + graphset.originQuery() + "-.json"),
+          graphset);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -20,7 +22,7 @@ public class FirstResponder {
 
   public static Graphset desrializeResponset() {
     try {
-      return mapper.readValue(new File(STORE_DIR + "graphset.json"), Graphset.class);
+      return mapper.readValue(new File(STORE_DIR + "testset-n2-kb.json"), Graphset.class);
     } catch (IOException e) {
       e.printStackTrace();
     }
