@@ -48,3 +48,7 @@ This is a sample of the kind of statement found with an EntityDocument with all 
 - **Main Snak**: The main snak is the primary statement, and in this case is a property (P166: "Award Received") with a value (Q1275727: Saturn Award for best Actor on Television) which is another entity.
 - **Qualifiers**: Qualifiers are additional contextual information about the statement, in this case the day the award was received, and the film for which the award was received (Q1189631: The Following).
 - **References**: References are sources for the information in the statement, in this case the source is the "award received" statement on the entity for the Saturn Awards (which was P143: imported from Wikimedia project Q206855: Russian Wikipedia).
+
+
+[Wikibase/Data Model](https://www.mediawiki.org/wiki/Wikibase/DataModel)
+[Java: Wikidata Toolkit API Docs (JavaDoc)](https://wikidata.github.io/Wikidata-Toolkit/)
