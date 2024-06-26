@@ -1,6 +1,8 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.Objects;
+import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
+import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -8,6 +10,7 @@ public class Vertex {
   private String id;
   private String label;
   private String description;
+  private String matchingPropertyQID;
 
   public Vertex() {
     // Default requirement for Jackson
@@ -18,12 +21,42 @@ public class Vertex {
     this.label = label;
   }
 
+  public Vertex(ItemDocument itemDocument) {
+    this(itemDocument.getEntityId().getId(), itemDocument.findLabel("en"));
+    this.description = itemDocument.findDescription("en");
+  }
+
+  public Vertex(WbSearchEntitiesResult searchResult) {
+    this(searchResult.getEntityId(), searchResult.getLabel());
+    this.description = searchResult.getDescription();
+  }
+
   public String id() {
     return id;
   }
 
   public String label() {
     return label;
+  }
+
+  public String QID() {
+    return id();
+  }
+
+  public String description() {
+    return description;
+  }
+
+  public void setMatchingPropertyQID(String matchingPropertyQID) {
+    this.matchingPropertyQID = matchingPropertyQID;
+  }
+
+  public String matchingPropertyQID() {
+    return matchingPropertyQID;
+  }
+
+  public boolean hasMatchingPropertyQID() {
+    return matchingPropertyQID != null;
   }
 
   @Override

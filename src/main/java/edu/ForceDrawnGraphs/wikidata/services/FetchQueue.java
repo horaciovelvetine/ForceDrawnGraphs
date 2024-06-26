@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
+import edu.ForceDrawnGraphs.models.Edge;
+
 
 /**
  * Manages separate queues for different data types,entities, properties, and strings (typically dates), this includes:
@@ -39,7 +40,7 @@ public class FetchQueue implements Reportable {
    * @param newEdge the WikiDataEdge to be processed
    * @param n the current depth or level of processing
    */
-  public void addWikiDataEdgeDetails(WikiDataEdge newEdge, int currentDepth) {
+  public void addWikiDataEdgeDetails(Edge newEdge, int currentDepth) {
     Integer nextDepth = currentDepth + 1;
     processPropertyQueue(newEdge.propertyQID(), getAllValuesCurrentlyQueuedByN(currentDepth),
         nextDepth);

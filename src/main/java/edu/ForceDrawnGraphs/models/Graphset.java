@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.util.FuzzyStringMatch;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
 import edu.ForceDrawnGraphs.wikidata.services.FetchQueue;
 import edu.ForceDrawnGraphs.wikidata.services.StmtProc;
 import edu.uci.ics.jung.graph.util.Pair;
@@ -24,8 +22,8 @@ public class Graphset implements Reportable {
   private FetchQueue wikiDataFetchQueue;
   // STORE
   private Set<Property> properties;
-  private Set<WikiDataEdge> edges;
-  private Set<WikiDataVertex> vertices;
+  private Set<Edge> edges;
+  private Set<Vertex> vertices;
 
   public Graphset() {
     N = 0; // set-depth as distance in number of edges from origin
@@ -43,11 +41,11 @@ public class Graphset implements Reportable {
     return originQuery;
   }
 
-  public Set<WikiDataVertex> vertices() {
+  public Set<Vertex> vertices() {
     return vertices;
   }
 
-  public Set<WikiDataEdge> edges() {
+  public Set<Edge> edges() {
     return edges;
   }
 
@@ -79,8 +77,8 @@ public class Graphset implements Reportable {
   public void addVertexToLookup(Vertex vertex) {
     if (vertexDetailsAlreadyPresent(vertex.id()))
       return;
-    if (vertex instanceof WikiDataVertex)
-      vertices.add((WikiDataVertex) vertex);
+
+    vertices.add(vertex);
   }
 
   /**
@@ -107,10 +105,7 @@ public class Graphset implements Reportable {
   public void addEdgesToLookupAndQueue(StmtProc stmt) {
     Edge edge = stmt.msEdge();
 
-    if (edge instanceof WikiDataEdge) {
-      wikiDataFetchQueue.addWikiDataEdgeDetails((WikiDataEdge) edge, N);
-      edges.add((WikiDataEdge) edge);
-    }
+    edges.add(edge);
   }
 
   /**
@@ -119,10 +114,10 @@ public class Graphset implements Reportable {
    * @param dateVertex The newley created dateVertex to assign to the edges.
    * @param queryVal The query value used to store and query the WD API (will be equal to value on edge if matches).
    */
-  public void assignDateVertexToEdges(WikiDataVertex dateVertex, String queryVal) {
+  public void assignDateVertexToEdges(Vertex dateVertex, String queryVal) {
     for (Edge edge : edges) {
-      if (isValidWikiDataEdge(edge, queryVal)) {
-        ((WikiDataEdge) edge).setTgtVertexID(dateVertex.QID());
+      if (isValidEdge(edge, queryVal)) {
+        edge.setTgtVertexID(dateVertex.QID());
       }
     }
   }
@@ -131,9 +126,8 @@ public class Graphset implements Reportable {
    * Gets all Edges of the graphset where the source & target vertices entity data has been fetched.
    */
   public Set<Edge> getCompleteWikidataEnts() {
-    return edges.stream().filter(edge -> edge instanceof WikiDataEdge)
-        .map(edge -> (WikiDataEdge) edge).filter(wikiEdge -> vertexExists(wikiEdge.srcVertexID())
-            && vertexExists(wikiEdge.tgtVertexID()))
+    return edges.stream().filter(
+        wikiEdge -> vertexExists(wikiEdge.srcVertexID()) && vertexExists(wikiEdge.tgtVertexID()))
         .collect(Collectors.toSet());
   }
 
@@ -141,13 +135,13 @@ public class Graphset implements Reportable {
    * Gets the associated vertices of an edge.
    */
   public Optional<Pair<Vertex>> getAssociatedVertices(Edge edge) {
-    if (edge instanceof WikiDataEdge) {
-      WikiDataEdge wikiEdge = (WikiDataEdge) edge;
-      Vertex srcVertex = findVertexById(wikiEdge.srcVertexID());
-      Vertex tgtVertex = findVertexById(wikiEdge.tgtVertexID());
-      if (srcVertex != null && tgtVertex != null) {
-        return Optional.of(new Pair<>(srcVertex, tgtVertex));
-      }
+
+    Edge wikiEdge = edge;
+    Vertex srcVertex = findVertexById(wikiEdge.srcVertexID());
+    Vertex tgtVertex = findVertexById(wikiEdge.tgtVertexID());
+    if (srcVertex != null && tgtVertex != null) {
+      return Optional.of(new Pair<>(srcVertex, tgtVertex));
+
     }
     return Optional.empty();
   }
@@ -165,12 +159,8 @@ public class Graphset implements Reportable {
   //
   //------------------------------------------------------------------------------------------------------------
 
-  private boolean isValidWikiDataEdge(Edge edge, String queryVal) {
-    if (!(edge instanceof WikiDataEdge)) {
-      return false;
-    }
-    WikiDataEdge wikiEdge = (WikiDataEdge) edge;
-    return wikiEdge.value() != null && wikiEdge.value().equals(queryVal);
+  private boolean isValidEdge(Edge edge, String queryVal) {
+    return edge.value() != null && edge.value().equals(queryVal);
   }
 
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {
@@ -192,20 +182,18 @@ public class Graphset implements Reportable {
   }
 
   private boolean vertexExists(String vertexQID) {
-    return vertices.stream().anyMatch(vertex -> vertex instanceof WikiDataVertex
-        && ((WikiDataVertex) vertex).QID().equals(vertexQID));
+    return vertices.stream().anyMatch(v -> v != null && v.QID().equals(vertexQID));
   }
 
   private Vertex findVertexById(String vertexId) {
-    return vertices.stream()
-        .filter(v -> v instanceof WikiDataVertex && ((WikiDataVertex) v).QID().equals(vertexId))
-        .findFirst().orElse(null);
+    return vertices.stream().filter(v -> v != null && v.QID().equals(vertexId)).findFirst()
+        .orElse(null);
   }
 
   private void propertyLabelMatchesExistingVertex(Property property) {
     List<Vertex> matchedVertices = FuzzyStringMatch.fuzzyMatch(property.label(), vertices, 2);
     if (matchedVertices.size() == 1) {
-      WikiDataVertex vert = (WikiDataVertex) matchedVertices.get(0);
+      Vertex vert = matchedVertices.get(0);
       vert.setMatchingPropertyQID(property.ID());
     } else if (matchedVertices.size() > 1) {
       report("Multiple vertices matched for property: " + property.ID());

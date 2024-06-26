@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import edu.ForceDrawnGraphs.models.Vertex;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
 
 public class FuzzyStringMatch {
   /**
@@ -51,7 +50,7 @@ public class FuzzyStringMatch {
     return result;
   }
 
-  public static List<Vertex> fuzzyMatch(String label, Set<WikiDataVertex> vertices, Integer threshold) {
+  public static List<Vertex> fuzzyMatch(String label, Set<Vertex> vertices, Integer threshold) {
     return fuzzyMatch(label, new ArrayList<>(vertices), threshold);
   }
 

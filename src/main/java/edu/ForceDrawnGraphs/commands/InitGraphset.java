@@ -1,6 +1,5 @@
 package edu.ForceDrawnGraphs.commands;
 
-import java.util.concurrent.CompletableFuture;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
@@ -8,7 +7,6 @@ import org.springframework.shell.standard.ShellOption;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.jung.GraphsetDecorator;
 import edu.ForceDrawnGraphs.models.Graphset;
-import edu.ForceDrawnGraphs.util.FirstResponder;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.wikidata.services.APIBroker;
 import edu.ForceDrawnGraphs.wikidata.services.EntDocProc;

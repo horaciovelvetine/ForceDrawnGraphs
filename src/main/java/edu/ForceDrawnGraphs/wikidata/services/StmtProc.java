@@ -7,7 +7,6 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.wikidata.models.UnknownSnakVisitor;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
 import edu.ForceDrawnGraphs.wikidata.models.WikiRecSnak;
 import edu.ForceDrawnGraphs.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
 
@@ -68,7 +67,7 @@ public class StmtProc implements Reportable {
       if (srcVertexQID == mainSnak.value().value())
         return;
     }
-    mainSnakEdge = new WikiDataEdge(mainSnak, srcVertexQID);
+    mainSnakEdge = new Edge(mainSnak, srcVertexQID);
   }
 
   //------------------------------------------------------------------------------------------------------------
