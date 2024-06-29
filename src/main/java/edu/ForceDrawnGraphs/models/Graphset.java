@@ -160,7 +160,7 @@ public class Graphset implements Reportable {
   //------------------------------------------------------------------------------------------------------------
 
   private boolean isValidEdge(Edge edge, String queryVal) {
-    return edge.value() != null && edge.value().equals(queryVal);
+    return edge.label() != null && edge.label().equals(queryVal);
   }
 
   private boolean vertexDetailsAlreadyPresent(String newVertexID) {

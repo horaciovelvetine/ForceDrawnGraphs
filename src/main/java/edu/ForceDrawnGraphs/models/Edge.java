@@ -12,7 +12,6 @@ public class Edge {
   private String tgtVertexID;
   private double weight;
   private String label;
-  private String value;
   private String datatype;
 
   public Edge() {
@@ -23,7 +22,7 @@ public class Edge {
     this.srcVertexID = srcVertexQID;
     this.tgtVertexID = findSnakTargetQID(snak);
     this.propertyQID = snak.property().value();
-    this.value = findSnakTargetValue(snak);
+    this.label = findSnakLabel(snak);
     this.datatype = snak.datatype();
   }
 
@@ -47,12 +46,12 @@ public class Edge {
     return propertyQID;
   }
 
-  public String value() {
-    return value;
-  }
-
   public String datatype() {
     return datatype;
+  }
+
+  public String label() {
+    return label;
   }
 
 
@@ -74,7 +73,7 @@ public class Edge {
 
   @Override
   public String toString() {
-    return "[:propertyQID=" + urlPrefixer(propertyQID) + ", value=" + value + ", datatype="
+    return "[:propertyQID=" + urlPrefixer(propertyQID) + ", label=" + label + ", datatype="
         + datatype + ", tgtVertexQID=" + urlPrefixer(tgtVertexID()) + ", srcVertexQID="
         + urlPrefixer(srcVertexID()) + " :]";
   }
@@ -84,6 +83,7 @@ public class Edge {
   //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
   //
   //------------------------------------------------------------------------------------------------------------
+
   private String urlPrefixer(String qid) {
     if (qid == null)
       return null;
@@ -100,7 +100,7 @@ public class Edge {
     return snak.value().value();
   }
 
-  private static String findSnakTargetValue(WikiRecSnak snak) {
+  private static String findSnakLabel(WikiRecSnak snak) {
     if (snak.value().type() == TXT_VAL_TYPE.TIME)
       return snak.value().value();
     return null;

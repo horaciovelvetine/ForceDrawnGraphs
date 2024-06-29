@@ -44,7 +44,7 @@ public class FetchQueue implements Reportable {
     Integer nextDepth = currentDepth + 1;
     processPropertyQueue(newEdge.propertyQID(), getAllValuesCurrentlyQueuedByN(currentDepth),
         nextDepth);
-    processStringQueue(newEdge.value(), getAllValuesCurrentlyQueuedByN(currentDepth), nextDepth);
+    processStringQueue(newEdge.label(), getAllValuesCurrentlyQueuedByN(currentDepth), nextDepth);
     processEntityQueue(newEdge.tgtVertexID(), getAllValuesCurrentlyQueuedByN(currentDepth),
         nextDepth);
   }
