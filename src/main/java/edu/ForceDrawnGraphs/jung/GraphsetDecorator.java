@@ -1,10 +1,8 @@
 package edu.ForceDrawnGraphs.jung;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
 
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
@@ -15,8 +13,6 @@ import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.ObservableGraph;
 
@@ -25,7 +21,6 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final Dimension graphSize = new Dimension(1600, 900);
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
   private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
-  private final KKLayout<Vertex, Edge> layout3 = new KKLayout<>(this);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
