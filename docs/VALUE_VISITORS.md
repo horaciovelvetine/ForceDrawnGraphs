@@ -30,3 +30,9 @@ public void whatKindaResultsAreThese(List<Values> results){
 This isn't the worst thing - but with interfaces can be handled easily behind the scenes without the verbosity. A single class using this interface handles all this type narrowing for you, and allows defining custom behavior for each implementing (result value) type. 
 
 You can see this implemented in practice inside the `UnknownSnakVisitor.java` class, with only 3 potential result types important, the custom handling to format Times differently from Strings from Entity ID's is all organized in a single place.
+
+## References: 
+- [GOF Pattern.com](https://www.gofpattern.com/) 
+- [Baeldung: Java Visitor Pattern](https://www.baeldung.com/java-visitor-pattern)
+- [Gang of Four Design Patterns](https://springframework.guru/gang-of-four-design-patterns/)
+- [Intro Gang of GOF Design Patterns (Geeks for Geeks)](https://www.geeksforgeeks.org/introduction-to-gang-of-fourgof-design-patterns/)
