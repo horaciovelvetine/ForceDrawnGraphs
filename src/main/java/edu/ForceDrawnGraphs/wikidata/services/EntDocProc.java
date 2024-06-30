@@ -68,7 +68,7 @@ public class EntDocProc implements Reportable {
 
   private void processPropDocument(PropertyDocument propertyDocument) {
     Property p = new Property(propertyDocument);
-    graphset.addPropToLookup(p); //==> also check for related vertex using label to associate records
+    graphset.addPropToLookup(p);
   }
 
   private void processItemDocument(ItemDocument itemDoc) {
