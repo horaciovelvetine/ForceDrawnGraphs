@@ -7,6 +7,7 @@ import org.springframework.shell.standard.ShellOption;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.jung.GraphsetDecorator;
 import edu.ForceDrawnGraphs.models.Graphset;
+import edu.ForceDrawnGraphs.util.FirstResponder;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 import edu.ForceDrawnGraphs.wikidata.services.APIBroker;
 import edu.ForceDrawnGraphs.wikidata.services.EntDocProc;
@@ -20,7 +21,7 @@ public class InitGraphset implements Reportable {
   //JUNG
   private static GraphsetDecorator graphsetDec = new GraphsetDecorator(graphset);
   // Configuration
-  private static Integer targetDepth = 2;
+  private static Integer targetDepth = 3;
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {
@@ -34,6 +35,7 @@ public class InitGraphset implements Reportable {
     // });
 
     while (graphset.depth() <= targetDepth) {
+      
       wikidataAPI.fetchQueuedValuesDetails();
       graphsetDec.addCompleteWikidataEnts();
 
@@ -44,14 +46,6 @@ public class InitGraphset implements Reportable {
       timer.lap();
     }
     timer.end();
-    //JUNG LAYOUTS
-    // CompletableFuture<Void> initFRFuture = CompletableFuture.runAsync(() -> graphsetDec.initFR());
-    // CompletableFuture<Void> initFR2Future = CompletableFuture.runAsync(() -> graphsetDec.initFR2());
-
-    // CompletableFuture<Void> allFutures =
-    //     CompletableFuture.allOf(initFRFuture, initFR2Future);
-    // allFutures.join();
-
-    // FirstResponder.serializeResponset(graphset);
+    FirstResponder.serializeResponset(graphset);
   }
 }
