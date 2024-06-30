@@ -88,7 +88,8 @@ public class Graphset implements Reportable {
    * 
    */
   public void addPropToLookup(Property property) {
-    propertyLabelMatchesExistingVertex(property);
+    //TODO - Refactor for accuracy of match again.
+    // propertyLabelMatchesExistingVertex(property);// check if property label matches any existing vertex
 
     if (propertyDetailsAlreadyPresent(property))
       return;
@@ -105,6 +106,7 @@ public class Graphset implements Reportable {
   public void addEdgesToLookupAndQueue(StmtProc stmt) {
     Edge edge = stmt.msEdge();
 
+    wikiDataFetchQueue.addWikiDataEdgeDetails(edge, N);
     edges.add(edge);
   }
 
