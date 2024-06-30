@@ -73,14 +73,4 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     }
     timer.end();
   }
-
-  // private HashMap<Vertex, Point2D> getLayoutCoords(Layout<Vertex, Edge> layout) {
-  //   HashMap<Vertex, Point2D> coords = new HashMap<>();
-  //   for (Vertex v : getVertices()) {
-  //     Point2D p = layout.apply(v);
-  //     coords.put(v, p);
-  //   }
-  //   return coords;
-  // }
-
 }
