@@ -4,9 +4,12 @@ import java.util.Objects;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Vertex {
+  private Double x;
+  private Double y;
   private String id;
   private String label;
   private String description;
@@ -47,6 +50,11 @@ public class Vertex {
     return description;
   }
 
+  public void setCoords(Double x, Double y) {
+    this.x = x;
+    this.y = y;
+  }
+
   public void setMatchingPropertyQID(String matchingPropertyQID) {
     this.matchingPropertyQID = matchingPropertyQID;
   }
@@ -57,6 +65,11 @@ public class Vertex {
 
   public boolean hasMatchingPropertyQID() {
     return matchingPropertyQID != null;
+  }
+
+  @JsonIgnore
+  public boolean isInfoComplete() {
+    return id != null && label != null && x != null && y != null;
   }
 
   @Override
