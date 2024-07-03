@@ -21,7 +21,10 @@ public class InitGraphset implements Reportable {
   //JUNG
   private static GraphsetDecorator graphsetDec = new GraphsetDecorator(graphset);
   // Configuration
-  private static Integer targetDepth = 3;
+  private static Integer targetDepth = 2;
+
+  String[] testStrings = {"Kevin Bacon", "Paul Erdős", "Paul Morphy", "Honinbo Shusaku"};
+
 
   @ShellMethod("Create a graphset (JSON file) given an origin target (or a default of Kevin Bacon).")
   public void ig(@ShellOption(defaultValue = "Kevin Bacon") String target) {
@@ -30,22 +33,16 @@ public class InitGraphset implements Reportable {
     graphset.setOriginQuery(target);
     wikidataAPI.fuzzyFetchOriginEntityDocument(target);
 
-    // graphsetDec.addGraphEventListener(event -> {
-    //   print(event.toString());
-    // });
-
     while (graphset.depth() <= targetDepth) {
-      
       wikidataAPI.fetchQueuedValuesDetails();
       graphsetDec.addCompleteWikidataEnts();
 
       if (!graphset.wikiDataFetchQueue().hasItems(graphset.depth())) {
         graphset.iterateNDepth();
       }
-
       timer.lap();
     }
     timer.end();
-    FirstResponder.serializeResponset(graphset);
+    FirstResponder.serializeGraphset(graphset);
   }
 }
