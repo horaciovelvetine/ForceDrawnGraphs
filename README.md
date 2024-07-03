@@ -76,7 +76,6 @@ The included [Wikidata Api Doc](docs/WIKIDATA_API.md) contains a thorough walkth
 ### JUNG (Java Universal Network/Graph Framework):
 [JUNG](https://jrtom.github.io/jung/) is a library written by some of the Guava (Google + Java = Guava, or really Gooava but I'm betting that change wouldn't pass a vote) team *externally* to seperate out more specific Graph behaviors, algorithms, implementations, and tools to an open-source library. It's existed in a few incarnations with [a previous version's docs](https://jung.sourceforge.net/) equally findable as the [currently maintained project](https://github.com/jrtom/jung) & [docs](https://jrtom.github.io/jung/javadoc/index.html), and serves as a terrific base to incorporate and build from.  
 
-
 ### References:
 There was a significant amount of research put into this project, see: `docs/references/` for some ***COPIES*** of reference material. Throughout this project dead-links meant either significant hunts for source material, or frustratingly loose threads. In order to avoid this, and with all due respect to each and every single individuals work which helped this project, there are COPIES of the documents being used wherever possible. If you would like any of your works removed, references changed, or citations change, please get in touch! 
 

@@ -51,6 +51,7 @@ public class APIBroker implements Reportable {
     int depth = graphset.depth();
     Integer totalEntsFetched = 0;
 
+    //todo possibly update each of these futures to attack their queues first then the remaining items
     try {
       CompletableFuture<Integer> entFuture =
           CompletableFuture.supplyAsync(() -> fetchAndProcessEntities(depth), executor);
