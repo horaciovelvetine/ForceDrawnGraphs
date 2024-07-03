@@ -1,6 +1,5 @@
 package edu.ForceDrawnGraphs.commands;
 
-import java.util.concurrent.CompletableFuture;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
@@ -15,14 +14,10 @@ public class LayoutTests implements Reportable {
 
   @ShellMethod("Run layout tests.")
   public void layout() {
-
-    //JUNG LAYOUTS
-    CompletableFuture<Void> initFRFuture = CompletableFuture.runAsync(() -> graphsetDec.initFR());
-    CompletableFuture<Void> initFR2Future = CompletableFuture.runAsync(() -> graphsetDec.initFR2());
-
-    CompletableFuture<Void> allFutures =
-        CompletableFuture.allOf(initFRFuture, initFR2Future);
-    allFutures.join();
-    print("Running layout tests...");
+    graphsetDec.initFR();
+    graphsetDec.useLayoutToSetCoordPosition();
+    FirstResponder.createResponse(testset);
+    print("Stop");
   }
+
 }
