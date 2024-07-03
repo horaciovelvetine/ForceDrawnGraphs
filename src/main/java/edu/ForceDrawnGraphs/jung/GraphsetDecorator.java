@@ -12,7 +12,6 @@ import edu.ForceDrawnGraphs.util.ProcessTimer;
 
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.ObservableGraph;
 
@@ -20,21 +19,29 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final Graphset graphset;
   private final Dimension graphSize = new Dimension(1600, 900);
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
-  private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
     this.graphset = graphset;
+    addCompleteWikidataEnts();
   }
 
   public void addCompleteWikidataEnts() {
-    Set<Edge> completeEdges = graphset.getCompleteWikidataEnts();
+    if (graphset == null) {
+      report("addCompleteWikidataEnts()::No graphset to add.");
+      return;
+    }
+
+    Set<Edge> completeEdges = graphset.getFetchCompleteEdges();
+    if (completeEdges == null) {
+      report("addCompleteWikidataEnts()::No edges to add.");
+      return;
+    }
 
     for (Edge edge : completeEdges) {
       Optional<Pair<Vertex>> endpoints = graphset.getAssociatedVertices(edge);
 
       if (endpoints.isPresent()) {
-        //TODO - weighted edges
         addVertex(endpoints.get().getFirst());
         addVertex(endpoints.get().getSecond());
         addEdge(edge, endpoints.get());
@@ -58,19 +65,14 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     timer.end();
   }
 
-  public void initFR2() {
-    ProcessTimer timer = new ProcessTimer("FRLayout2()::");
-    try {
-      layout2.initialize();
-      layout2.setRepulsionMultiplier(0.75); //def 0.75
-      layout2.setAttractionMultiplier(0.75); //def 0.75
-      layout2.setMaxIterations(700); //def 700
-      while (!layout2.done()) {
-        layout2.step();
-      }
-    } catch (Exception e) {
-      report("initFR()::" + e.getMessage());
+  public void useLayoutToSetCoordPosition() {
+    initFR();
+
+    for (Vertex vertex : graphset.vertices()) {
+      Double x = layout.getX(vertex);
+      Double y = layout.getY(vertex);
+      vertex.setCoords(x, y);
     }
-    timer.end();
   }
+
 }
