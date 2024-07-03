@@ -94,8 +94,6 @@ References: [
 
 Finally tying this back into the project, it's easy to see how a Graph of `Vertices` and `Edges` can then be constructed out of the mapped relationships between `Items` using `Statements`.
 
-
-
 # References:
 
 - [W3C Resource Description Framework](https://www.w3.org/RDF/)
