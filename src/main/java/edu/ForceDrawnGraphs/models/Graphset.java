@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,6 +48,10 @@ public class Graphset implements Reportable {
 
   public Set<Edge> edges() {
     return edges;
+  }
+
+  public Set<Property> properties() {
+    return properties;
   }
 
   public FetchQueue wikiDataFetchQueue() {
@@ -125,16 +130,18 @@ public class Graphset implements Reportable {
   }
 
   /**
-   * Gets all Edges of the graphset where the source & target vertices entity data has been fetched.
+   * Gets all Edges of the graphset where the source & target vertices entity data has been successfully fetched.
    */
-  public Set<Edge> getCompleteWikidataEnts() {
+  public Set<Edge> getFetchCompleteEdges() {
+    if (edges.isEmpty())
+      return null;
     return edges.stream().filter(
         wikiEdge -> vertexExists(wikiEdge.srcVertexID()) && vertexExists(wikiEdge.tgtVertexID()))
         .collect(Collectors.toSet());
   }
 
   /**
-   * Gets the associated vertices of an edge.
+   * Gets the source and target vertices of by their shared edge.
    */
   public Optional<Pair<Vertex>> getAssociatedVertices(Edge edge) {
 
@@ -146,6 +153,19 @@ public class Graphset implements Reportable {
 
     }
     return Optional.empty();
+  }
+
+  public Set<Vertex> getFetchCompleteWikidataVertices() {
+    if (vertices.isEmpty())
+      return null;
+
+    Set<Vertex> completeVertices = new HashSet<>(); // Create a new set for vertices that pass the filter
+    for (Vertex v : vertices) {
+      if (v.isInfoComplete()) {
+        completeVertices.add(v); // Add the vertex to the new set only if it is info complete
+      }
+    }
+    return completeVertices;
   }
 
   @Override
