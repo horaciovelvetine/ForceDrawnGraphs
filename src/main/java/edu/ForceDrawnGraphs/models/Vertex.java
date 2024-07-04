@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.models;
 
+import java.awt.geom.Point2D;
 import java.util.Objects;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
@@ -8,8 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Vertex {
-  private Double x;
-  private Double y;
+  private double x;
+  private double y;
   private String id;
   private String label;
   private String description;
@@ -50,9 +51,9 @@ public class Vertex {
     return description;
   }
 
-  public void setCoords(Double x, Double y) {
-    this.x = x;
-    this.y = y;
+  public void setCoords(Point2D coords) {
+    x = coords.getX();
+    y = coords.getY();
   }
 
   public void setMatchingPropertyQID(String matchingPropertyQID) {
@@ -69,7 +70,7 @@ public class Vertex {
 
   @JsonIgnore
   public boolean isInfoComplete() {
-    return id != null && label != null && x != null && y != null;
+    return id != null && label != null && x != 0.0 && y != 0.0;
   }
 
   @Override
