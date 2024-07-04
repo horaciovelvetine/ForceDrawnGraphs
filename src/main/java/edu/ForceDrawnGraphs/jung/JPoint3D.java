@@ -3,9 +3,10 @@ package edu.ForceDrawnGraphs.jung;
 import java.awt.geom.Point2D;
 
 public class JPoint3D extends Point2D.Double {
-  private double x = 0D;
-  private double y = 0D;
-  private double z = 0D;
+  private double x;
+  private double y;
+  private double z;
+  // TODO: Does this mean there will be 2 sets of x and y coords? 
 
   /**
    * Constructs a new JPoint3D object with default coordinates (0, 0, 0).
