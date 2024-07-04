@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.Random;
 import com.google.common.base.Function;
 
-public class RandomLocationTransformer3D<V> implements Function<V, JPoint3D> {
+public class RandomLocationTransformer3D<V> implements Function<V, Point3D> {
   private Dimension dimension;
   private Random random;
 
@@ -15,7 +15,7 @@ public class RandomLocationTransformer3D<V> implements Function<V, JPoint3D> {
   }
 
   @Override
-  public JPoint3D apply(V input) {
-    return new JPoint3D(random.nextDouble() * dimension.width, random.nextDouble() * dimension.height, random.nextDouble() * dimension.height);
+  public Point3D apply(V input) {
+    return new Point3D(random.nextDouble() * dimension.width, random.nextDouble() * dimension.height, random.nextDouble() * dimension.height);
   }
 }
