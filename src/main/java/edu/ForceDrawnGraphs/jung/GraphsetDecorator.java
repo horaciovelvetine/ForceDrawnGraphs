@@ -3,7 +3,7 @@ package edu.ForceDrawnGraphs.jung;
 import java.util.Optional;
 import java.util.Set;
 import java.awt.Dimension;
-
+import java.awt.geom.Point2D;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
@@ -11,6 +11,7 @@ import edu.ForceDrawnGraphs.models.Vertex;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 
 import edu.uci.ics.jung.graph.util.Pair;
+import edu.uci.ics.jung.visualization.layout.CachingLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.ObservableGraph;
@@ -66,13 +67,11 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   }
 
   public void useLayoutToSetCoordPosition() {
-    initFR();
+    CachingLayout<Vertex, Edge> decorator = new CachingLayout<Vertex, Edge>(layout);
 
     for (Vertex vertex : graphset.vertices()) {
-      Double x = layout.getX(vertex);
-      Double y = layout.getY(vertex);
-      vertex.setCoords(x, y);
+      Point2D point = decorator.transform(vertex); // get coords from layout
+      vertex.setCoords(point); // tell verts about their coords
     }
   }
-
 }
