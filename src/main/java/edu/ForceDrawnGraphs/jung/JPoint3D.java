@@ -3,15 +3,15 @@ package edu.ForceDrawnGraphs.jung;
 import java.awt.geom.Point2D;
 
 public class JPoint3D extends Point2D.Double {
-  private double x;
-  private double y;
   private double z;
-  // TODO: Does this mean there will be 2 sets of x and y coords? 
 
   /**
    * Constructs a new JPoint3D object with default coordinates (0, 0, 0).
    */
-  public JPoint3D() {}
+  public JPoint3D() {
+    super();
+    z = 0.0;
+  }
 
   /**
    * Constructs a new JPoint3D object with the specified coordinates.
@@ -21,27 +21,8 @@ public class JPoint3D extends Point2D.Double {
    * @param z The z-coordinate of the point.
    */
   public JPoint3D(double x, double y, double z) {
-    setLocation(x, y, z);
-  }
-
-  /**
-   * Returns the x-coordinate of the point.
-   *
-   * @return The x-coordinate of the point.
-   */
-  @Override
-  public double getX() {
-    return x;
-  }
-
-  /**
-   * Returns the y-coordinate of the point.
-   *
-   * @return The y-coordinate of the point.
-   */
-  @Override
-  public double getY() {
-    return y;
+    super(x, y);
+    this.z = z;
   }
 
   /**
@@ -58,23 +39,10 @@ public class JPoint3D extends Point2D.Double {
    *
    * @param x The x-coordinate of the point.
    * @param y The y-coordinate of the point.
-   */
-  @Override
-  public void setLocation(double x, double y) {
-    this.x = x;
-    this.y = y;
-    this.z = 0;
-  }
-
-  /**
-   * Sets the location of the point to the specified coordinates.
-   *
-   * @param x The x-coordinate of the point.
-   * @param y The y-coordinate of the point.
    * @param z The z-coordinate of the point.
    */
   public void setLocation(double x, double y, double z) {
-    setLocation(x, y);
+    super.setLocation(x, y);
     this.z = z;
   }
 
@@ -88,22 +56,14 @@ public class JPoint3D extends Point2D.Double {
   }
 
   /**
-   * Sets the location of the point to the coordinates of the specified Point2D object.
-   *
-   * @param p The Point2D object whose coordinates will be used.
-   */
-  public void setLocation(Point2D p) {
-    setLocation(p.getX(), p.getY());
-  }
-
-  /**
    * Sets the location of the point to the coordinates of the specified Point2D object and the specified z-coordinate.
    *
    * @param p The Point2D object whose coordinates will be used.
    * @param z The z-coordinate of the point.
    */
   public void setLocation(Point2D p, double z) {
-    setLocation(p.getX(), p.getY(), z);
+    super.setLocation(p);
+    this.z = z;
   }
 
   /**
@@ -117,7 +77,8 @@ public class JPoint3D extends Point2D.Double {
    * @param z2 The z-coordinate of the second point.
    * @return The square of the Euclidean distance between the two points.
    */
-  public double distanceSq(double x1, double y1, double z1, double x2, double y2, double z2) {
+  public static double distanceSq(double x1, double y1, double z1, double x2, double y2,
+      double z2) {
     double dx = x2 - x1;
     double dy = y2 - y1;
     double dz = z2 - z1;
@@ -133,7 +94,7 @@ public class JPoint3D extends Point2D.Double {
    * @return The square of the Euclidean distance between this point and the specified point.
    */
   public double distanceSq(double x, double y, double z) {
-    return distanceSq(this.x, this.y, this.z, x, y, z);
+    return distanceSq(getX(), getY(), this.z, x, y, z);
   }
 
   /**
@@ -143,7 +104,7 @@ public class JPoint3D extends Point2D.Double {
    * @return The square of the Euclidean distance between this point and the specified JPoint3D object.
    */
   public double distanceSq(JPoint3D pt) {
-    return distanceSq(x, y, z, pt.x, pt.y, pt.z);
+    return distanceSq(x, y, z, pt.getX(), pt.getY(), pt.getZ());
   }
 
   /**
@@ -157,7 +118,7 @@ public class JPoint3D extends Point2D.Double {
    * @param z2 The z-coordinate of the second point.
    * @return The Euclidean distance between the two points.
    */
-  public double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
+  public static double distance(double x1, double y1, double z1, double x2, double y2, double z2) {
     return Math.sqrt(distanceSq(x1, y1, z1, x2, y2, z2));
   }
 
@@ -191,7 +152,7 @@ public class JPoint3D extends Point2D.Double {
   @Override
   public String toString() {
     String c = ", ";
-    return "JPoint3D.Double[" + x + c + y + c + z + "]";
+    return "JPoint3D.Double[" + getX() + c + getY() + c + z + "]";
   }
 
   /**
@@ -204,7 +165,7 @@ public class JPoint3D extends Point2D.Double {
   public boolean equals(Object obj) {
     if (obj instanceof JPoint3D) {
       JPoint3D p = (JPoint3D) obj;
-      return x == p.x && y == p.y && z == p.z;
+      return x == p.getX() && y == p.getY() && z == p.getZ();
     }
     return super.equals(obj);
   }
@@ -224,5 +185,4 @@ public class JPoint3D extends Point2D.Double {
         ^ (java.lang.Double.doubleToLongBits(z) >>> 32));
     return hash;
   }
-
 }
