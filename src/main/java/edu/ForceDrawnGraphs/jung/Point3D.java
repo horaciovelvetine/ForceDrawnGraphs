@@ -2,13 +2,13 @@ package edu.ForceDrawnGraphs.jung;
 
 import java.awt.geom.Point2D;
 
-public class JPoint3D extends Point2D.Double {
+public class Point3D extends Point2D.Double {
   private double z;
 
   /**
    * Constructs a new JPoint3D object with default coordinates (0, 0, 0).
    */
-  public JPoint3D() {
+  public Point3D() {
     super();
     z = 0.0;
   }
@@ -20,7 +20,7 @@ public class JPoint3D extends Point2D.Double {
    * @param y The y-coordinate of the point.
    * @param z The z-coordinate of the point.
    */
-  public JPoint3D(double x, double y, double z) {
+  public Point3D(double x, double y, double z) {
     super(x, y);
     this.z = z;
   }
@@ -51,7 +51,7 @@ public class JPoint3D extends Point2D.Double {
    *
    * @param p The JPoint3D object whose coordinates will be used.
    */
-  public void setLocation(JPoint3D p) {
+  public void setLocation(Point3D p) {
     setLocation(p.x, p.y, p.z);
   }
 
@@ -103,7 +103,7 @@ public class JPoint3D extends Point2D.Double {
    * @param pt The JPoint3D object.
    * @return The square of the Euclidean distance between this point and the specified JPoint3D object.
    */
-  public double distanceSq(JPoint3D pt) {
+  public double distanceSq(Point3D pt) {
     return distanceSq(x, y, z, pt.getX(), pt.getY(), pt.getZ());
   }
 
@@ -140,7 +140,7 @@ public class JPoint3D extends Point2D.Double {
    * @param pt The JPoint3D object.
    * @return The Euclidean distance between this point and the specified JPoint3D object.
    */
-  public double distance(JPoint3D pt) {
+  public double distance(Point3D pt) {
     return Math.sqrt(distanceSq(pt));
   }
 
@@ -163,8 +163,8 @@ public class JPoint3D extends Point2D.Double {
    */
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof JPoint3D) {
-      JPoint3D p = (JPoint3D) obj;
+    if (obj instanceof Point3D) {
+      Point3D p = (Point3D) obj;
       return x == p.getX() && y == p.getY() && z == p.getZ();
     }
     return super.equals(obj);
