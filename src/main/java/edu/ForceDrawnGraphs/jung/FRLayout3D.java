@@ -8,12 +8,14 @@ import com.google.common.base.Functions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-
+import com.google.common.util.concurrent.AtomicDouble;
+import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.uci.ics.jung.algorithms.layout.AbstractLayout;
 import edu.uci.ics.jung.algorithms.util.IterativeContext;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Pair;
 
-public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeContext {
+public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeContext, Reportable {
   //PHYSICAL
   private double forceConst;
   private double temperature;
@@ -35,14 +37,10 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
         }
       });
 
-  public FRLayout3D(Graph<V, E> graph) {
-    super(graph);
-  }
-
   public FRLayout3D(Graph<V, E> graph, Dimension dimension) {
     super(graph, dimension);
-    set3DInitializer(new RandomLocationTransformer3D<V>(dimension));
     maxDimension = Math.max(dimension.width, dimension.height);
+    set3DInitializer(new RandomLocationTransformer3D<V>(dimension));
     initialize();
   }
 
@@ -136,8 +134,9 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
     while (true) {
       try {
         for (E e : getGraph().getEdges()) {
-          calcAttraction(e);
+          calcAttration(e);
         }
+        // calcAttraction(); //=> modified to calcAttraction(E e)
         break;
       } catch (ConcurrentModificationException cme) {
         // ignore and retry
@@ -165,56 +164,146 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
     Point3D vCord = getCoordinates(v);
     if (vCord == null)
       return;
-    //==> cannot be null w/ check above
-    Point3D xyzd = apply3D(v);
-    double deltaLength = Math.max(EPSILON, xyzd.distance(vCord));
 
-    double xDisp = (xyzd.getX() - vCord.getX()) / deltaLength * Math.min(deltaLength, temperature);
+    print("HERE");
+    throw new UnsupportedOperationException("Not completely implemented yet.");
+    // double deltaLength = Math.max(EPSILON, xyzd.distance(target));
+    // // Clone the original coordinates to ensure that modifications do not affect the original
+    // Point3D xyzd = new Point3D(vCord.getX(), vCord.getY(), vCord.getZ());
+    // Point3D target = apply3D(v); // This should ideally return a new target position
 
-    if (Double.isNaN(xDisp))
-      throw new IllegalArgumentException("Unexpected NaN value in xDisp calculation.");
+    // double xDisp = (target.getX() - xyzd.getX()) / deltaLength * Math.min(deltaLength, temperature);
+    // double yDisp = (target.getY() - xyzd.getY()) / deltaLength * Math.min(deltaLength, temperature);
+    // double zDisp = (target.getZ() - xyzd.getZ()) / deltaLength * Math.min(deltaLength, temperature);
 
-    double yDisp = (xyzd.getY() - vCord.getY()) / deltaLength * Math.min(deltaLength, temperature);
-    double zDisp = (xyzd.getZ() - vCord.getZ()) / deltaLength * Math.min(deltaLength, temperature);
-    //===> apply new location and displacement
-    xyzd.setLocation(vCord.getX() + xDisp, vCord.getY() + yDisp, vCord.getZ() + zDisp);
+    // xyzd.setLocation(xyzd.getX() + xDisp, xyzd.getY() + yDisp, xyzd.getZ() + zDisp);
 
-    // double check everything is inside the border, fix and randomize slightly if not
-    double cWid = getSize().getWidth();
-    double borderWid = cWid / 50.0;
+    // // Boundary checks and adjustments
+    // double cWid = getSize().getWidth();
+    // double borderWid = cWid / 50.0;
 
-    double fixX = xyzd.getX(); // x axis
-    if (fixX < borderWid) {
-      fixX = borderWid + Math.random() * borderWid * 2.0;
-    } else if (fixX > cWid - borderWid) {
-      fixX = cWid - borderWid - Math.random() * borderWid * 2.0;
-    }
+    // double dx = Math.min(Math.max(borderWid, xyzd.getX()), cWid - borderWid);
+    // double dy = Math.min(Math.max(borderWid, xyzd.getY()), cWid - borderWid);
+    // double dz = Math.min(Math.max(borderWid, xyzd.getZ()), cWid - borderWid);
 
-    double fixY = xyzd.getY(); // y axis
-    if (fixY < borderWid) {
-      fixY = borderWid + Math.random() * borderWid * 2.0;
-    } else if (fixY > cWid - borderWid) {
-      fixY = cWid - borderWid - Math.random() * borderWid * 2.0;
-    }
+    // xyzd.setLocation(dx, dy, dz);
 
-    double fixZ = xyzd.getZ(); // z axis
-    if (fixZ < borderWid) {
-      fixZ = borderWid + Math.random() * borderWid * 2.0;
-    } else if (fixZ > cWid - borderWid) {
-      fixZ = cWid - borderWid - Math.random() * borderWid * 2.0;
-    }
-    //===> set new location, if fixes changed
-    xyzd.setLocation(fixX, fixY, fixZ);
+    // // Update the actual coordinates with the new position
+    // setLocation(v, xyzd);
   }
 
-  protected void calcAttraction(E e) {}
+  protected void calcAttraction() {
+    getGraph().getEdges().parallelStream().forEach(e -> {
+      Pair<V> endpoints = getGraph().getEndpoints(e);
+      V v1 = endpoints.getFirst();
+      V v2 = endpoints.getSecond();
 
-  protected void calcRepulsion(V v1) {}
+      Point3D p1 = getCoordinates(v1);
+      Point3D p2 = getCoordinates(v2);
+
+      if (p1 == null || p2 == null)
+        return; // Safety check
+
+      double xDelta = p1.getX() - p2.getX();
+      double yDelta = p1.getY() - p2.getY();
+      double zDelta = p1.getZ() - p2.getZ();
+
+      double deltaLength =
+          Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta));
+      double force = (deltaLength * deltaLength) / attrConst;
+
+      double dx = (xDelta / deltaLength) * force;
+      double dy = (yDelta / deltaLength) * force;
+      double dz = (zDelta / deltaLength) * force;
+
+      synchronized (p1) {
+        if (!isLocked(v1)) {
+          p1.setLocation(p1.getX() + dx, p1.getY() + dy, p1.getZ() + dz);
+        }
+      }
+      synchronized (p2) {
+        if (!isLocked(v2)) {
+          p2.setLocation(p2.getX() - dx, p2.getY() - dy, p2.getZ() - dz);
+        }
+      }
+    });
+  }
+
+
+  protected void calcAttration(E e) {
+    Pair<V> endpoints = getGraph().getEndpoints(e);
+    V v1 = endpoints.getFirst();
+    V v2 = endpoints.getSecond();
+
+    Point3D p1 = getCoordinates(v1);
+    Point3D p2 = getCoordinates(v2);
+    if (Double.isNaN(p1.getX()) || Double.isNaN(p1.getY()) || Double.isNaN(p1.getZ())
+        || Double.isNaN(p2.getX()) || Double.isNaN(p2.getY()) || Double.isNaN(p2.getZ())) {
+      print("HERE");
+      throw new UnsupportedOperationException("NaN values detected in p1 or p2.");
+    }
+    // occasionally encountering Nan values for mostly p1, unsure origin of issue
+    // double xDelta = p1.getX() - p2.getX();
+    // double yDelta = p1.getY() - p2.getY();
+    // double zDelta = p1.getZ() - p2.getZ();
+
+    // double deltaLength =
+    //     Math.max(EPSILON, Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta));
+    // double force = (deltaLength * deltaLength) / attrConst;
+
+    // double dx = (xDelta / deltaLength) * force;
+    // double dy = (yDelta / deltaLength) * force;
+    // double dz = (zDelta / deltaLength) * force;
+
+    // if (!isLocked(v1)) {
+    //   p1.setLocation(p1.getX() + dx, p1.getY() + dy, p1.getZ() + dz);
+    // }
+    // if (!isLocked(v2)) {
+    //   p2.setLocation(p2.getX() - dx, p2.getY() - dy, p2.getZ() - dz);
+    // }
+  }
+
+
+  protected void calcRepulsion(V v1) {
+    Point3D origDat = getCoordinates(v1);
+    if (origDat == null)
+      return;
+
+    AtomicDouble dx = new AtomicDouble(0);
+    AtomicDouble dy = new AtomicDouble(0);
+    AtomicDouble dz = new AtomicDouble(0);
+
+    getGraph().getVertices().parallelStream().forEach(v2 -> {
+      if (v1 != v2) {
+        Point3D pDat2 = apply3D(v2);
+        if (pDat2 == null)
+          return;
+
+        double xDelta = origDat.getX() - pDat2.getX();
+        double yDelta = origDat.getY() - pDat2.getY();
+        double zDelta = origDat.getZ() - pDat2.getZ();
+
+        double distance = Math.sqrt(xDelta * xDelta + yDelta * yDelta + zDelta * zDelta);
+        double force = (repConst * repConst) / distance;
+        if (Double.isNaN(force)) {
+          print("HERE");
+          throw new UnsupportedOperationException("Not completely implemented yet.");
+        }
+        // is force.nan() possible?
+        dx.addAndGet((xDelta / distance) * force);
+        dy.addAndGet((yDelta / distance) * force);
+        dz.addAndGet((zDelta / distance) * force);
+      }
+      origDat.setLocation(origDat.getX() + dx.get(), origDat.getY() + dy.get(),
+          origDat.getZ() + dz.get());
+    });
+  }
+
+
 
   @Override
   public boolean done() {
-    //TODO => Review optional squaring of maxDimension here for comparison
-    if (currentIteration >= maxIterations || temperature < 1.0 / maxDimension) {
+    if (currentIteration > maxIterations || temperature < 1.0 / maxDimension) {
       return true;
     }
     return false;
@@ -254,6 +343,18 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
   public void setLocation(V v, Point3D p) {
     Point3D q = getCoordinates(v);
     q.setLocation(p);
+  }
+
+  public void setRepulsionMultiplier(double d) {
+    repMult = d;
+  }
+
+  public void setAttractionMultiplier(double d) {
+    attrMult = d;
+  }
+
+  public void setMaxIterations(int i) {
+    maxIterations = i;
   }
 
 }

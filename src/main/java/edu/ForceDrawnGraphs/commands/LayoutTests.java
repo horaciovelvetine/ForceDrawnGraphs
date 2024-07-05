@@ -15,8 +15,10 @@ public class LayoutTests implements Reportable {
   @ShellMethod("Run layout tests.")
   public void layout() {
     graphsetDec.initFR();
-    graphsetDec.useLayoutToSetCoordPosition();
+    graphsetDec.initFR3D();
+    graphsetDec.useCacheLayoutToSet2DCoordPositions();
     FirstResponder.createResponse(testset);
+    graphsetDec.useLayoutToSetCoordPosition(); // check on 3D layout... gulp
     print("Stop");
   }
 

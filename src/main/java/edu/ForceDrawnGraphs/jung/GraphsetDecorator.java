@@ -20,6 +20,7 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final Graphset graphset;
   private final Dimension graphSize = new Dimension(1600, 900);
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
+  private final FRLayout3D<Vertex, Edge> layout3D = new FRLayout3D<>(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -66,7 +67,27 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     timer.end();
   }
 
+  public void initFR3D() {
+    ProcessTimer timer = new ProcessTimer("FRLayout3D()::");
+    try {
+      layout3D.initialize();
+      layout3D.setRepulsionMultiplier(0.75); //def 0.75
+      layout3D.setAttractionMultiplier(0.75); //def 0.75
+      layout3D.setMaxIterations(700); //def 700
+      while (!layout3D.done()) {
+        layout3D.step();
+      }
+    } catch (Exception e) {
+      report("initFR3D()::" + e.getMessage());
+    }
+    timer.end();
+  }
+
   public void useLayoutToSetCoordPosition() {
+    report("let the cache bash begin");
+  }
+
+  public void useCacheLayoutToSet2DCoordPositions() {
     CachingLayout<Vertex, Edge> decorator = new CachingLayout<Vertex, Edge>(layout);
 
     for (Vertex vertex : graphset.vertices()) {

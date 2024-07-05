@@ -3,13 +3,13 @@ package edu.ForceDrawnGraphs.jung;
 import java.awt.geom.Point2D;
 
 public class Point3D extends Point2D.Double {
-  private double z;
+  public double z;
 
   /**
    * Constructs a new JPoint3D object with default coordinates (0, 0, 0).
    */
   public Point3D() {
-    super();
+    super(0.0, 0.0);
     z = 0.0;
   }
 
