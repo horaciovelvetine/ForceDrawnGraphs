@@ -47,9 +47,13 @@ public class FirstResponder {
   }
 
   private static class ResponseV1 {
+    @SuppressWarnings("unused")
     public Set<Vertex> vertices;
+    @SuppressWarnings("unused")
     public Set<Edge> edges;
+    @SuppressWarnings("unused")
     public Set<Property> properties;
+    @SuppressWarnings("unused")
     public String originQuery;
 
     public ResponseV1(Graphset graphset) {
