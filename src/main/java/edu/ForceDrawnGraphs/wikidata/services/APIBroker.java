@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.wikidata.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,8 @@ import java.util.concurrent.Executors;
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
-
+import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
+import org.wikidata.wdtk.wikibaseapi.apierrors.NoSuchEntityErrorException;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.util.DateConverter;
@@ -47,11 +49,16 @@ public class APIBroker implements Reportable {
     }
   }
 
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
+  //
+  //------------------------------------------------------------------------------------------------------------
+
   private Integer startFetchTasks(ExecutorService executor) {
     int depth = graphset.depth();
     Integer totalEntsFetched = 0;
 
-    //todo possibly update each of these futures to attack their queues first then the remaining items
     try {
       CompletableFuture<Integer> entFuture =
           CompletableFuture.supplyAsync(() -> fetchAndProcessEntities(depth), executor);
@@ -116,21 +123,27 @@ public class APIBroker implements Reportable {
 
   private Integer fetchAndProcessEntities(int depth) {
     List<String> entQIDs = graphset.wikiDataFetchQueue().getEntityQueue(depth);
+
     if (entQIDs.isEmpty())
       return 0;
 
-    try {
-      Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(entQIDs);
-
-      docMap.values().forEach(doc -> {
-        graphset.wikiDataFetchQueue().fetchSuccessful(doc.getEntityId().getId());
-        docProc.processEntDocument(doc);
-      });
-
-      return docMap.size();
-    } catch (Exception e) {
-      report("fetchAndProcessEntities() error: ", e);
-      throw new RuntimeException(e);
+    while (true) {
+      // TODO: ENTS
+      try {
+        Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(entQIDs);
+        docMap.values().forEach(doc -> {
+          graphset.wikiDataFetchQueue().fetchSuccessful(doc.getEntityId().getId());
+          docProc.processEntDocument(doc);
+        });
+        return docMap.size();
+      } catch (NoSuchEntityErrorException e) {
+        report("fetchAndProcessEntities() error: the entity does not exist.", e);
+      } catch (MediaWikiApiErrorException e) {
+        report("fetchAndProcessEntities() error: the Wikidata API is unavailable.", e);
+      } catch (IOException e) {
+        report("fetchAndProcessEntities() error I/O Error: ", e);
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -138,6 +151,8 @@ public class APIBroker implements Reportable {
     List<String> propQIDs = graphset.wikiDataFetchQueue().getPropertyQueue(depth);
     if (propQIDs.isEmpty())
       return 0;
+
+    //TODO: PROPS
     try {
       Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(propQIDs);
       List<EntityDocument> docs = new ArrayList<>(docMap.values());
@@ -158,6 +173,7 @@ public class APIBroker implements Reportable {
     if (dateVals.isEmpty())
       return 0;
 
+    //TODO: DATES (ISH...)
     dateVals.forEach(date -> {
       try {
         List<WbSearchEntitiesResult> result =
