@@ -44,3 +44,8 @@ Inside the calcPositions method, called as the last calculation in the step() fu
     }
 ``` 
 It appears as though data in the `frVertexData` cache would be set on init, then never updated for the positions. However, this is not the case both cache's are referencing the same instance of `Point2D.FRVertexData`, and so the `setLocations()` call works to modify the same value. Why? To provide concurrent access to this information across both classes continuously. This creative solution has several strong positives: isolates the minimal behavior extension of Point2D in the layout itself, ensures consistent asynchronus access across the algorithim to a single source of truth. 
+
+The needed implementation of `Point3D` which adds a `z` axis plays the same role. By passing itself into the `distanc(V v)` method the same math is done as `norm()`, albeit the readability is not nearly as elegant. The clarity and readabiltiy suffer with the 2 additional method calls buried under the `.distance(V v)` hood, and the unclear naming of a method being used 'incorrectly'. 
+
+It's a skill issue here for sure, but what can I say, I am not a Google employee.
+
