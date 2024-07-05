@@ -35,7 +35,6 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
         }
       });
 
-
   public FRLayout3D(Graph<V, E> graph) {
     super(graph);
   }
@@ -164,10 +163,44 @@ public class FRLayout3D<V, E> extends AbstractLayout<V, E> implements IterativeC
 
   protected synchronized void calcPositions(V v) {
     Point3D vCord = getCoordinates(v);
-    // The two ref issue. 
     if (vCord == null)
       return;
+    //==> cannot be null w/ check above
+    Point3D xyzd = apply3D(v);
+    double deltaLength = Math.max(EPSILON, xyzd.distance(vCord));
     
+    double xDisp = (xyzd.getX() - vCord.getX()) / deltaLength * Math.min(deltaLength, temperature);
+    //===> has a throw new IllegalArgumentException() to catch unexpected Math.min().isNan();
+    double yDisp = (xyzd.getY() - vCord.getY()) / deltaLength * Math.min(deltaLength, temperature);
+    double zDisp = (xyzd.getZ() - vCord.getZ()) / deltaLength * Math.min(deltaLength, temperature);
+    //===> apply new location and displacement
+    xyzd.setLocation(vCord.getX() + xDisp, vCord.getY() + yDisp, vCord.getZ() + zDisp);
+    // double check everything is inside the border, fix and randomize slightly if not
+    double cWid = getSize().getWidth();
+    double borderWid = cWid / 50.0;
+    // x axis
+    double fixX = xyzd.getX();
+    if (fixX < borderWid) {
+      fixX = borderWid + Math.random() * borderWid * 2.0;
+    } else if (fixX > cWid - borderWid) {
+      fixX = cWid - borderWid - Math.random() * borderWid * 2.0;
+    }
+    // y axis
+    double fixY = xyzd.getY();
+    if (fixY < borderWid) {
+      fixY = borderWid + Math.random() * borderWid * 2.0;
+    } else if (fixY > cWid - borderWid) {
+      fixY = cWid - borderWid - Math.random() * borderWid * 2.0;
+    }
+    // z axis
+    double fixZ = xyzd.getZ();
+    if (fixZ < borderWid) {
+      fixZ = borderWid + Math.random() * borderWid * 2.0;
+    } else if (fixZ > cWid - borderWid) {
+      fixZ = cWid - borderWid - Math.random() * borderWid * 2.0;
+    }
+    //===> set new location, if fixes changed
+    xyzd.setLocation(fixX, fixY, fixZ);
   }
 
   protected void calcAttraction(E e) {}
