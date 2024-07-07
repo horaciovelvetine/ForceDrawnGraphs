@@ -16,10 +16,8 @@ public class LayoutTests implements Reportable {
   public void layout() {
     graphsetDec.initFR();
     graphsetDec.initFR3D();
-    graphsetDec.useCacheLayoutToSet2DCoordPositions();
-    FirstResponder.createResponse(testset);
-    graphsetDec.useLayoutToSetCoordPosition(); // check on 3D layout... gulp
-    print("Stop");
+    // graphsetDec.useCacheLayoutToSet2DCoordPositions();
+    // FirstResponder.createResponse(testset);
   }
 
 }

@@ -20,7 +20,7 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final Graphset graphset;
   private final Dimension graphSize = new Dimension(1600, 900);
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
-  private final FRLayout3D<Vertex, Edge> layout3D = new FRLayout3D<>(this, graphSize);
+  private final FRLayout3D layout3D = new FRLayout3D(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -42,10 +42,18 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
 
     for (Edge edge : completeEdges) {
       Optional<Pair<Vertex>> endpoints = graphset.getAssociatedVertices(edge);
-
       if (endpoints.isPresent()) {
-        addVertex(endpoints.get().getFirst());
-        addVertex(endpoints.get().getSecond());
+        Vertex v1 = endpoints.get().getFirst();
+        Vertex v2 = endpoints.get().getSecond();
+        if (v1.QID() == v2.QID()) {
+          continue;
+        }
+        if (!containsVertex(v1)) {
+          addVertex(v1);
+        }
+        if (!containsVertex(v2)) {
+          addVertex(v2);
+        }
         addEdge(edge, endpoints.get());
       }
     }
@@ -71,9 +79,9 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     ProcessTimer timer = new ProcessTimer("FRLayout3D()::");
     try {
       layout3D.initialize();
-      layout3D.setRepulsionMultiplier(0.75); //def 0.75
-      layout3D.setAttractionMultiplier(0.75); //def 0.75
-      layout3D.setMaxIterations(700); //def 700
+      // layout3D.setRepulsionMultiplier(0.75); //def 0.75
+      // layout3D.setAttractionMultiplier(0.75); //def 0.75
+      // layout3D.setMaxIterations(700); //def 700
       while (!layout3D.done()) {
         layout3D.step();
       }
@@ -81,10 +89,11 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
       report("initFR3D()::" + e.getMessage());
     }
     timer.end();
-  }
-
-  public void useLayoutToSetCoordPosition() {
-    report("let the cache bash begin");
+    graphset.vertices().forEach(v -> {
+      Point3D point = layout3D.transform(v);
+      report(point.toString());
+    });
+    print("here");
   }
 
   public void useCacheLayoutToSet2DCoordPositions() {

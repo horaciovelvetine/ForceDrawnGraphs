@@ -152,7 +152,7 @@ public class Point3D extends Point2D.Double {
   @Override
   public String toString() {
     String c = ", ";
-    return "JPoint3D.Double[" + getX() + c + getY() + c + z + "]";
+    return "xyz:[" + getX() + c + getY() + c + z + "]";
   }
 
   /**
