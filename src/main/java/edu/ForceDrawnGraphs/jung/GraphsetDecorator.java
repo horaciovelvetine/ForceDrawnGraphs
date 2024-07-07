@@ -89,11 +89,10 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
       report("initFR3D()::" + e.getMessage());
     }
     timer.end();
-    graphset.vertices().forEach(v -> {
-      Point3D point = layout3D.transform(v);
-      report(point.toString());
-    });
-    print("here");
+    // graphset.vertices().forEach(v -> {
+    //   Point3D point = layout3D.transform(v);
+    //   report(point.toString());
+    // });
   }
 
   public void useCacheLayoutToSet2DCoordPositions() {
