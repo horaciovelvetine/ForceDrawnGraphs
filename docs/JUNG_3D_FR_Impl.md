@@ -3,49 +3,30 @@
 
 ## Duplicate Caches?
 
-Inside the calcPositions method, called as the last calculation in the step() function the first few lines contain a bit of a conundrum. Both layout classes `AbstractLayout & FRLayout`, implement a `LoadingCache` as `locations & frVertexData` respectively to store the location data for it's vertices which appears to be duplication at first glance. The `FRVertexData` class extends the `Point2D` class adding a few simple methods for relevant math helpers, so why store this information twice, accident? This duplication is actually a crafty Java trick hiding in matching clothing. 
+The `AbstractLayout` method is inherited by each of the layout algorithm and uses a `LoadingCache<V, Point2D>` to store location data for each of the vertices. However, as each solution is looked at a little more closely it begins to appear that each algorithm initializes it's own secondary cache, and in the case of the `FRLayouts` even opting to use the exact same `LoadingCache<V, Point2D>` under the `frVertexData` label. 
+
+Inside the various methods used to build a layout, you can even see them being seperately referenced in the same equation... 
 
 ```java
-    protected synchronized void calcPositions(V v) {
-        FRVertexData fvd = getFRData(v); // references the FRLayouts - frVertexData
+    protected synchronized void calcPositions(V v) { //FRLayout excerpt..
+        FRVertexData fvd = getFRData(v); // references FRLayouts - frVertexData
         if(fvd == null) return;
-        Point2D xyd = apply(v); // references the AbstraceLayouts - locations
+        Point2D xyd = apply(v); // references AbstractLayouts - locations
         double deltaLength = Math.max(EPSILON, fvd.norm());
 
-        double newXDisp = fvd.getX() / deltaLength
-                * Math.min(deltaLength, temperature);
+        double newXDisp = //calc... apply cumulative delta change using xyd
+        double newYDisp = //calc... same as newXDisp
 
-        if (Double.isNaN(newXDisp)) {
-        	throw new IllegalArgumentException(
-                "Unexpected mathematical result in FRLayout:calcPositions [xdisp]"); }
-
-        double newYDisp = fvd.getY() / deltaLength
-                * Math.min(deltaLength, temperature);
-        xyd.setLocation(xyd.getX()+newXDisp, xyd.getY()+newYDisp);
-
-        double borderWidth = getSize().getWidth() / 50.0;
-        double newXPos = xyd.getX();
-        if (newXPos < borderWidth) {
-            newXPos = borderWidth + Math.random() * borderWidth * 2.0;
-        } else if (newXPos > (getSize().getWidth() - borderWidth)) {
-            newXPos = getSize().getWidth() - borderWidth - Math.random()
-                    * borderWidth * 2.0;
-        }
-
-        double newYPos = xyd.getY();
-        if (newYPos < borderWidth) {
-            newYPos = borderWidth + Math.random() * borderWidth * 2.0;
-        } else if (newYPos > (getSize().getHeight() - borderWidth)) {
-            newYPos = getSize().getHeight() - borderWidth
-                    - Math.random() * borderWidth * 2.0;
-        }
-
+        double borderWidth = // define acceptable border limits
+        double newXPos = // check if pos violates border, correct and dither edge positions
+        double newYPos = //calc... sams as newXPos
+        
         xyd.setLocation(newXPos, newYPos); // but, update only the locations point data?
     }
 ``` 
-It appears as though data in the `frVertexData` cache would be set on init, then never updated for the positions. However, this is not the case both cache's are referencing the same instance of `Point2D.FRVertexData`, and so the `setLocations()` call works to modify the same value. Why? To provide concurrent access to this information across both classes continuously. This creative solution has several strong positives: isolates the minimal behavior extension of Point2D in the layout itself, ensures consistent asynchronus access across the algorithim to a single source of truth. 
 
-The needed implementation of `Point3D` which adds a `z` axis plays the same role. By passing itself into the `distanc(V v)` method the same math is done as `norm()`, albeit the readability is not nearly as elegant. The clarity and readabiltiy suffer with the 2 additional method calls buried under the `.distance(V v)` hood, and the unclear naming of a method being used 'incorrectly'. 
+Iterable solutions rely on a second store to persist the offset calculations accumulated through each iterative loop, being reset each iteration back to the origin. A bit more poking around in a very related layout ``KKLayout` has a distance matrix (`private double[][] dm;`) to handle the exact same need of persiting data in a second place. 
 
-It's a skill issue here for sure, but what can I say, I am not a Google employee.
+The `step()` method consists of three main function calls while calculating a full iteration: `calcRepulsion(V v) => calcAttraction(E e) => calcPosition(V v)` with the logical flow following that order. Resetting each vertice's offset position to (0,0) happens in `calcRepulsion(V v)` ending when that offset is used and applied inside of `calcPosition(V v)`
+
 
