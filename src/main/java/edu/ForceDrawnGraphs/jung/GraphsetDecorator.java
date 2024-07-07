@@ -3,8 +3,10 @@ package edu.ForceDrawnGraphs.jung;
 import java.util.Optional;
 import java.util.Set;
 import java.awt.Dimension;
-import java.awt.geom.Point2D;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
+import edu.ForceDrawnGraphs.jung.layouts.FR3DAdaptiveCooling;
+import edu.ForceDrawnGraphs.jung.layouts.FR3DCacheDistances;
+import edu.ForceDrawnGraphs.jung.layouts.FR3DCachedCool;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Vertex;
@@ -22,6 +24,10 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
   private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
   private final FRLayout3D layout3D = new FRLayout3D(this, graphSize);
+  private final FR3DAdaptiveCooling layout3DAdaptiveCooling =
+      new FR3DAdaptiveCooling(this, graphSize);
+  private final FR3DCacheDistances layout3DCache = new FR3DCacheDistances(this, graphSize);
+  private final FR3DCachedCool layout3DCachedCool = new FR3DCachedCool(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -64,9 +70,6 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     ProcessTimer timer = new ProcessTimer("FRLayout()::");
     try {
       layout.initialize();
-      // layout.setRepulsionMultiplier(0.75); //def 0.75
-      // layout.setAttractionMultiplier(0.75); //def 0.75
-      // layout.setMaxIterations(700); //def 700
       while (!layout.done()) {
         layout.step();
       }
@@ -80,9 +83,6 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     ProcessTimer timer = new ProcessTimer("FRLayout2()::");
     try {
       layout2.initialize();
-      // layout2.setRepulsionMultiplier(0.75); //def 0.75
-      // layout2.setAttractionMultiplier(0.75); //def 0.75
-      // layout2.setMaxIterations(700); //def 700
       while (!layout2.done()) {
         layout2.step();
       }
@@ -96,14 +96,50 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     ProcessTimer timer = new ProcessTimer("FRLayout3D()::");
     try {
       layout3D.initialize();
-      // layout3D.setRepulsionMultiplier(0.75); //def 0.75
-      // layout3D.setAttractionMultiplier(0.75); //def 0.75
-      // layout3D.setMaxIterations(700); //def 700
       while (!layout3D.done()) {
         layout3D.step();
       }
     } catch (Exception e) {
       report("initFR3D()::" + e.getMessage());
+    }
+    timer.end();
+  }
+
+  public void initFR3DAC() {
+    ProcessTimer timer = new ProcessTimer("FR3DAdaptiveCooling()::");
+    try {
+      layout3DAdaptiveCooling.initialize();
+      while (!layout3DAdaptiveCooling.done()) {
+        layout3DAdaptiveCooling.step();
+      }
+    } catch (Exception e) {
+      report("initFR3DAC()::" + e.getMessage());
+    }
+    timer.end();
+  }
+
+  public void initFR3DCache() {
+    ProcessTimer timer = new ProcessTimer("FRLayout3DCache()::");
+    try {
+      layout3DCache.initialize();
+      while (!layout3DCache.done()) {
+        layout3DCache.step();
+      }
+    } catch (Exception e) {
+      report("initFR3D()::" + e.getMessage());
+    }
+    timer.end();
+  }
+
+  public void initFR3DCC() {
+    ProcessTimer timer = new ProcessTimer("FR3DCachedAdaptiveCooling()::");
+    try {
+      layout3DCachedCool.initialize();
+      while (!layout3DCachedCool.done()) {
+        layout3DCachedCool.step();
+      }
+    } catch (Exception e) {
+      report("initFR3DCC()::" + e.getMessage());
     }
     timer.end();
   }

@@ -18,33 +18,33 @@ import edu.uci.ics.jung.graph.util.Pair;
 
 public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Reportable {
   // PHYSICAL CONSTANTS
-  private double attrMult = 0.75; // biasses tendency of vertices to move towards each other
-  private double repMult = 0.75; // biasses tendency of vertices to move away from each other
-  private double forceConst;
-  private double temperature;
-  private double attrConst;
-  private double repConst;
-  private double maxDimension; // a-directional maximum of the layout
-  private Dimension size;
-  private double EPSILON = 0.000001; // avoid division by zero
+  protected double attrMult = 0.75; // biasses tendency of vertices to move towards each other
+  protected double repMult = 0.75; // biasses tendency of vertices to move away from each other
+  protected double forceConst;
+  protected double temperature;
+  protected double attrConst;
+  protected double repConst;
+  protected double maxDimension; // a-directional maximum of the layout
+  protected Dimension size;
+  protected double EPSILON = 0.000001; // avoid division by zero
   // ITERATIVE CONTEXT
-  private boolean initialized = false;
-  private int currentIteration;
-  private int maxIterations = 700;
-  private int iterMvmntMax = 5; // limit on 'unit' movement per iteration
-  private int dithMagMult = 2; // randomize position jitter magnitude 
-  private double borderWidth;
+  protected boolean initialized = false;
+  protected int currentIteration;
+  protected int maxIterations = 700;
+  protected int iterMvmntMax = 5; // limit on 'unit' movement per iteration
+  protected int dithMagMult = 2; // randomize position jitter magnitude 
+  protected double borderWidth;
 
   // DATA STORAGE
-  private Graph<Vertex, Edge> graph;
-  private Set<Vertex> lockedVertices = new HashSet<>();
+  protected Graph<Vertex, Edge> graph;
+  protected Set<Vertex> lockedVertices = new HashSet<>();
   LoadingCache<Vertex, Point3D> locationData =
       CacheBuilder.newBuilder().build(new CacheLoader<Vertex, Point3D>() {
         public Point3D load(Vertex v) throws Exception {
           return new Point3D();
         }
       });
-  LoadingCache<Vertex, Point3D> offsetData =
+  protected LoadingCache<Vertex, Point3D> offsetData =
       CacheBuilder.newBuilder().build(new CacheLoader<Vertex, Point3D>() {
         public Point3D load(Vertex v) throws Exception {
           return new Point3D();
@@ -152,7 +152,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     doInit();
   }
 
-  private void doInit() {
+  protected void doInit() {
     Graph<Vertex, Edge> graph = getGraph();
     Dimension d = getSize();
     if (graph != null && d != null) {
@@ -219,7 +219,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
   //
   //------------------------------------------------------------------------------------------------------------
 
-  private void calcRepulsion(Vertex v1) {
+  protected void calcRepulsion(Vertex v1) {
     Point3D offset = getOffset(v1);
     if (offset == null)
       return;
@@ -255,7 +255,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     }
   }
 
-  private void calcAttration(Edge e) {
+  protected void calcAttration(Edge e) {
     Pair<Vertex> endpoints = getGraph().getEndpoints(e);
     Vertex v1 = endpoints.getFirst();
     Vertex v2 = endpoints.getSecond();
@@ -285,7 +285,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     updateOffset(v2, xDisp, yDisp, zDisp, isLocked(v1));
   }
 
-  private void calcPositions(Vertex v) {
+  protected void calcPositions(Vertex v) {
     Point3D p = getLocationData(v);
     if (p == null)
       return;
@@ -320,11 +320,11 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
   //
   //------------------------------------------------------------------------------------------------------------
 
-  private Point3D getLocationData(Vertex V) {
+  protected Point3D getLocationData(Vertex V) {
     return locationData.getUnchecked(V);
   }
 
-  private void setAndInitPositions(Function<Vertex, Point3D> initializer) {
+  protected void setAndInitPositions(Function<Vertex, Point3D> initializer) {
     Function<Vertex, Point3D> chain =
         Functions.<Vertex, Point3D, Point3D>compose(new Function<Point3D, Point3D>() {
           public Point3D apply(Point3D input) {
@@ -336,7 +336,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     initialized = true; // set flag
   }
 
-  private void adjustLocations(Dimension oldSize, Dimension size) {
+  protected void adjustLocations(Dimension oldSize, Dimension size) {
     int xOff = (size.width - oldSize.width) / 2;
     int yOff = (size.height - oldSize.height) / 2;
     int zOff = (size.height - oldSize.height) / 2;
@@ -353,11 +353,11 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     }
   }
 
-  private Point3D getOffset(Vertex v) {
+  protected Point3D getOffset(Vertex v) {
     return offsetData.getUnchecked(v);
   }
 
-  private void offsetVertexLocation(Vertex v, double dx, double dy, double dz) {
+  protected void offsetVertexLocation(Vertex v, double dx, double dy, double dz) {
     Point3D p = getLocationData(v);
     double ox = p.getX() + dx;
     double oy = p.getY() + dy;
@@ -365,11 +365,11 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     p.setLocation(ox, oy, oz);
   }
 
-  private void cool() {
+  protected void cool() {
     temperature *= (1.0 - currentIteration / (double) maxIterations);
   }
 
-  private void updateOffset(Vertex v, double xDisp, double yDisp, double zDisp,
+  protected void updateOffset(Vertex v, double xDisp, double yDisp, double zDisp,
       boolean opposingIsLocked) {
     Point3D offset = getOffset(v);
     int factor = opposingIsLocked ? 2 : 1;
@@ -377,7 +377,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
         offset.getZ() + factor * zDisp);
   }
 
-  private double adjustPositionToBorderBox(double coordPos, double dimMax) {
+  protected double adjustPositionToBorderBox(double coordPos, double dimMax) {
     if (coordPos < borderWidth) {
       return borderWidth + Math.random() * dithMagMult * borderWidth;
     } else if (coordPos > dimMax - borderWidth) {
