@@ -11,8 +11,8 @@ import edu.ForceDrawnGraphs.models.Vertex;
 import edu.ForceDrawnGraphs.util.ProcessTimer;
 
 import edu.uci.ics.jung.graph.util.Pair;
-import edu.uci.ics.jung.visualization.layout.CachingLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.ObservableGraph;
 
@@ -20,6 +20,7 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final Graphset graphset;
   private final Dimension graphSize = new Dimension(1600, 900);
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
+  private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
   private final FRLayout3D layout3D = new FRLayout3D(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
@@ -63,14 +64,30 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     ProcessTimer timer = new ProcessTimer("FRLayout()::");
     try {
       layout.initialize();
-      layout.setRepulsionMultiplier(0.75); //def 0.75
-      layout.setAttractionMultiplier(0.75); //def 0.75
-      layout.setMaxIterations(700); //def 700
+      // layout.setRepulsionMultiplier(0.75); //def 0.75
+      // layout.setAttractionMultiplier(0.75); //def 0.75
+      // layout.setMaxIterations(700); //def 700
       while (!layout.done()) {
         layout.step();
       }
     } catch (Exception e) {
       report("initFR()::" + e.getMessage());
+    }
+    timer.end();
+  }
+
+  public void initFR2() {
+    ProcessTimer timer = new ProcessTimer("FRLayout2()::");
+    try {
+      layout2.initialize();
+      // layout2.setRepulsionMultiplier(0.75); //def 0.75
+      // layout2.setAttractionMultiplier(0.75); //def 0.75
+      // layout2.setMaxIterations(700); //def 700
+      while (!layout2.done()) {
+        layout2.step();
+      }
+    } catch (Exception e) {
+      report("initFR2()::" + e.getMessage());
     }
     timer.end();
   }
@@ -89,18 +106,5 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
       report("initFR3D()::" + e.getMessage());
     }
     timer.end();
-    // graphset.vertices().forEach(v -> {
-    //   Point3D point = layout3D.transform(v);
-    //   report(point.toString());
-    // });
-  }
-
-  public void useCacheLayoutToSet2DCoordPositions() {
-    CachingLayout<Vertex, Edge> decorator = new CachingLayout<Vertex, Edge>(layout);
-
-    for (Vertex vertex : graphset.vertices()) {
-      Point2D point = decorator.transform(vertex); // get coords from layout
-      vertex.setCoords(point); // tell verts about their coords
-    }
   }
 }

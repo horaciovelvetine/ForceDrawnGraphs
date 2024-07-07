@@ -97,20 +97,19 @@ public class FruchtermanReingoldLayout {
 }
 
 ```
-
 ## JUNG Layouts' Different Approaches
 Inside the [JUNG Library](https://github.com/jrtom/jung) there are two different implementations of the Fruchterman-Reingold layout algorithm. In examining these algorithims there's an opportunity to explore some Google (adjacent) code, test the differences, and get into the weeds of optimization choices. There are a few confusing details to iron out here on which implementation is exactly in use, what the differences are, and how the Fruchterman-Reingold layout algorithm actually works. 
 
 - [On Github](https://github.com/jrtom/jung/blob/master/jung-algorithms/src/main/java/edu/uci/ics/jung/layout/algorithms/FRBHVisitorLayoutAlgorithm.java) there appears to be a completely different Barnes-Hut Quadtree optimized version existing under the `FRBHVisitorLayoutAlgorithm.java` class. It is definitley worth the look, with mostly minimal changes to the `calcReupulsion()` method, however it's unclear if this is available in the libraries 2.1 release.
 - [The 2.1.1 docs](https://jrtom.github.io/jung/javadoc/index.html?overview-summary.html) reference a `FRLayout` and `FRLayout2` - this matches with my import and use of the library inside the project so will be the difference examined further.
 
-## Summarizing the Differences
+## FRLayout vs. FRLayout2: Differences Summarized
   - `FRLayout2` implements handling frozen nodes differently from `FRLayout`, where the first implementation will skip updating pair's that are frozen, `FR2` allows for this one sided relationship by compensating in the calculated change for the unfrozen node. This happens across a few of the methods: `calcPositions() calcAttractions() calcRepulsion()` and from the comments and any reading I could find may improve the overall accuracy and visual appearance of the resultant layout.
   - `FR2` includes some movement constraint logic to limit 'big' jumps in the `calcPositions()` method, given the above optimization it seems these two almost act to balance each others effects across the algorithims methods. 
   - Small changes are made to the way boundaries, and boundary checking are handled. The includsion of a `Rectangle2D innerBounds` at the class variable level provides a class wide access to a means of checking boundaries haven't been exceeded by any member of the layout 
   - The inclusion of a `FRVertexData` class inside of `FRLayout` - `FR2` opts for a simpler implementation and data structure w/o the helpers for normalizing and offsetting which could help speed, but it's unclear if this is a convienence or optimization change. 
 
-I ran some tests varying the size of Graph from 100 Nodes & 2000 Edges, up to 1500 Nodes & 190,000 Edges (approx.), and didn't find any tremendouse difference in performance gains between the implementations. The small but insignificant performance gain trend emerged as the Graph size increased, but the inconsistency in improvements don't provide any confidence the tests were even valid. The working hypothesis is this is due to my compute limitations.  
+I ran some tests varying the size of Graph from 100 Nodes & 2000 Edges, up to 1500 Nodes & 190,000 Edges (approx.), and didn't find any tremendouse difference in performance gains between the implementations. The small but insignificant performance gain trend emerged as the Graph size increased, but the inconsistency in improvements don't provide any confidence the tests were even valid. The working hypothesis is this is due to my compute limitations. (Update: A change to the GraalVM did change how these performed see: [JUNG 3D FR Implements](dev/../JUNG_3D_FR_Impl.md) for more details)
 
 ## References
 

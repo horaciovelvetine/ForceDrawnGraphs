@@ -15,9 +15,8 @@ public class LayoutTests implements Reportable {
   @ShellMethod("Run layout tests.")
   public void layout() {
     graphsetDec.initFR();
+    graphsetDec.initFR2();
     graphsetDec.initFR3D();
-    // graphsetDec.useCacheLayoutToSet2DCoordPositions();
-    // FirstResponder.createResponse(testset);
   }
 
 }

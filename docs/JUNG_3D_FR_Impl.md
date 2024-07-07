@@ -1,5 +1,13 @@
 # JUNG - Implementing a 3D Fruchterman-Reingold
+Originally doing research for libraries to dissect in working with Graph's the [JUNG project](https://github.com/jrtom/jung) stood out as an interesting place to start. Firstly, there are "two" JUNG's, a previous iteration of the project still [publically available on Sourceforge](https://jung.sourceforge.net/) - and the current "2.1" release which is actively maintained. Interestingly there are [hints in the docs](https://jung.sourceforge.net/doc/api/index.html) (see: `jung.algorithms.layout3D`) of the previous release that there were potentially efforts in place to extend the Layout interface(s) to work with 3 dimensional layouts.
 
+Typically graph visualization layout's aren't done in 3D for a few reasons: less visually understandable, additional compute expense which doesnt 'improve' the result, and the increase in system (client-side) requirements to render 3D graphics. 
+
+```shell
+java version "22.0.1" 2024-04-16
+Java(TM) SE Runtime Environment Oracle GraalVM 22.0.1+8.1 (build 22.0.1+8-jvmci-b01)
+Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 22.0.1+8.1 (build 22.0.1+8-jvmci-b01, mixed mode, sharing)
+```
 
 ## Duplicate Caches?
 
@@ -28,5 +36,7 @@ Inside the various methods used to build a layout, you can even see them being s
 Iterable solutions rely on a second store to persist the offset calculations accumulated through each iterative loop, being reset each iteration back to the origin. A bit more poking around in a very related layout ``KKLayout` has a distance matrix (`private double[][] dm;`) to handle the exact same need of persiting data in a second place. 
 
 The `step()` method consists of three main function calls while calculating a full iteration: `calcRepulsion(V v) => calcAttraction(E e) => calcPosition(V v)` with the logical flow following that order. Resetting each vertice's offset position to (0,0) happens in `calcRepulsion(V v)` ending when that offset is used and applied inside of `calcPosition(V v)`
+
+
 
 
