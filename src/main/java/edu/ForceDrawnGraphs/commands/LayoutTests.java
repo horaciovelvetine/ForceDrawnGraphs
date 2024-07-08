@@ -17,8 +17,6 @@ public class LayoutTests implements Reportable {
     // graphsetDec.initFR();
     graphsetDec.initFR2();
     graphsetDec.initFR3D();
-    graphsetDec.initFR3DAC();
-    // graphsetDec.initFR3DCache();
-    graphsetDec.initFR3DCC();
+    graphsetDec.initFR3DES();
   }
 }

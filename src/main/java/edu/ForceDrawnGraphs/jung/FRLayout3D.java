@@ -183,7 +183,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     while (true) {
       try {
         for (Edge e : getGraph().getEdges()) {
-          calcAttration(e);
+          calcAttraction(e);
         }
         break;
       } catch (ConcurrentModificationException cme) {
@@ -255,7 +255,7 @@ public class FRLayout3D implements Layout3D<Vertex, Edge>, IterativeContext, Rep
     }
   }
 
-  protected void calcAttration(Edge e) {
+  protected void calcAttraction(Edge e) {
     Pair<Vertex> endpoints = getGraph().getEndpoints(e);
     Vertex v1 = endpoints.getFirst();
     Vertex v2 = endpoints.getSecond();

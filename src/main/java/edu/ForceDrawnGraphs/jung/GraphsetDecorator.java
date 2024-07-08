@@ -7,6 +7,7 @@ import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.jung.layouts.FR3DAdaptiveCooling;
 import edu.ForceDrawnGraphs.jung.layouts.FR3DCacheDistances;
 import edu.ForceDrawnGraphs.jung.layouts.FR3DCachedCool;
+import edu.ForceDrawnGraphs.jung.layouts.FR3DExecutorService;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Vertex;
@@ -24,10 +25,7 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
   private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
   private final FRLayout3D layout3D = new FRLayout3D(this, graphSize);
-  private final FR3DAdaptiveCooling layout3DAdaptiveCooling =
-      new FR3DAdaptiveCooling(this, graphSize);
-  private final FR3DCacheDistances layout3DCache = new FR3DCacheDistances(this, graphSize);
-  private final FR3DCachedCool layout3DCachedCool = new FR3DCachedCool(this, graphSize);
+  private final FR3DExecutorService layout3DCachedCool = new FR3DExecutorService(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -105,34 +103,8 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     timer.end();
   }
 
-  public void initFR3DAC() {
-    ProcessTimer timer = new ProcessTimer("FR3DAdaptiveCooling()::");
-    try {
-      layout3DAdaptiveCooling.initialize();
-      while (!layout3DAdaptiveCooling.done()) {
-        layout3DAdaptiveCooling.step();
-      }
-    } catch (Exception e) {
-      report("initFR3DAC()::" + e.getMessage());
-    }
-    timer.end();
-  }
-
-  public void initFR3DCache() {
-    ProcessTimer timer = new ProcessTimer("FRLayout3DCache()::");
-    try {
-      layout3DCache.initialize();
-      while (!layout3DCache.done()) {
-        layout3DCache.step();
-      }
-    } catch (Exception e) {
-      report("initFR3D()::" + e.getMessage());
-    }
-    timer.end();
-  }
-
-  public void initFR3DCC() {
-    ProcessTimer timer = new ProcessTimer("FR3DCachedAdaptiveCooling()::");
+  public void initFR3DES() {
+    ProcessTimer timer = new ProcessTimer("FR3DExecutorService()::");
     try {
       layout3DCachedCool.initialize();
       while (!layout3DCachedCool.done()) {

@@ -58,7 +58,7 @@ public class FR3DCacheDistances extends FRLayout3D {
   }
 
   @Override
-  protected void calcAttration(Edge e) {
+  protected void calcAttraction(Edge e) {
     Pair<Vertex> endpoints = getGraph().getEndpoints(e);
     Vertex v1 = endpoints.getFirst();
     Vertex v2 = endpoints.getSecond();
