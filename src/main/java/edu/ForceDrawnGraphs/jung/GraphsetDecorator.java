@@ -4,10 +4,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.awt.Dimension;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.jung.layouts.FR3DAdaptiveCooling;
-import edu.ForceDrawnGraphs.jung.layouts.FR3DCacheDistances;
-import edu.ForceDrawnGraphs.jung.layouts.FR3DCachedCool;
 import edu.ForceDrawnGraphs.jung.layouts.FR3DExecutorService;
+import edu.ForceDrawnGraphs.jung.layouts.FR3DLayout;
 import edu.ForceDrawnGraphs.models.Edge;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Vertex;
@@ -25,7 +23,7 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
   private final FRLayout<Vertex, Edge> layout = new FRLayout<>(this, graphSize);
   private final FRLayout2<Vertex, Edge> layout2 = new FRLayout2<>(this, graphSize);
   private final FRLayout3D layout3D = new FRLayout3D(this, graphSize);
-  private final FR3DExecutorService layout3DCachedCool = new FR3DExecutorService(this, graphSize);
+  private final FR3DLayout fredLayout = new FR3DLayout(this, graphSize);
 
   public GraphsetDecorator(Graphset graphset) {
     super(new DirectedSparseMultigraph<Vertex, Edge>());
@@ -103,12 +101,12 @@ public class GraphsetDecorator extends ObservableGraph<Vertex, Edge> implements 
     timer.end();
   }
 
-  public void initFR3DES() {
-    ProcessTimer timer = new ProcessTimer("FR3DExecutorService()::");
+  public void initFR3DLayout() {
+    ProcessTimer timer = new ProcessTimer("FR3DLayout()::");
     try {
-      layout3DCachedCool.initialize();
-      while (!layout3DCachedCool.done()) {
-        layout3DCachedCool.step();
+      fredLayout.initialize();
+      while (!fredLayout.done()) {
+        fredLayout.step();
       }
     } catch (Exception e) {
       report("initFR3DCC()::" + e.getMessage());
