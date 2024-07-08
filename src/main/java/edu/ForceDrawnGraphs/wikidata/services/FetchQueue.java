@@ -5,20 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataEdge;
+import edu.ForceDrawnGraphs.models.Edge;
+
 
 /**
  * Manages separate queues for different data types,entities, properties, and strings (typically dates), this includes:
  * methods to add data to the queues, retrieve data from the queues, mark fetched items as successful, 
  * and check the presence of items at a specific depth in the queues.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FetchQueue implements Reportable {
   private Set<StrTarget> stringQueue;
   private Set<EntTarget> entityQueue;
   private Set<PropTarget> propertyQueue;
   private Set<FetchedTarget> fetchedValues;
+  private Set<DeadTarget> deadValues;
 
   /**
    * Initializes new concurrent sets for each queue to handle concurrent modifications.
@@ -28,6 +31,7 @@ public class FetchQueue implements Reportable {
     this.stringQueue = ConcurrentHashMap.newKeySet();
     this.propertyQueue = ConcurrentHashMap.newKeySet();
     this.fetchedValues = ConcurrentHashMap.newKeySet();
+    this.deadValues = ConcurrentHashMap.newKeySet();
   }
 
   /**
@@ -36,11 +40,11 @@ public class FetchQueue implements Reportable {
    * @param newEdge the WikiDataEdge to be processed
    * @param n the current depth or level of processing
    */
-  public void addWikiDataEdgeDetails(WikiDataEdge newEdge, int currentDepth) {
+  public void addWikiDataEdgeDetails(Edge newEdge, int currentDepth) {
     Integer nextDepth = currentDepth + 1;
     processPropertyQueue(newEdge.propertyQID(), getAllValuesCurrentlyQueuedByN(currentDepth),
         nextDepth);
-    processStringQueue(newEdge.value(), getAllValuesCurrentlyQueuedByN(currentDepth), nextDepth);
+    processStringQueue(newEdge.label(), getAllValuesCurrentlyQueuedByN(currentDepth), nextDepth);
     processEntityQueue(newEdge.tgtVertexID(), getAllValuesCurrentlyQueuedByN(currentDepth),
         nextDepth);
   }
@@ -67,6 +71,16 @@ public class FetchQueue implements Reportable {
     propertyQueue.removeIf(propQ -> propQ.QID().equals(val));
     stringQueue.removeIf(strQ -> strQ.value().equals(val));
     fetchedValues.add(new FetchedTarget(val));
+  }
+
+  /**
+   * Adds a target value which could not be fetched to the deadValues list, removing it from the queues.
+   */
+  public void fetchUnsuccessful(String val) {
+    entityQueue.removeIf(entQ -> entQ.QID().equals(val));
+    propertyQueue.removeIf(propQ -> propQ.QID().equals(val));
+    stringQueue.removeIf(strQ -> strQ.value().equals(val));
+    deadValues.add(new DeadTarget(val));
   }
 
   /**
@@ -180,5 +194,8 @@ public class FetchQueue implements Reportable {
   }
 
   private record FetchedTarget(String value) {
+  }
+
+  private record DeadTarget(String value) {
   }
 }

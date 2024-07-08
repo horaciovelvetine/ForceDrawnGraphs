@@ -1,31 +1,81 @@
 package edu.ForceDrawnGraphs.models;
 
-public class Vertex {
-  private String ID;
-  private String label;
-  private double x = 0.0;
-  private double y = 0.0;
-  private double z = 0.0;
+import java.awt.geom.Point2D;
+import java.util.Objects;
+import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
+import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-  public Vertex(String ID, String label) {
-    this.ID = ID;
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+public class Vertex {
+  private double x;
+  private double y;
+  private String id;
+  private String label;
+  private String description;
+  private String matchingPropertyQID;
+
+  public Vertex() {
+    // Default requirement for Jackson
+  }
+
+  public Vertex(String id, String label) {
+    this.id = id;
     this.label = label;
   }
 
-  public String ID() {
-    return ID;
+  public Vertex(ItemDocument itemDocument) {
+    this(itemDocument.getEntityId().getId(), itemDocument.findLabel("en"));
+    this.description = itemDocument.findDescription("en");
   }
 
-  public void setID(String ID) {
-    this.ID = ID;
+  public Vertex(WbSearchEntitiesResult searchResult) {
+    this(searchResult.getEntityId(), searchResult.getLabel());
+    this.description = searchResult.getDescription();
+  }
+
+  public String id() {
+    return id;
   }
 
   public String label() {
     return label;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  public String QID() {
+    return id();
+  }
+
+  public String description() {
+    return description;
+  }
+
+  public void setCoords(Point2D coords) {
+    x = coords.getX();
+    y = coords.getY();
+  }
+
+  public void setMatchingPropertyQID(String matchingPropertyQID) {
+    this.matchingPropertyQID = matchingPropertyQID;
+  }
+
+  public String matchingPropertyQID() {
+    return matchingPropertyQID;
+  }
+
+  public boolean hasMatchingPropertyQID() {
+    return matchingPropertyQID != null;
+  }
+
+  @JsonIgnore
+  public boolean isInfoComplete() {
+    return id != null && label != null && x != 0.0 && y != 0.0;
+  }
+
+  @Override
+  public String toString() {
+    return "Vertex{" + "id=" + id + ", label=" + label + '}';
   }
 
   @Override
@@ -37,21 +87,14 @@ public class Vertex {
       return false;
     }
     Vertex other = (Vertex) obj;
-    return ID == other.ID && Double.compare(x, other.x) == 0 && Double.compare(y, other.y) == 0
-        && Double.compare(z, other.z) == 0;
+    return id.equals(other.id) && Objects.equals(label, other.label);
   }
 
   @Override
   public int hashCode() {
     int result = 17;
-    long xBits = Double.doubleToLongBits(x);
-    long yBits = Double.doubleToLongBits(y);
-    long zBits = Double.doubleToLongBits(z);
-    result = 31 * result;
-    result = 31 * result + (int) (xBits ^ (xBits >>> 32));
-    result = 31 * result + (int) (yBits ^ (yBits >>> 32));
-    result = 31 * result + (int) (zBits ^ (zBits >>> 32));
+    result = 31 * result + id.hashCode();
+    result = 31 * result + Objects.hashCode(label);
     return result;
   }
-
 }

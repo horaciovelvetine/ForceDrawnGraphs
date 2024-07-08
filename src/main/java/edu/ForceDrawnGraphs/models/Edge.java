@@ -1,15 +1,29 @@
 package edu.ForceDrawnGraphs.models;
 
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import edu.ForceDrawnGraphs.wikidata.models.WikiRecSnak;
+import edu.ForceDrawnGraphs.wikidata.models.WikiRecValue.TXT_VAL_TYPE;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Edge {
+  private String propertyQID;
   private String srcVertexID;
   private String tgtVertexID;
   private double weight;
+  private String label;
+  private String datatype;
 
-  public Edge(String srcVertexQID, String tgtVertexQID) {
+  public Edge() {
+    //Default requirement for Jackson
+  }
+
+  public Edge(WikiRecSnak snak, String srcVertexQID) {
     this.srcVertexID = srcVertexQID;
-    this.tgtVertexID = tgtVertexQID;
+    this.tgtVertexID = findSnakTargetQID(snak);
+    this.propertyQID = snak.property().value();
+    this.label = findSnakLabel(snak);
+    this.datatype = snak.datatype();
   }
 
   public String srcVertexID() {
@@ -23,6 +37,23 @@ public class Edge {
   public void setTgtVertexID(String tgtID) {
     this.tgtVertexID = tgtID;
   }
+
+  public void setPropertyQID(String propertyQID) {
+    this.propertyQID = propertyQID;
+  }
+
+  public String propertyQID() {
+    return propertyQID;
+  }
+
+  public String datatype() {
+    return datatype;
+  }
+
+  public String label() {
+    return label;
+  }
+
 
   @Override
   public boolean equals(Object o) {
@@ -39,4 +70,40 @@ public class Edge {
   public int hashCode() {
     return Objects.hash(srcVertexID, tgtVertexID, weight);
   }
+
+  @Override
+  public String toString() {
+    return "[:propertyQID=" + urlPrefixer(propertyQID) + ", label=" + label + ", datatype="
+        + datatype + ", tgtVertexQID=" + urlPrefixer(tgtVertexID()) + ", srcVertexQID="
+        + urlPrefixer(srcVertexID()) + " :]";
+  }
+
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
+  //
+  //------------------------------------------------------------------------------------------------------------
+
+  private String urlPrefixer(String qid) {
+    if (qid == null)
+      return null;
+    if (qid.startsWith("P")) {
+      return "https://www.wikidata.org/wiki/Property:" + qid;
+    } else {
+      return "https://www.wikidata.org/wiki/" + qid;
+    }
+  }
+
+  private static String findSnakTargetQID(WikiRecSnak snak) {
+    if (snak.value().type() != TXT_VAL_TYPE.ENTITY)
+      return null;
+    return snak.value().value();
+  }
+
+  private static String findSnakLabel(WikiRecSnak snak) {
+    if (snak.value().type() == TXT_VAL_TYPE.TIME)
+      return snak.value().value();
+    return null;
+  }
+
 }

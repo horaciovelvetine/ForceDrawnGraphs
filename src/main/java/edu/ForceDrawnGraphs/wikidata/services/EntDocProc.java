@@ -12,7 +12,7 @@ import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.models.Property;
-import edu.ForceDrawnGraphs.wikidata.models.WikiDataVertex;
+import edu.ForceDrawnGraphs.models.Vertex;
 
 /**
  * A class to process the entity documents returned from the MediaWiki API and interact with the main Graphset.
@@ -52,7 +52,7 @@ public class EntDocProc implements Reportable {
    * @param queryVal the query value used to store and query the WD API.
    */
   public void processDateResult(WbSearchEntitiesResult dateResult, String queryVal) {
-    WikiDataVertex dateVertex = new WikiDataVertex(dateResult);
+    Vertex dateVertex = new Vertex(dateResult);
     graphset.addVertexToLookup(dateVertex);
     graphset.assignDateVertexToEdges(dateVertex, queryVal);
   }
@@ -68,11 +68,11 @@ public class EntDocProc implements Reportable {
 
   private void processPropDocument(PropertyDocument propertyDocument) {
     Property p = new Property(propertyDocument);
-    graphset.addPropToLookup(p); //==> also check for related vertex using label to associate records
+    graphset.addPropToLookup(p);
   }
 
   private void processItemDocument(ItemDocument itemDoc) {
-    WikiDataVertex vertex = new WikiDataVertex(itemDoc);
+    Vertex vertex = new Vertex(itemDoc);
     graphset.addVertexToLookup(vertex);
 
     CompletableFuture.runAsync(() -> {

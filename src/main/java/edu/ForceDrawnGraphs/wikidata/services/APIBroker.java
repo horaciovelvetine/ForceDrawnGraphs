@@ -1,5 +1,6 @@
 package edu.ForceDrawnGraphs.wikidata.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,8 @@ import java.util.concurrent.Executors;
 import org.wikidata.wdtk.datamodel.interfaces.EntityDocument;
 import org.wikidata.wdtk.wikibaseapi.WbSearchEntitiesResult;
 import org.wikidata.wdtk.wikibaseapi.WikibaseDataFetcher;
-
+import org.wikidata.wdtk.wikibaseapi.apierrors.MediaWikiApiErrorException;
+import org.wikidata.wdtk.wikibaseapi.apierrors.NoSuchEntityErrorException;
 import edu.ForceDrawnGraphs.interfaces.Reportable;
 import edu.ForceDrawnGraphs.models.Graphset;
 import edu.ForceDrawnGraphs.util.DateConverter;
@@ -47,6 +49,12 @@ public class APIBroker implements Reportable {
     }
   }
 
+  //------------------------------------------------------------------------------------------------------------
+  //
+  //! PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS - PRIVATE METHODS
+  //
+  //------------------------------------------------------------------------------------------------------------
+
   private Integer startFetchTasks(ExecutorService executor) {
     int depth = graphset.depth();
     Integer totalEntsFetched = 0;
@@ -66,6 +74,7 @@ public class APIBroker implements Reportable {
       CompletableFuture.allOf(entFuture, propFuture, dateFuture).join();
     } catch (Exception e) {
       report("startFetchTasks() error: ", e);
+      throw new RuntimeException(e);
     }
     return totalEntsFetched;
   }
@@ -77,9 +86,16 @@ public class APIBroker implements Reportable {
 
   private EntityDocument fetchEntityDocByTitleQuery(String query) {
     try {
-      return wbdf.getEntityDocumentByTitle("enwiki", query);
+      EntityDocument result = wbdf.getEntityDocumentByTitle("enwiki", query);
+      if (result != null) {
+        return result;
+      } else {
+        graphset.wikiDataFetchQueue().fetchUnsuccessful(query);
+        report("fetchEntityDocByTitleQuery(): No result found for query: " + query);
+      }
     } catch (Exception e) {
-      report("fetchEntityDocByTitleQuery error: ", e);
+      report("fetchEntityDocByTitleQuery() error: ", e);
+      throw new RuntimeException(e);
     }
     return null;
   }
@@ -89,9 +105,13 @@ public class APIBroker implements Reportable {
       List<WbSearchEntitiesResult> searchResults = wbdf.searchEntities(query, "en");
       if (!searchResults.isEmpty()) {
         return wbdf.getEntityDocument(searchResults.get(0).getEntityId());
+      } else {
+        graphset.wikiDataFetchQueue().fetchUnsuccessful(query);
+        report("fetchEntityDocBySiteQuery(): No result found for query: " + query);
       }
     } catch (Exception e) {
-      report("fetchEntityDocBySiteQuery error: ", e);
+      report("fetchEntityDocBySiteQuery() error: ", e);
+      throw new RuntimeException(e);
     }
     return null;
   }
@@ -103,28 +123,36 @@ public class APIBroker implements Reportable {
 
   private Integer fetchAndProcessEntities(int depth) {
     List<String> entQIDs = graphset.wikiDataFetchQueue().getEntityQueue(depth);
+
     if (entQIDs.isEmpty())
       return 0;
 
-    try {
-      Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(entQIDs);
-
-      docMap.values().forEach(doc -> {
-        graphset.wikiDataFetchQueue().fetchSuccessful(doc.getEntityId().getId());
-        docProc.processEntDocument(doc);
-      });
-
-      return docMap.size();
-    } catch (Exception e) {
-      report("fetchAndProcessEntities() error: ", e);
+    while (true) {
+      // TODO: ENTS
+      try {
+        Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(entQIDs);
+        docMap.values().forEach(doc -> {
+          graphset.wikiDataFetchQueue().fetchSuccessful(doc.getEntityId().getId());
+          docProc.processEntDocument(doc);
+        });
+        return docMap.size();
+      } catch (NoSuchEntityErrorException e) {
+        report("fetchAndProcessEntities() error: the entity does not exist.", e);
+      } catch (MediaWikiApiErrorException e) {
+        report("fetchAndProcessEntities() error: the Wikidata API is unavailable.", e);
+      } catch (IOException e) {
+        report("fetchAndProcessEntities() error I/O Error: ", e);
+        throw new RuntimeException(e);
+      }
     }
-    return 0;
   }
 
   private Integer fetchAndProcessProperties(int depth) {
     List<String> propQIDs = graphset.wikiDataFetchQueue().getPropertyQueue(depth);
     if (propQIDs.isEmpty())
       return 0;
+
+    //TODO: PROPS
     try {
       Map<String, EntityDocument> docMap = wbdf.getEntityDocuments(propQIDs);
       List<EntityDocument> docs = new ArrayList<>(docMap.values());
@@ -136,8 +164,8 @@ public class APIBroker implements Reportable {
       return docs.size();
     } catch (Exception e) {
       report("fetchAndProcessProperties() error: ", e);
+      throw new RuntimeException(e);
     }
-    return 0;
   }
 
   private Integer fetchAndProcessDates(int depth) {
@@ -145,15 +173,23 @@ public class APIBroker implements Reportable {
     if (dateVals.isEmpty())
       return 0;
 
+    //TODO: DATES (ISH...)
     dateVals.forEach(date -> {
       try {
-        WbSearchEntitiesResult result =
-            wbdf.searchEntities(DateConverter.convertDate(date), "en").get(0);
-
-        graphset.wikiDataFetchQueue().fetchSuccessful(date);
-        docProc.processDateResult(result, date);
+        List<WbSearchEntitiesResult> result =
+            wbdf.searchEntities(DateConverter.convertDate(date), "en");
+        if (result.isEmpty()) {
+          report("fetchAndProcessDates(): No result found for date - removed from Queue: " + date);
+          graphset.wikiDataFetchQueue().fetchUnsuccessful(date);
+          return;
+        } else {
+          WbSearchEntitiesResult res = result.get(0);
+          graphset.wikiDataFetchQueue().fetchSuccessful(date);
+          docProc.processDateResult(res, date);
+        }
       } catch (Exception e) {
         report("fetchAndProcessDates() error: " + date, e);
+        throw new RuntimeException(e);
       }
     });
     return dateVals.size();
