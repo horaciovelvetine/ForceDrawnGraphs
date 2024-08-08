@@ -91,3 +91,9 @@ There was a significant amount of research put into this project, see: `docs/ref
   - 2021 16" MacBook Pro w/ M1 Max, 64GB RAM
   - Postgres v2.7.1
   - Spring 3.2.2
+- 
+``` shell
+java version "22.0.1" 2024-04-16
+Java(TM) SE Runtime Environment Oracle GraalVM 22.0.1+8.1 (build 22.0.1+8-jvmci-b01)
+Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 22.0.1+8.1 (build 22.0.1+8-jvmci-b01, mixed mode, sharing)
+```

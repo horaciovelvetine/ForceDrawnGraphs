@@ -29,7 +29,55 @@ public void whatKindaResultsAreThese(List<Values> results){
 
 This isn't the worst thing - but with interfaces can be handled easily behind the scenes without the verbosity. A single class using this interface handles all this type narrowing for you, and allows defining custom behavior for each implementing (result value) type. 
 
-You can see this implemented in practice inside the `UnknownSnakVisitor.java` class, with only 3 potential result types important, the custom handling to format Times differently from Strings from Entity ID's is all organized in a single place.
+You can see this implemented in practice inside the `UnknownSnakVisitor.java` class, with only 3 potential result types important, the custom handling to format Times differently from Strings from Entity ID's is all organized in a single place. The final (and implemented results) are based on the WikidataToolkit's implementation, but when used as intended work out to a model able to encapsulate the logic and return the needed all in a pretty understandable way.
+
+```java
+public class ValueData implements ValueVisitor<ValueData>, Loggable {
+  // Format the Wikidata specific implementation of TimeValue to a format which
+  // can be used to find the correlated EntityDocument data from the Wikidata API 
+  // e.g. "2021-01-01T00:00:00Z" => "2024-01-01"
+  public static final String WDATA_PUNC_FORMATTING = "\\s*\\(.*\\)";
+  public String value;
+  public ValueType type;
+
+  public enum ValueType {
+    String, DateTime, EntityId, Quantity
+  }
+
+  @Override
+  public ValueData visit(EntityIdValue value) {
+    if (value != null) {
+      this.value = value.getId();
+      this.type = ValueType.EntityId;
+    }
+    return this;
+  }
+
+  @Override
+  public ValueData visit(TimeValue value) {
+    if (value != null) {
+      this.value = convertToWikidataSearchableDate(value);
+      this.type = ValueType.DateTime;
+    }
+    return this;
+  }
+
+  //... skipped the otherwise return null; required methods for brevity...
+
+  private String convertToWikidataSearchableDate(TimeValue time) {
+    String punc = time.toString().replaceAll(WDATA_PUNC_FORMATTING, "");
+    SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM d, yyyy");
+    try {
+      return outputFormat.format(inputFormat.parse(punc));
+    } catch (Exception e) {
+      print("Exception Encountered while formatting TimeValue");
+      return punc;
+    }
+  }
+
+}
+```
 
 ## References: 
 - [GOF Pattern.com](https://www.gofpattern.com/) 

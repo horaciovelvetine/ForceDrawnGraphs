@@ -37,7 +37,6 @@ spring.datasource.password=
 spring.datasource.continue-on-error=true
 ```
 
-
 The first step is bringing the data (downloaded from the link above) into the local Postgres Database so that it can be processed into the needed form. In order to view Wikipedia in 3D space there has to be a base definition for "space" - and in this case that will be the interpreted relationship between entities (represented by either Pages, Items or a combo of the two). During the import/insert process, the data from the `link_annotated_text.jsonl` file was changed before being inserted into the `Hyperlinks` table. This process took the various links, and incremented the `count` column in the table to represent the number of times a link was found referenced connecting two pages. 
 
 Initially, the `Item` & `Statements` relationship(s) were a bit tough to understand for me, but this  is an extremely flexible and smart way of storing the complex data found in Wikipedia. An `Item` can be used in so many ways, but a great way to wrap your mind around it is to think of Albert Einstien. In order to represent "things" about him there needs to be a way of categorizing the "thing" you want to record about him. For example, you could say "Albert Einstien *is a* physicist". In this case, "Albert Einstien" is an `Item`, "*is a*" is a `Statement` (in this case pointing to a `Property` with the label "profession"), and "physicist" is also an `Item`. Once this makes some sense it's easy to see how this is used to represent a lot of complex data in a very high level and simple way. 

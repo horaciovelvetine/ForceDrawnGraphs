@@ -173,7 +173,6 @@ public class APIBroker implements Reportable {
     if (dateVals.isEmpty())
       return 0;
 
-    //TODO: DATES (ISH...)
     dateVals.forEach(date -> {
       try {
         List<WbSearchEntitiesResult> result =
