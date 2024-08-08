@@ -1,6 +1,7 @@
-# The Weighted Average Approach:
+# The Weighted Average Approach & A Bit of Context: W.T. Tuttle
+The original idea for attempting to layout a graph relied on a relatively simlply idea, using weighted means to calculate the best fit for a 'centroid'. And with a little bit of algebra and the recursive brute force math engine that is a computer, is an applicable solution to the layout problem. The beauty of this solution (in my humble opinion) is in it's approachability and easily iterable complexity as an introduction to a number of other interesting fields like Graph Theory.    
 
-The original concept for using weighted averages to determine the layout of a Graph is a valid approach. However, with it's ignorance to the discoveries made in the field of Graph Theory, it has a tendency to produce bad layouts of the data relatively slowly (especially as the size of  graph increases).  As an exercise, here is a simple java implementation of this approach:  
+William Thomas Tuttle is a mathmetician, code breaker and educator responsible for a number of breakthroughs in... let's go with Science & Engineering. His passion for learning and reasearch make it tremendously hard to narrow his contributions in relation to this application, especially given my limited understanding of his contributions (which span an almost comical number of fields), but - without a 'Tutte Polynomial' Graph Theory as a modern field would be very different. His work in the drawing, layout, and analysis of weighted graphs in particular are likely originating sources for much of the approach outlined below, and throughout this application. 
 
 ```java
 public class GraphLayout {
@@ -69,7 +70,7 @@ public class GraphLayout {
 
 # Key Takeaways:
 
-This approach suffers from a reverse bell curve of stability - with no controls in place each Node is freely able to traverse the layout any distance on any iteration. Then at the same time it has the opposite problem where it's likely to find a stable solution early and become stuck with a relatively bad layout. More modern approaches include cooling factors, repulsive forces, and convergence criteria to improve layouts and prevent issues known to cause bad solutions. There are also some glaringly lacking functionality limitation issues inside this graph which would be even more costly (computationally) to add to an already pretty expensive approach. 
+This approach suffers from a lack of stability - with no controls in place each Node is freely able to traverse the layout any distance on any iteration. Then at the same time it has the opposite problem where it's likely to find a stable solution early and become stuck with a relatively bad layout. More modern approaches include cooling factors, repulsive forces, and convergence criteria to improve layouts and prevent issues known to cause bad solutions. There are also some glaringly lacking functionality limitation issues inside this graph which would be even more costly (computationally) to add to an already pretty expensive approach. 
 
 That being said, this approach serves as an important stepping stone into the ideas, methods, and practices used to improve on the results. Broadly speaking, implementing something like a cooling factor with this as a starting point would require a simple definition for anyone to implement from this code as a starting point.
 
